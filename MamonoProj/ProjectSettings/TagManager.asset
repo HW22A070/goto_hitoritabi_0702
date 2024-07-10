@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Enemy1
+  - EM1
+  - EM2
+  - Enemy2
+  - EM3
+  - Enemy3
+  - Enemy6
+  - Enemy4
+  - EM10
+  - Heal
+  - Magic
+  - Enemy0
+  - Bullet1
+  - Barrier
+  - PBeam
+  - PBomb
+  - PBullet
+  - PFire
+  - PExp
+  - PRifle
+  - PMagic
+  - EK1
+  - EK2
+  - EK3
+  - EK10
+  - Effect
+  - Tutorial
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - Floor
+  - Water
+  - UI
+  - Player
+  - Enemy
+  - EM
+  - PM
+  - Floor
+  - Heal
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0

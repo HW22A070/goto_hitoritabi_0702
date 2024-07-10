@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 78d4aa6e472e3ab4ca3a56e21ad9d08d
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - deadS: {fileID: 8300000, guid: 9f0f9e380e6fa5f4ebcb41df2d1e6d63, type: 3}
+  - HealPrefab: {fileID: 8733729066436433301, guid: 42b6587cab18548a48766375c38ab0ae,
+      type: 3}
+  - MagicPrefab: {fileID: -8123651273206196720, guid: 90d8f3e6b445a474aae3d875411b253e,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
