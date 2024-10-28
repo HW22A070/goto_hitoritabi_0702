@@ -4,33 +4,19 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Enemy1
-  - EM1
-  - EM2
-  - Enemy2
-  - EM3
-  - Enemy3
-  - Enemy6
-  - Enemy4
-  - EM10
+  - Enemy
+  - EM
+  - Target
+  - Effect
+  - PM
+  - Tutorial
   - Heal
   - Magic
-  - Enemy0
-  - Bullet1
+  - PChild
+  - Floor
   - Barrier
-  - PBeam
-  - PBomb
-  - PBullet
-  - PFire
-  - PExp
-  - PRifle
-  - PMagic
-  - EK1
-  - EK2
-  - EK3
-  - EK10
-  - Effect
-  - Tutorial
+  - MechaUnit
+  - Text
   layers:
   - Default
   - TransparentFX
@@ -42,7 +28,7 @@ TagManager:
   - Enemy
   - EM
   - PM
-  - Floor
+  - 
   - Heal
   - 
   - 

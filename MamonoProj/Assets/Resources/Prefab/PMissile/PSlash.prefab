@@ -10,14 +10,14 @@ GameObject:
   m_Component:
   - component: {fileID: 5542402654338282271}
   - component: {fileID: 8828744027633469108}
-  - component: {fileID: 4988376190387827721}
   - component: {fileID: -2123838319215608596}
   - component: {fileID: -9000075523311225345}
   - component: {fileID: 8976353391934804509}
   - component: {fileID: -6609902274710780722}
-  m_Layer: 0
+  - component: {fileID: -8710617706424669735}
+  m_Layer: 9
   m_Name: PSlash
-  m_TagString: PBeam
+  m_TagString: PM
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -57,7 +57,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -77,7 +77,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: afc220756c6ab0a43a09981486177b97, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -89,33 +89,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!50 &4988376190387827721
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7174201975486598061}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
 --- !u!61 &-2123838319215608596
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -180,7 +153,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7174201975486598061}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a2dcab5bdf8e9894dba55b703a043b3b, type: 3}
   m_Name: 
@@ -193,6 +166,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: cf9297e1c555f22438c9d8e296145033, type: 3}
   - {fileID: 21300000, guid: 6f2f6f7615160554da4766ed2b715a33, type: 3}
   - {fileID: 21300000, guid: 58c431da72fa1e947b2de909b790dd03, type: 3}
+  _random: 0
 --- !u!114 &-6609902274710780722
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -206,14 +180,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sosai: 0
-  _invalidEP: {fileID: 471744604233654064, guid: 2eea295d7db60974c99968a186a14faa,
-    type: 3}
-  _damageEP: {fileID: 471744604233654064, guid: 5a1a8ccb2b632fe4aafb13adb981c393,
-    type: 3}
-  _criticalEP: {fileID: 471744604233654064, guid: d263d73a8e350d24189ae0d985976823,
-    type: 3}
-  _criticalEP2: {fileID: 471744604233654064, guid: 109d7c8048399d944ae67c6a9e59ef89,
-    type: 3}
-  criticalS: {fileID: 8300000, guid: 51b7236d6cb88d1469c3b3572a708396, type: 3}
-  damageS: {fileID: 8300000, guid: 61cb1c4217cd1ea4f85eeb101e9341c1, type: 3}
-  invalidS: {fileID: 8300000, guid: ea50452810cf6944e812fd4911c9cf61, type: 3}
+  _right: 0
+  _left: 0
+  _up: 0
+  _down: 0
+  _attackType: 0
+  _attackPower: 1
+--- !u!95 &-8710617706424669735
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7174201975486598061}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: f4c5435034c1052438248bfda724a23e, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

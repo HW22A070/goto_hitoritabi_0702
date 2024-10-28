@@ -1,14 +1,21 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class HealC : MonoBehaviour
 {
-    Vector3 pos;
+    private Vector3 pos;
     private bool _isDestroy;
+
+    //private MissileGravityC _scGravity;
 
 
     private GameObject playerGO;
+
+    /// <summary>
+    /// アイテムとプレイヤーの衝突判定
+    /// </summary>
+    private RaycastHit2D _hitItemToPlayer;
 
     // Start is called before the first frame update
     void Start()
@@ -33,9 +40,9 @@ public class HealC : MonoBehaviour
         pos = transform.position;
         if (GameData.StageMovingAction)
         {
-            Vector3 muki = playerGO.transform.position - pos;
-            float angle = GetAngle(muki);
-            var direction = GetDirection(angle);
+            GetComponent<MissileGravityC>().enabled=false;
+            float angle = GameData.GetAngle(pos, playerGO.transform.position);
+            var direction = GameData.GetDirection(angle);
             Vector3 velocity = direction * 20;
             transform.localPosition += velocity;
             _isDestroy = true;
@@ -44,26 +51,23 @@ public class HealC : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        _hitItemToPlayer = Physics2D.BoxCast(transform.position, GetComponent<BoxCollider2D>().size, transform.localEulerAngles.z, Vector2.zero, 0, 64);
+        if (_hitItemToPlayer)
+        {
+            if (gameObject.tag == "Heal")
+            {
+                if(_hitItemToPlayer.collider.GetComponent<PlayerC>().Heal(3))Destroy(gameObject);
+            }
+            if (gameObject.tag == "Magic")
+            {
+                if(_hitItemToPlayer.collider.GetComponent<PlayerC>().MagicCharge())Destroy(gameObject);
+            }
+        }
     }
 
     public void EShot1()
     {
 
-    }
-
-    //Kakudo
-    public float GetAngle(Vector2 direction)
-    {
-        float rad = Mathf.Atan2(direction.y, direction.x);
-        return rad * Mathf.Rad2Deg;
-    }
-
-    //Muki
-    public Vector3 GetDirection(float angle)
-    {
-        Vector3 direction = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad),
-            Mathf.Sin(angle * Mathf.Deg2Rad),
-            0);
-        return direction;
     }
 }

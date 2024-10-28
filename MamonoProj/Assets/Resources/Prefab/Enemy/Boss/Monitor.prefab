@@ -12,10 +12,9 @@ GameObject:
   - component: {fileID: 1481336252662050295}
   - component: {fileID: -2943612307400619187}
   - component: {fileID: 7674049429448064142}
-  - component: {fileID: 6316940041358317369}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Monitor
-  m_TagString: Enemy1
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -27,13 +26,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2914793626721605185}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 852.8201, y: 330.40207, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1481336252662050295
 SpriteRenderer:
@@ -55,7 +54,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -99,6 +98,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab9d36e26c8290041a6e59cce0fdcd2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hp: 390
+  BeamD: 2
+  BulletD: 1
+  FireD: 1
+  BombD: 5
+  ExpD: 2
+  RifleD: 4
+  MagicD: 3
   spriteRenderer: {fileID: 1481336252662050295}
   a: {fileID: 21300000, guid: 4c00b7391da199c4cb851c4cd5e6a193, type: 3}
   b: {fileID: 21300000, guid: 245bb1523a7a844458ed6c050d113446, type: 3}
@@ -107,12 +114,19 @@ MonoBehaviour:
   ice: {fileID: 21300000, guid: b56924367c160da47a53897108b8cb98, type: 3}
   thunder: {fileID: 21300000, guid: 00b04553248708643bc976a468d74e2d, type: 3}
   meteor: {fileID: 21300000, guid: ff99c810ca4b9b54a82ce91dca2b0aa1, type: 3}
-  EMissile1Prefab: {fileID: -922636215049314943, guid: d4a160f09944c594da007533535db755, type: 3}
-  BombPrefab: {fileID: -4479945725005544192, guid: b925e809243520c48873e79f39d4284b, type: 3}
-  MeteorPrefab: {fileID: 3056101085339816763, guid: 04f5fb3d4db34f5409e1fa396e6ac54c, type: 3}
-  ExpPrefab: {fileID: 2119781487372424534, guid: c4a0c06505173d541aad6a637f67c5d2, type: 3}
-  LEPrefab: {fileID: -9156176788039494703, guid: 2965affb0428d5043b3f119b8d2462c1, type: 3}
-  StaffPrefab: {fileID: 6086698536937280619, guid: cd0ed53e1d90ce943b8d7e6e89e70008, type: 3}
+  EMissile1Prefab: {fileID: -922636215049314943, guid: d4a160f09944c594da007533535db755,
+    type: 3}
+  BombPrefab: {fileID: -4479945725005544192, guid: b925e809243520c48873e79f39d4284b,
+    type: 3}
+  MeteorPrefab: {fileID: 3056101085339816763, guid: 04f5fb3d4db34f5409e1fa396e6ac54c,
+    type: 3}
+  ExpPrefab: {fileID: 2119781487372424534, guid: c4a0c06505173d541aad6a637f67c5d2,
+    type: 3}
+  LEPrefab: {fileID: -9156176788039494703, guid: 2965affb0428d5043b3f119b8d2462c1,
+    type: 3}
+  StaffPrefab: {fileID: 6086698536937280619, guid: cd0ed53e1d90ce943b8d7e6e89e70008,
+    type: 3}
+  playerGO: {fileID: 0}
 --- !u!61 &7674049429448064142
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -123,6 +137,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -139,24 +172,3 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 128, y: 128}
   m_EdgeRadius: 0
---- !u!50 &6316940041358317369
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2914793626721605185}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0

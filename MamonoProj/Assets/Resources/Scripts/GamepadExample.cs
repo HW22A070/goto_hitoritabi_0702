@@ -1,20 +1,20 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class GamepadExample : MonoBehaviour
 {
     void Update()
     {
-        // ƒQ[ƒ€ƒpƒbƒh‚ªÚ‘±‚³‚ê‚Ä‚¢‚È‚¢‚Ænull‚É‚È‚éB
+        // ã‚²ãƒ¼ãƒ ãƒ‘ãƒƒãƒ‰ãŒæ¥ç¶šã•ã‚Œã¦ã„ãªã„ã¨nullã«ãªã‚‹ã€‚
         if (Gamepad.current == null) return;
 
         if (Gamepad.current.buttonNorth.wasPressedThisFrame)
         {
-            Debug.Log("Button North‚ª‰Ÿ‚³‚ê‚½I");
+            Debug.Log("Button NorthãŒæŠ¼ã•ã‚ŒãŸï¼");
         }
         if (Gamepad.current.buttonSouth.wasReleasedThisFrame)
         {
-            Debug.Log("Button South‚ª—£‚³‚ê‚½I");
+            Debug.Log("Button SouthãŒé›¢ã•ã‚ŒãŸï¼");
         }
     }
 

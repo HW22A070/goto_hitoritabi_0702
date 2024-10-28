@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5631937864527954202}
   m_Layer: 0
   m_Name: MachineGun
-  m_TagString: Effect
+  m_TagString: PM
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -53,7 +53,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -73,7 +73,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: e15c142fe901cc146b3c42d5b2b7ac19, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -100,6 +100,8 @@ MonoBehaviour:
   PBulletP: {fileID: 2904002178031744729, guid: 4e522c1c61916c64db875c7fa10b8154,
     type: 3}
   PExpC: {fileID: -9000075523311225345, guid: 313afcfe6366ba84e8b3d85dbcc2ece3, type: 3}
+  _prhbBulletShot: {fileID: -4044055410789821065, guid: 4ab58ed8157a87f4b930420cb7ccaf3c,
+    type: 3}
   shotS: {fileID: 8300000, guid: fbf9fae7e1ea085418a2aa9913ac1e48, type: 3}
   breakS: {fileID: 8300000, guid: d5a282c9faedf684a8ec6e889e4bce4c, type: 3}
   spriteRenderer: {fileID: 1748592281390848001}

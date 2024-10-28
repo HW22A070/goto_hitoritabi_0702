@@ -25,13 +25,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7974218646467787150}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 399, y: 38, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &232008236524357091
 SpriteRenderer:
@@ -53,7 +53,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -82,7 +82,7 @@ SpriteRenderer:
   m_Size: {x: 64, y: 64}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &-1095194362885215534
@@ -97,7 +97,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81f95638e2ec348499f1b13f00338c32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Rose2Prefab: {fileID: -8077427211413637311, guid: 5ecde1c7c4ad55345bb1b7819ceb391f, type: 3}
+  Rose2Prefab: {fileID: -8077427211413637311, guid: 5ecde1c7c4ad55345bb1b7819ceb391f,
+    type: 3}
   spriteRenderer: {fileID: 232008236524357091}
   a: {fileID: 21300000, guid: 41b3d2eeb31be5542b2fd7ec5b6903e0, type: 3}
   b: {fileID: 21300000, guid: 6f57741338ba3f2429a4ed1637e01461, type: 3}

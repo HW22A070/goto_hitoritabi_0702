@@ -10,15 +10,14 @@ GameObject:
   m_Component:
   - component: {fileID: 7170796313891635549}
   - component: {fileID: 8054404159602141212}
-  - component: {fileID: 2394809701868318002}
   - component: {fileID: -2202981839602870152}
   - component: {fileID: 7958207911518698987}
   - component: {fileID: -4098075052826732419}
   - component: {fileID: 8090150498380413017}
   - component: {fileID: -4129743195988540264}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: PMine
-  m_TagString: PBomb
+  m_TagString: PM
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -58,7 +57,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -78,7 +77,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: 930d474d22d08324bac36b1d0029c409, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -90,33 +89,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!50 &2394809701868318002
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7658479853759559764}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
 --- !u!61 &-2202981839602870152
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -174,12 +146,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d080ff4a949adeb489e6ba0a862a4611, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  up: 1
-  down: 1
-  right: 0
-  left: 0
   sosai: 1
   ExpPrefab: {fileID: -9000075523311225345, guid: 817984b3b472e0446912b073fefd806f,
+    type: 3}
+  _prhbExpShining: {fileID: -4044055410789821065, guid: 449e28a8868bcb242a1054bf0e390920,
     type: 3}
   expS: {fileID: 8300000, guid: d5a282c9faedf684a8ec6e889e4bce4c, type: 3}
 --- !u!114 &-4098075052826732419
@@ -248,6 +218,7 @@ MonoBehaviour:
   sizey: 16
   speed: 4
   delete: 0.3
+  _loop: 1
 --- !u!114 &-4129743195988540264
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -260,15 +231,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16f6a05f897e0d54cb6705a051f5325a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sosai: 0
-  _invalidEP: {fileID: 471744604233654064, guid: 2eea295d7db60974c99968a186a14faa,
-    type: 3}
-  _damageEP: {fileID: 471744604233654064, guid: 5a1a8ccb2b632fe4aafb13adb981c393,
-    type: 3}
-  _criticalEP: {fileID: 471744604233654064, guid: d263d73a8e350d24189ae0d985976823,
-    type: 3}
-  _criticalEP2: {fileID: 471744604233654064, guid: 109d7c8048399d944ae67c6a9e59ef89,
-    type: 3}
-  criticalS: {fileID: 8300000, guid: 51b7236d6cb88d1469c3b3572a708396, type: 3}
-  damageS: {fileID: 8300000, guid: 61cb1c4217cd1ea4f85eeb101e9341c1, type: 3}
-  invalidS: {fileID: 8300000, guid: ea50452810cf6944e812fd4911c9cf61, type: 3}
+  sosai: 1
+  _right: 0
+  _left: 0
+  _up: 0
+  _down: 1
+  _attackType: 2
+  _attackPower: 1

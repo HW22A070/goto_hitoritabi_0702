@@ -1,19 +1,25 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class ExhaustC : MonoBehaviour
 {
-    Vector3 pos;
-    public ExpC ExpPrefab;
+    private Vector3 pos;
 
     [SerializeField]
-    [Tooltip("��]���邩")]
+    private ExpC ExpPrefab;
+
+    [SerializeField]
+    [Tooltip("回転するか")]
     private bool _isKaitenLock;
 
-    public float sizex, sizey, speed, delete;
+    [SerializeField]
+    private float sizex, sizey, speed, delete;
 
-    float angle;
+    private  float angle;
+
+    [SerializeField, Tooltip("1フレームにエフェクト出す回数")]
+    private int _loop = 1;
 
     // Start is called before the first frame update
     void Start()
@@ -29,12 +35,15 @@ public class ExhaustC : MonoBehaviour
 
     void FixedUpdate()
     {
-        pos.x += Random.Range(-sizex, sizex + 1);
-        pos.y += Random.Range(-sizey, sizey + 1);
-        if (_isKaitenLock) angle = 90;
-        else angle = Random.Range(0, 360);
-        Quaternion rot = transform.localRotation;
-        ExpC shot = Instantiate(ExpPrefab, pos, rot);
-        shot.EShot1(angle, speed, delete);
+        for (int hoge = 0; hoge < _loop; hoge++)
+        {
+            pos += transform.right* Random.Range(-sizex, sizex + 1);
+            pos += transform.up * Random.Range(-sizey, sizey + 1);
+            if (_isKaitenLock) angle = 90;
+            else angle = Random.Range(0, 360);
+            Quaternion rot = transform.localRotation;
+            ExpC shot = Instantiate(ExpPrefab, pos, rot);
+            shot.EShot1(angle, speed, delete);
+        }
     }
 }

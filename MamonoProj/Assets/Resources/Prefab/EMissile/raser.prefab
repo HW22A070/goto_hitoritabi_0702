@@ -10,13 +10,13 @@ GameObject:
   m_Component:
   - component: {fileID: 1131109325688365099}
   - component: {fileID: 6828298560078261972}
+  - component: {fileID: -4545880581992755653}
   - component: {fileID: -1303286241460305713}
   - component: {fileID: 394011639283420145}
-  - component: {fileID: -2460325942540409887}
-  - component: {fileID: 2828203990241313638}
-  m_Layer: 0
+  - component: {fileID: -1356418012331307913}
+  m_Layer: 8
   m_Name: raser
-  m_TagString: EM2
+  m_TagString: EM
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -56,7 +56,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -88,6 +88,26 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 1
+--- !u!114 &-4545880581992755653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9218531554659084047}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 848c3c09004f3504fbc2d50d832f70ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _destroyToPM: 2
+  _right: 1
+  _left: 1
+  _up: 1
+  _down: 1
+  _palyerDelete: 1
+  _HitInvincible: 0.5
+  _attackPower: 2
 --- !u!114 &-1303286241460305713
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -100,9 +120,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 439bc6cc88c2e73419f4d5a96d89bcbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  geigeki: 0
-  bombbarrier: 1
-  bombsosai: 1
 --- !u!114 &394011639283420145
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117,39 +134,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ExpPrefab: {fileID: -9156176788039494703, guid: 8b1e52d2702c6d64abcc77d7e0b8faa0,
     type: 3}
+  _isKaitenLock: 0
   sizex: 0
   sizey: 0
   speed: 0
   delete: 0.1
---- !u!50 &-2460325942540409887
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9218531554659084047}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
---- !u!58 &2828203990241313638
-CircleCollider2D:
+  _loop: 1
+--- !u!61 &-1356418012331307913
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -181,5 +173,15 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 256, y: 256}
+    newSize: {x: 1.28, y: 1.28}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
   serializedVersion: 2
-  m_Radius: 64
+  m_Size: {x: 64, y: 64}
+  m_EdgeRadius: 0

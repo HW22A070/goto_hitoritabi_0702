@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,13 +8,19 @@ public class LoveC : MonoBehaviour
     public EMissile1C EMissile1Prefab;
     public ExpC ExpPrefab;
     Vector3 pos;
+
+    /// <summary>
+    /// スピーカ
+    /// </summary>
+    private AudioSource _audioGO;
+
     public AudioClip loveS;
     new bool audio;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
     }
 
     public void EShot1()
@@ -48,7 +54,7 @@ public class LoveC : MonoBehaviour
                 shot.EShot1(angle, 80, 0);
                 if (!audio)
                 {
-                    GameObject.FindObjectOfType<AudioSource>().PlayOneShot(loveS);
+                    _audioGO.PlayOneShot(loveS);
                     audio = true;
                 }
 

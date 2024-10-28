@@ -1,10 +1,10 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class VaneC : MonoBehaviour
 {
-    private int firstHP=0;
+    private int firstHP = 0;
     private float damagePar = 100;
     private int i = 0;
     private int j = 0;
@@ -13,28 +13,45 @@ public class VaneC : MonoBehaviour
 
     private float angle;
 
+    private bool _islastMode;
+
+    private int _windowGraValue = 4;
+
     private GameManagement _gameManaC;
-    private Vector3 pos, ppos,movepo;
+    private Vector3 pos, ppos, movepo;
     private Quaternion rot;
     public SpriteRenderer spriteRenderer;
-    public Sprite normal,angry,last,death;
+
+    [SerializeField, Tooltip("LFR")]
+    private Sprite[] normal, angry, last, death;
+
+    public StaffRollC StaffPrefab;
 
     public ShurikenC F1, F2, F3;
     public EMissile1C SonicPrefab;
 
-    public AudioClip sonicS,woodS,deathexpS,shoutS;
+    /// <summary>
+    /// „Çπ„Éî„Éº„Ç´
+    /// </summary>
+    private AudioSource _audioGO;
 
-    [SerializeField]
-    [Tooltip("PlayerGameObject")]
+    public AudioClip sonicS, woodS, deathexpS, shoutS;
+
     private GameObject playerGO;
 
     /// <summary>
-    /// ìÆçÏíÜÇÃÉRÉãÅ[É`Éì
+    /// „Éê„É™„Ç¢
+    /// </summary>
+    [SerializeField]
+    private GameObject _barrier;
+
+    /// <summary>
+    /// Âãï‰Ωú‰∏≠„ÅÆ„Ç≥„É´„Éº„ÉÅ„É≥
     /// </summary>
     private Coroutine _movingCoroutine;
 
     /// <summary>
-    /// ECoreCÇÃÉRÉìÉ|Å[ÉlÉìÉg
+    /// ECoreC„ÅÆ„Ç≥„É≥„Éù„Éº„Éç„É≥„Éà
     /// </summary>
     private ECoreC _eCoreC;
 
@@ -42,15 +59,13 @@ public class VaneC : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        GameData.WindSpeed = 32;
+        _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
 
-    }
-
-    public void Summon(int judge)
-    {
         _eCoreC = GetComponent<ECoreC>();
-        for(int j = 0; j < _eCoreC.hp.Length; j++)
+        for (int j = 0; j < _eCoreC.hp.Length; j++)
         {
-            firstHP+=_eCoreC.hp[j];
+            firstHP += _eCoreC.hp[j];
         }
         _eCoreC.IsBoss = true;
         _eCoreC.BossLifeMode = 1;
@@ -73,51 +88,40 @@ public class VaneC : MonoBehaviour
         if (_eCoreC.BossLifeMode == 1)
         {
             //Normal
-            if (_eCoreC.EvoltionMode==0)
+            if (_eCoreC.EvoltionMode == 0)
             {
                 _eCoreC.EvoltionMode = 0;
-                spriteRenderer.sprite = normal;
+                spriteRenderer.sprite = normal[_windowGraValue];
             }
             //Angly
             else if (_eCoreC.EvoltionMode == 1)
             {
+                _barrier.SetActive(false);
                 _eCoreC.EvoltionMode = 1;
-                spriteRenderer.sprite = angry;
+                spriteRenderer.sprite = angry[_windowGraValue];
             }
             //Rage
-            else if(_eCoreC.EvoltionMode == 2&& spriteRenderer.sprite != last)
+            else if (_eCoreC.EvoltionMode == 2)
             {
-                spriteRenderer.sprite = last;
-                GameData.WindSpeed = 0;
-                GameObject.FindObjectOfType<AudioSource>().PlayOneShot(shoutS);
-                movepo = new Vector3(100, (Random.Range(0, 3) * 90) + 110, 0) - pos;
-                AllCoroutineStop();
-                _movingCoroutine= StartCoroutine("Hurricane");
+                _eCoreC.EvoltionMode = 2;
+                spriteRenderer.sprite = last[_windowGraValue];
+                if (!_islastMode)
+                {
+                    _islastMode = true;
+                    GameData.WindSpeed = 0;
+                    _audioGO.PlayOneShot(shoutS);
+                    movepo = new Vector3(100, (Random.Range(0, 3) * 90) + 110, 0) - pos;
+                    AllCoroutineStop();
+                    _movingCoroutine = StartCoroutine("Hurricane");
+                }
             }
         }
 
-        if (GameData.WindSpeed == 0)
-        {
-            if (pos.x > ppos.x)
-            {
-                spriteRenderer.flipX = false;
-            }
-            else
-            {
-                spriteRenderer.flipX = true;
-            }
-        }
-        else
-        {
-            if (GameData.WindSpeed<0)
-            {
-                spriteRenderer.flipX = false;
-            }
-            else
-            {
-                spriteRenderer.flipX = true;
-            }
-        }
+        if (GameData.WindSpeed < -30) _windowGraValue = 0;
+        else if (-30 <= GameData.WindSpeed && GameData.WindSpeed < -7) _windowGraValue = 1;
+        else if (-7 <= GameData.WindSpeed && GameData.WindSpeed < 7) _windowGraValue = 2;
+        else if (7 <= GameData.WindSpeed && GameData.WindSpeed < 30) _windowGraValue = 3;
+        else if (30 <= GameData.WindSpeed) _windowGraValue = 4;
 
     }
 
@@ -134,6 +138,7 @@ public class VaneC : MonoBehaviour
         //DeathAction
         if (_eCoreC.BossLifeMode == 2)
         {
+            GameData.Star = true;
             GameData.TimerMoving = false;
             AllCoroutineStop();
             _gameManaC._bossNowHp = 0;
@@ -144,14 +149,13 @@ public class VaneC : MonoBehaviour
             if (pos.x > ppos.x) GameData.WindSpeed = Random.Range(100, 501);
             else GameData.WindSpeed = Random.Range(-500, -99);
 
-            if (k == 100)
+            if (k == 20)
             {
                 for (j = 0; j < 3; j++)
                 {
                     for (i = 0; i < 30; i++)
                     {
-                        Vector3 direction = ppos - pos;
-                        float angle = GetAngle(direction);
+                        float angle = GameData.GetAngle(pos, ppos);
                         angle += Random.Range(10, 350);
                         Quaternion rot = transform.localRotation;
                         EMissile1C shot = Instantiate(SonicPrefab, pos, rot);
@@ -159,48 +163,56 @@ public class VaneC : MonoBehaviour
                     }
                 }
                 GameData.WindSpeed = 0;
-                playerGO.GetComponent<PlayerC>().StageMoveAction();
-                GameObject.FindObjectOfType<AudioSource>().PlayOneShot(sonicS);
+                if (GameData.Round == GameData.GoalRound)
+                {
+                    Instantiate(StaffPrefab, new Vector3(320, -100, 0), Quaternion.Euler(0, 0, 0)).Summon(0);
+                }
+                else
+                {
+                    playerGO.GetComponent<PlayerC>().StageMoveAction();
+                }
+                _audioGO.PlayOneShot(sonicS);
                 _eCoreC.SummonItems();
                 Destroy(gameObject);
             }
         }
     }
 
-    //çsìÆïœÇÌÇÈÉÑÉc
+    //Ë°åÂãïÂ§â„Çè„Çã„É§„ÉÑ
     private IEnumerator ActionBranch()
     {
         yield return new WaitForSeconds(1.0f);
-        if (_eCoreC.EvoltionMode == 0|| _eCoreC.EvoltionMode == 1)
+        if (_eCoreC.EvoltionMode == 0 || _eCoreC.EvoltionMode == 1)
         {
             _action = Random.Range(0, 2);
-            if (_action == 0)StartCoroutine("SonicRtoL");
-            else if(_action==1) StartCoroutine("SonicLtoR");
+            if (_action == 0) StartCoroutine("SonicRtoL");
+            else if (_action == 1) StartCoroutine("SonicLtoR");
         }
         else if (_eCoreC.EvoltionMode == 2)
         {
             StartCoroutine("Hurricane");
         }
-        
+
     }
 
-    private IEnumerator SonicRtoL() {
+    private IEnumerator SonicRtoL()
+    {
 
         movepo = new Vector3(100, (Random.Range(0, 3) * 90) + 110, 0) - pos;
-        for (i = 0;i< 100; i++)
+        for (i = 0; i < 100; i++)
         {
             transform.position += movepo / 100;
-            if (GameData.WindSpeed < 50) GameData.WindSpeed += 3;
+            if (GameData.WindSpeed < 32) GameData.WindSpeed += 2;
             if (i % 20 == 0)
             {
-                SonicShot(); 
-                if(_eCoreC.EvoltionMode==1) SonicShot();
-                GameObject.FindObjectOfType<AudioSource>().PlayOneShot(sonicS);
+                SonicShot();
+                if (_eCoreC.EvoltionMode == 1) SonicShot();
+                _audioGO.PlayOneShot(sonicS);
             }
             yield return new WaitForSeconds(0.03f);
         }
-        if (_eCoreC.EvoltionMode==1) FlyingObj(0);
-        _movingCoroutine= StartCoroutine("ActionBranch");
+        if (_eCoreC.EvoltionMode == 1) FlyingObj(0);
+        _movingCoroutine = StartCoroutine("ActionBranch");
     }
 
     private IEnumerator SonicLtoR()
@@ -209,11 +221,14 @@ public class VaneC : MonoBehaviour
         for (i = 0; i < 100; i++)
         {
             transform.position += movepo / 100;
-            if (GameData.WindSpeed > -50) GameData.WindSpeed -= 3;
-            if (i % ((2-_eCoreC.EvoltionMode)*10) == 0)
+            if (GameData.WindSpeed > -32) GameData.WindSpeed -= 2;
+            if (_eCoreC.EvoltionMode != 2)
             {
-                SonicShot();
-                GameObject.FindObjectOfType<AudioSource>().PlayOneShot(sonicS);
+                if (i % ((2 - _eCoreC.EvoltionMode) * 10) == 0)
+                {
+                    SonicShot();
+                    _audioGO.PlayOneShot(sonicS);
+                }
             }
             yield return new WaitForSeconds(0.03f);
         }
@@ -223,8 +238,7 @@ public class VaneC : MonoBehaviour
 
     private void SonicShot()
     {
-        Vector3 direction = ppos - pos;
-        float angle = GetAngle(direction);
+        float angle = GameData.GetAngle(pos, ppos);
         angle += Random.Range(-10, 10);
         Quaternion rot = transform.localRotation;
         EMissile1C shot = Instantiate(SonicPrefab, pos, rot);
@@ -249,7 +263,7 @@ public class VaneC : MonoBehaviour
         {
             FlyingObj(Random.Range(0, 3));
         }
-        _movingCoroutine= StartCoroutine("Hurricane");
+        _movingCoroutine = StartCoroutine("Hurricane");
     }
 
     /// <summary>
@@ -269,7 +283,7 @@ public class VaneC : MonoBehaviour
             rot.z = Random.Range(0, 360);
             ShurikenC shot = Instantiate(F1, new Vector3(-48, Random.Range(0, 480), 0), rot);
             shot.EShot1(angle, Random.Range(20, 50), 0.1f, Random.Range(5, 20));
-            GameObject.FindObjectOfType<AudioSource>().PlayOneShot(woodS);
+            _audioGO.PlayOneShot(woodS);
         }
         else if (objKind == 1)
         {
@@ -278,7 +292,7 @@ public class VaneC : MonoBehaviour
             rot.z = Random.Range(0, 360);
             ShurikenC shot = Instantiate(F2, new Vector3(-48, Random.Range(0, 480), 0), rot);
             shot.EShot1(angle, Random.Range(20, 50), 0.1f, Random.Range(5, 15));
-            GameObject.FindObjectOfType<AudioSource>().PlayOneShot(woodS);
+            _audioGO.PlayOneShot(woodS);
         }
         else if (objKind == 2)
         {
@@ -287,7 +301,7 @@ public class VaneC : MonoBehaviour
             rot.z = Random.Range(0, 360);
             ShurikenC shot = Instantiate(F3, new Vector3(-48, Random.Range(0, 480), 0), rot);
             shot.EShot1(angle, Random.Range(20, 50), 0.1f, Random.Range(5, 10));
-            GameObject.FindObjectOfType<AudioSource>().PlayOneShot(woodS);
+            _audioGO.PlayOneShot(woodS);
         }
     }
 
@@ -300,13 +314,5 @@ public class VaneC : MonoBehaviour
     {
         StopAllCoroutines();
         _movingCoroutine = null;
-    }
-
-
-
-    public float GetAngle(Vector2 direction)
-    {
-        float rad = Mathf.Atan2(direction.y, direction.x);
-        return rad * Mathf.Rad2Deg;
     }
 }

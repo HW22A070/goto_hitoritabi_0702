@@ -5,18 +5,18 @@ namespace unityroom.Api.Internals
     /// <summary>
     /// ハイスコアを記録する
     /// </summary>
-    internal class ScoreHolder
+    internal class PointHolder
     {
-        private float? _currentScore = null;
-        internal float Score
+        private float? _currentPoint = null;
+        internal float Point
         {
             get
             {
-                if (_currentScore != null) return _currentScore.Value;
+                if (_currentPoint != null) return _currentPoint.Value;
                 throw new InvalidOperationException("スコア未登録です");
             }
         }
-        internal bool ScoreChanged { get; private set; } = false;
+        internal bool PointChanged { get; private set; } = false;
 
         /// <summary>
         /// 新しいスコアを記録
@@ -24,14 +24,14 @@ namespace unityroom.Api.Internals
         /// <param name="score">記録するスコア</param>
         /// <param name="mode">スコア更新ルール</param>
         /// <returns></returns>
-        internal bool SetNewScore(float score, ScoreboardWriteMode mode)
+        internal bool SetNewPoint(float score, PointboardWriteMode mode)
         {
-            if (!_currentScore.HasValue || mode == ScoreboardWriteMode.Always ||
-                (mode == ScoreboardWriteMode.HighScoreDesc && _currentScore.Value < score) ||
-                (mode == ScoreboardWriteMode.HighScoreAsc && _currentScore.Value > score))
+            if (!_currentPoint.HasValue || mode == PointboardWriteMode.Always ||
+                (mode == PointboardWriteMode.HighPointDesc && _currentPoint.Value < score) ||
+                (mode == PointboardWriteMode.HighPointAsc && _currentPoint.Value > score))
             {
-                _currentScore = score;
-                ScoreChanged = true;
+                _currentPoint = score;
+                PointChanged = true;
                 return true;
             }
 
@@ -40,7 +40,7 @@ namespace unityroom.Api.Internals
 
         internal void ResetChangedFlag()
         {
-            ScoreChanged = false;
+            PointChanged = false;
         }
     }
 }

@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,7 +20,7 @@ public class StageEffectC : MonoBehaviour
         _timecount -= Time.deltaTime;
         if (_timecount <= 0)
         {
-            //—t
+            //è‘‰
             if (1 <= GameData.Round && GameData.Round <= 5)
             {
                 EffectRain(_leafEf, Random.Range(2,5), 10);
@@ -33,13 +33,13 @@ public class StageEffectC : MonoBehaviour
                 EffectUFO(_ufoEfL,_ufoEfR, Random.Range(3, 10), 10,Random.Range(0,2));
                 _timecount = 1.2f;
             }
-            //á
+            //é›ª
             if (16 <= GameData.Round && GameData.Round <= 20)
             {
                 EffectRain(_snowEf, 2,10);
                 _timecount = 0.4f;
             }
-            //‰Î‚Ì•²
+            //ç«ã®ç²‰
             else if (20 <= GameData.Round && GameData.Round <= 25)
             {
                 EffectSmog(_fireEf, Random.Range(2, 6), 10);

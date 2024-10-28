@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
@@ -8,46 +8,63 @@ public class PBombC : MonoBehaviour
 {
     private Vector3 velocity, pos;
 
-    private float sspeed, kkaso, aang, eexp, eexptim;
+    private float sspeed, kkaso, aang, eexp, eexptim=99;
     private int i, hunj;
 
     [SerializeField]
-    [Tooltip("”š”­ƒgƒŠƒK[")]
-    private bool up, down, right, left, sosai;
+    [Tooltip("çˆ†ç™ºãƒˆãƒªã‚¬ãƒ¼")]
+    private bool sosai;
 
     /// <summary>
-    /// 0=–¢İ’èó‘Ô
-    /// 1=ƒJƒEƒ“ƒgƒXƒ^[ƒg
-    /// 2=‹N”š
+    /// 0=æœªè¨­å®šçŠ¶æ…‹
+    /// 1=ã‚«ã‚¦ãƒ³ãƒˆã‚¹ã‚¿ãƒ¼ãƒˆ
+    /// 2=èµ·çˆ†
     /// </summary>
     private int _expMode;
 
-    public PExpC ExpPrefab;
+    [SerializeField]
+    [Tooltip("çˆ†ç™ºç‰©")]
+    private PExpC ExpPrefab;
+
+    [SerializeField]
+    [Tooltip("çˆ†ç™ºç‰©")]
+    private ExpC _prhbExpShining;
+
+    /// <summary>
+    /// ã‚¹ãƒ”ãƒ¼ã‚«
+    /// </summary>
+    private AudioSource _audioGO;
 
     public AudioClip expS;
     private int ddd;
 
     private Coroutine _movingCoroutine;
 
+    /// <summary>
+    /// ã‚«ãƒ¡ãƒ©ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+    /// </summary>
+    private GameObject _goCamera;
+
     // Start is called before the first frame update
     void Start()
     {
-
+        _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
+        _goCamera = GameObject.Find("Main Camera");
     }
 
     /// <summary>
-    /// ”š”­
+    /// çˆ†ç™º
     /// </summary>
-    /// <param name="angle">”­ËŒü‚«</param>
-    /// <param name="speed">”­Ë‘¬“x</param>
-    /// <param name="kasoku">”­Ë‰Á‘¬“x</param>
-    /// <param name="exp">@‹N”šƒJƒEƒ“ƒgƒ_ƒEƒ“</param>
-    /// <param name="hunjin">”š”­•²o”</param>
-    /// <param name="exptime">•²o‚ªÁ‚¦‚é‚Ü‚Å</param>
+    /// <param name="angle">ç™ºå°„å‘ã</param>
+    /// <param name="speed">ç™ºå°„é€Ÿåº¦</param>
+    /// <param name="kasoku">ç™ºå°„åŠ é€Ÿåº¦</param>
+    /// <param name="exp">ã€€èµ·çˆ†ã‚«ã‚¦ãƒ³ãƒˆãƒ€ã‚¦ãƒ³</param>
+    /// <param name="hunjin">çˆ†ç™ºç²‰å¡µæ•°</param>
+    /// <param name="exptime">ç²‰å¡µãŒæ¶ˆãˆã‚‹ã¾ã§</param>
     public void EShot1(float angle, float speed, float kasoku, float exp, int hunjin, float exptime)
     {
-        Debug.Log(_expMode);
-        var direction = GetDirection(angle);
+        
+        var direction = GameData.GetDirection(angle);
         velocity = direction * speed;
         var angles = transform.localEulerAngles;
         angles.z = angle - 90;
@@ -60,15 +77,6 @@ public class PBombC : MonoBehaviour
         eexptim = exptime;
         hunj = hunjin;
         _expMode = 1;
-    }
-
-    private Vector3 GetDirection(float angle)
-    {
-        Vector3 direction = new Vector3(
-            Mathf.Cos(angle * Mathf.Deg2Rad),
-            Mathf.Sin(angle * Mathf.Deg2Rad),
-            0);
-        return direction;
     }
 
     private void Update()
@@ -86,28 +94,21 @@ public class PBombC : MonoBehaviour
 
             transform.localPosition += velocity;
             sspeed += kkaso;
-            var direction = GetDirection(aang);
+            var direction = GameData.GetDirection(aang);
             velocity = direction * sspeed;
 
             //time_ex
             eexp--;
             if (eexp <= 0) EXPEffect(hunj);
 
-            //down_ex
-            if (pos.y <= 0) EXPEffect(hunj);
-
-            //up_ex
-            if (pos.y >= 480) EXPEffect(hunj);
-
-            //left_ex
-            if (pos.x <= 16) EXPEffect(hunj);
-
-            //right_ex
-            if (pos.x >= 640) EXPEffect(hunj);
+            if (GetComponent<PMCoreC>().DeleteMissileCheck())
+            {
+                EXPEffect(hunj);
+            }
         }
     }
 
-    public void EXPEffect(int hun)
+    private void EXPEffect(int hun)
     {
         if (_expMode == 1)
         {
@@ -119,7 +120,11 @@ public class PBombC : MonoBehaviour
     private IEnumerator Explosion(int hunj)
     {
         pos = transform.position;
-        GameObject.FindObjectOfType<AudioSource>().PlayOneShot(expS);
+        _audioGO.PlayOneShot(expS);
+        _goCamera.GetComponent<CameraC>().StartShakeVertical(3, 6);
+
+        ExpEffect(4);
+
         for (int j = 0; j < hunj; j++)
         {
             for(int k = 0; k < 2; k++)
@@ -133,27 +138,15 @@ public class PBombC : MonoBehaviour
         Destroy(gameObject);
     }
 
-        public void OnTriggerEnter2D(Collider2D collision)
+    private void ExpEffect(int shiningValue)
     {
-        if (_expMode == 1)
+        Instantiate(_prhbExpShining, pos, Quaternion.Euler(0, 0, 0)).EShot1(0, 0, 0.3f);
+        for (int i = 0; i < shiningValue; i++)
         {
-            pos = transform.position;
-            if (collision.gameObject.tag == "Enemy0"
-                || collision.gameObject.tag == "Enemy1"
-                || collision.gameObject.tag == "Enemy2"
-                || collision.gameObject.tag == "Enemy3"
-                || collision.gameObject.tag == "Enemy4"
-                || collision.gameObject.tag == "Enemy6")
-            {
-                if (sosai)
-                {
-                    EXPEffect(hunj);
-                }
-            }
-            if (collision.gameObject.tag == "Barrier")
-            {
-                EXPEffect(hunj);
-            }
+            Instantiate(_prhbExpShining, pos + new Vector3(Random.Range(-48, 48), Random.Range(-48, 48), 0), Quaternion.Euler(0, 0, 0))
+                .EShot1(0, 0, 0.3f);
         }
     }
+
+
 }

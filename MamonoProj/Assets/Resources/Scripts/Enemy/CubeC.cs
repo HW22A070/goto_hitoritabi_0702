@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,20 +14,16 @@ public class CubeC : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-    }
-
-    public void Summon(int judge)
-    {
         Col = GetComponent<BoxCollider2D>();
         scare = gameObject.transform.localScale;
         scare = new Vector3(0.01f, 0.01f, 0);
         gameObject.transform.localScale = scare;
         Col.size = new Vector3(size, size, 0);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
     }
 
     void FixedUpdate()

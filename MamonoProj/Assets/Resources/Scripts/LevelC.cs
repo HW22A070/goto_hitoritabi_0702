@@ -1,32 +1,129 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
-public class LevelC : MonoBehaviour
+public class LevelC : MenuSystemC
 {
+    /*
     public SpriteRenderer spriteRenderer;
     public Sprite easy, normal, hard, noooo;
+    */
 
-    float time = 0;
-    bool start = false;
 
-    public AudioClip startS,selectS;
-    AudioSource audioSource;
+    [SerializeField]
+    private SpriteRenderer _background;
 
-    private void Start()
+    [SerializeField]
+    private Sprite[] _back;
+
+    [SerializeField]
+    private Text _textDisc,_textLevel;
+
+    [SerializeField]
+    private AudioSource _asBGM;
+
+    [SerializeField]
+    private AudioClip[] _acBGMs;
+
+    /// <summary>
+    /// 1=dif
+    /// 2=lang
+    /// </summary>
+    private string[,] _disc = new string[4, 3]{
+        {
+            "安全性に重視を置いた　最新のマシン。\n攻撃力は低めだが　初心者でも簡単に扱えます。"
+            ,"あんぜんじゅうしの　さいしんのマシン。\nこうげきりょくは　ひくめだが\nしょしんしゃでも\nかんたんに　あつかえます。"
+            ,"A state-of-the-art machine that emphasizes safety.\nAlthough its attack power is low, even beginners can use it easily."},
+        {
+            "平均的な性能のマシン。\n慣れてきたらちょうど良い使いやすさです。"
+            ,"へいきんてきな　せいのうの　マシン。\nなれてきたら　ちょうどよい　つかいやすさです。"
+            ,"A machine with average performance.\nOnce you get used to it, it's just easy to use."},
+        {
+            "攻撃性能に特化した高火力マシン。\n攻撃力の分、耐久性や記憶力がかなり低いため\nこれでクリアできたら上級者！"
+            ,"こうげきにとっかした　こうかりょくマシン。\nたいきゅうせいや\nきおくりょくがかなりひくく\nこれでクリアできたら　じょうきゅうしゃ！"
+            ,"A high-powered machine specialized in attack performance.\nIts durability and memory are quite low to compensate for its attack power, so if you can clear it, you're an advanced player!"},
+        {
+            "耐久力と記憶力を捨て\n攻撃力にすべてを捧げた凶悪戦闘狂マシン。\nこれでクリアできる想定はされていません。"
+            ,"たいきゅうりょくと　きおくりょくをすて\nこうげきりょくに　すべてをささげた\nせんとうきょうマシン。\nこれでクリアできる　そうていは\nされていません。"
+            ,"A brutal battle-crazed machine that has abandoned durability and memory and dedicated everything to attack power.\nIt is not expected that you will be able to clear the level with this."},
+    };
+
+    /*
+    /// <summary>
+    /// 1=dif
+    /// 2=lang
+    /// </summary>
+    private string[,] _disc = new string[4, 3]{
+        {
+            "高い体力と記憶力を持った　\n最新のマシン。\n初心者でも簡単に扱えます。"
+            ,"たかい　たいりょくと\nきおくりょくをもった\nさいしんのマシン。\nしょしんしゃでも\nかんたんに　あつかえます。"
+            ,"A state-of-the-art machine with high HP and resilience. \nEasy to use even for beginners."},
+        {
+            "平均的な性能のマシン。\n慣れてきたらちょうど良い\n使いやすさです。"
+            ,"へいきんてきな　せいのうの\nマシン。\nなれてきたら　ちょうどよい\nつかいやすさです。"
+            ,"A machine with average performance. \nOnce you get used to it, it's just easy to use."},
+        {
+            "かなり古いマシン。\n耐久性や記憶力は\n信用できないが、\nこれでクリアできたら\n上級者！"
+            ,"かなりふるいマシン。\nたいきゅうせいや\nきおくりょくは\nしんようできないが\nこれでクリアできたら\nじょうきゅうしゃ！"
+            ,"It's a pretty old machine. I can't trust its durability or memory, but if you can clear it, you're an advanced player!"},
+        {
+            "触っただけで壊れそうな\n瀕死の機械。\nこれでクリアできる想定は\nされていません。"
+            ,"さわっただけでこわれそうな\nひんしのきかい。\nこれでクリアできる\nそうていは\nされていません。"
+            ,"A dying machine that seems like it will break if you touch it.\nIt's not expected that you'll be able to clear the game like this."},
+    };
+    */
+
+    private string[] _maxhpTag = new string[3] { "最大HP: ", "さいだいHP: ", "Max HP: "};
+
+    private string[] _continueTag = new string[3] { "やりなおし: \n", "やりなおし: \n", "Continue: \n" };
+
+    private int[] _maxHP = new int[4] { 100, 50, 20, 1 };
+
+    /// <summary>
+    /// 1=dif
+    /// 2=lang
+    /// </summary>
+    private string[,] _continueDisc = new string[4, 3]{
+        {
+            "倒れたラウンドから　再挑戦"
+            ,"たおれたラウンドから　さいちょうせん"
+            ,"Re-challenge from the round you fail"},
+        {
+            "倒れたラウンドから　再挑戦"
+            ,"たおれたラウンドから　さいちょうせん"
+            ,"Re-challenge from the round you fail"},
+        {
+            "倒れたステージから　再挑戦"
+            ,"たおれたステージから　さいちょうせん"
+            ,"Re-challenge from the stage you fail"},
+        {
+            "再挑戦不可。最初のラウンドからやり直し"
+            ,"さいしょの　ラウンドから　やりなおし"
+            ,"No second attempts allowed. Start over from the first round."},
+    };
+
+
+    private new void Start()
     {
-        audioSource = GetComponent<AudioSource>();
+        base.Start();
+        _optionMax = 3;
+        _background.sprite = _back[(int)(GameData.StartRound - 1) / 5];
 
+        _asBGM.clip = _acBGMs[(GameData.StartRound - 1) / 5];
+        _asBGM.Play();
     }
 
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-
-        switch (GameData.Difficulty)
+        _textDisc.text = _disc[_titleMode,GameData.Language];
+        _textLevel.text = _maxhpTag[GameData.Language] + _maxHP[_titleMode].ToString() + "\n\n" + _continueTag[GameData.Language] + _continueDisc[_titleMode, GameData.Language];
+        /*
+        switch (_titleMode)
         {
             case 0:
                 spriteRenderer.sprite = easy;
@@ -41,24 +138,21 @@ public class LevelC : MonoBehaviour
                 spriteRenderer.sprite = noooo;
                 break;
         }
-        
-        if (start)
-        {
-            time += Time.deltaTime;
-            if (time > 1.0f)
-            {
-                SceneManager.LoadScene("Setumei");
-            }
-        }
+        */
     }
 
-    public void OnStart(InputAction.CallbackContext context)
+
+
+    protected override void Option1() { StartCoroutine(DoOption()); }
+    protected override void Option2() { StartCoroutine(DoOption()); }
+    protected override void Option3() { StartCoroutine(DoOption()); }
+    protected override void Option4() { StartCoroutine(DoOption()); }
+
+    private IEnumerator DoOption()
     {
-        if (context.performed && !start)
-        {
-            start = true;
-            audioSource.PlayOneShot(startS);
-        }
+        yield return new WaitForSeconds(1.0f);
+        GameData.Difficulty = _titleMode;
+        SceneManager.LoadScene("Setumei");
     }
 
     public void OnEnd(InputAction.CallbackContext context)
@@ -68,24 +162,5 @@ public class LevelC : MonoBehaviour
             SceneManager.LoadScene("Title");
         }
     }
-
-    public void OnLeft(InputAction.CallbackContext context)
-    {
-        if (context.performed && !start)
-        {
-            GameData.Difficulty--;
-            if (GameData.Difficulty < 0) GameData.Difficulty = 3;
-            audioSource.PlayOneShot(selectS);
-        }
-    }
-
-    public void OnRifht(InputAction.CallbackContext context)
-    {
-        if (context.performed && !start)
-        {
-            GameData.Difficulty++;
-            if (GameData.Difficulty > 3) GameData.Difficulty = 0;
-            audioSource.PlayOneShot(selectS);
-        }
-    }
+    
 }

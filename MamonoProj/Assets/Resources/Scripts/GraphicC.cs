@@ -1,18 +1,28 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class GraphicC : MonoBehaviour
 {
-    float timecount = 0;
+    private float timecount = 0;
+
     [SerializeField]
     private float changecount;
-    int spritenumber = 0;
-    public SpriteRenderer spriteRenderer;
-    public Sprite[] sprites;
+
+    private int spritenumber = 0;
+
+    [SerializeField]
+    private SpriteRenderer spriteRenderer;
+
+    [SerializeField]
+    private Sprite[] sprites;
+
+
 
     [SerializeField]
     private bool _random;
+
+
     // Start is called before the first frame update
     void Start()
     {

@@ -1,99 +1,114 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PMCoreC : MonoBehaviour
 {
     [SerializeField]
-    [Tooltip("�G�e�Ƒ��E���邩")]
-    private bool sosai;
-
-    [SerializeField]
-    [Tooltip("�G�t�F�N�g")]
-    private ExpC _invalidEP, _damageEP, _criticalEP,_criticalEP2;
+    [Tooltip("敵弾と相殺するか")]
+    private bool sosai, _right = true, _left = true, _up = true, _down = true;
 
     private Vector3 pos;
 
-    private int ddd;
-
     private GameObject PlayerGO;
 
-    [SerializeField]
-    [Tooltip("���ʉ�")]
-    private AudioClip criticalS, damageS, invalidS;
+    /// <summary>
+    /// 敵と自機弾の衝突判定
+    /// </summary>
+    private RaycastHit2D _hitPmissileToEnemy;
+
+    /// <summary>
+    /// 敵弾と自機弾の衝突判定
+    /// </summary>
+    private RaycastHit2D _hitPmissileToEmissile;
+
+    [SerializeField, Tooltip("攻撃種類0=beam,1=bullet,2=bomb,3=burn")]
+    private int _attackType = 0;
+
+    [SerializeField, Tooltip("攻撃力")]
+    private int _attackPower = 0;
+
+    private bool _isDeleteTrigger;
+
+    private float[] _attackMagnif = { 1.0f, 1.1f, 1.3f, 1.6f };
+
+    /// <summary>
+    /// 攻撃した後かをカウント。連続ヒットを防ぐ
+    /// </summary>
+    private bool _isAttacked;
 
     // Start is called before the first frame update
     void Start()
     {
-        PlayerGO=GameObject.Find("Player");
+        PlayerGO = GameObject.Find("Player");
+        //transform.position += transform.right * GetComponent<BoxCollider2D>().size.x;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
-    }
-
-    public void DamageEffect(bool isCritical,Vector3 effectPos)
-    {
-        if (isCritical)
-        {
-            for (ddd = 20; ddd <= 60; ddd+=20)
-            {
-                Quaternion rot2 = transform.localRotation;
-                ExpC shot2 = Instantiate(_criticalEP2, effectPos + new Vector3(Random.Range(-ddd, ddd), Random.Range(-ddd, ddd), 0), rot2);
-                shot2.EShot1(Random.Range(0,360), 0.2f, 0.4f);
-            }
-            GameObject.FindObjectOfType<AudioSource>().PlayOneShot(criticalS);
-            EffectSummon(_criticalEP, effectPos);
-            CameraC.IsCriticalShake = true;
-            PlayerGO.GetComponent<PlayerC>().CriticalVibration();
-        }
-        else
-        {
-            GameObject.FindObjectOfType<AudioSource>().PlayOneShot(damageS);
-            EffectSummon(_damageEP, effectPos);
-        }
-    }
-
-    public void InvalidEffect(Vector3 effectPos)
-    {
-        GameObject.FindObjectOfType<AudioSource>().PlayOneShot(invalidS);
-        Vector3 direction2 = new Vector3(pos.x, pos.y, 0);
-        for (ddd = 0; ddd < 4; ddd++)
-        {
-            Quaternion rot2 = transform.localRotation;
-            ExpC shot2 = Instantiate(_invalidEP, effectPos+new Vector3(Random.Range(-32,32), Random.Range(-32, 32),0), rot2);
-            shot2.EShot1(0, 0, 0.2f);
-        }
-        /*if (sosai)*/ Destroy(gameObject);
-    }
-
-    /// <summary>
-    /// �G�t�F�N�g����
-    /// </summary>
-    /// <param name="damageE"></param>
-    /// <param name="effectGenten"></param>
-    private void EffectSummon(ExpC damageE, Vector3 effectGenten)
-    {
-        float angle2 = 0;
-        Vector3 direction2 = new Vector3(pos.x, pos.y, 0);
-        for (ddd = 0; ddd < 10; ddd++)
-        {
-            angle2 += 36;
-            Quaternion rot2 = transform.localRotation;
-            ExpC shot2 = Instantiate(damageE, effectGenten, rot2);
-            shot2.EShot1(angle2, 10, 0.2f);
-        }
-        if (sosai) Destroy(gameObject);
-    }
-
-    public void OnTriggerEnter2D(Collider2D collision)
-    {
         pos = transform.position;
-        if (collision.gameObject.tag == "Barrier")
+
+        if (!_isAttacked)
         {
-            Destroy(gameObject);
+            BoxCollider2D box = GetComponent<BoxCollider2D>();
+            Vector2 v2pos = new Vector2(transform.position.x, transform.position.y);
+            _hitPmissileToEnemy = Physics2D.BoxCast(v2pos - box.offset, box.size, transform.localEulerAngles.z, Vector2.zero, 0, 128);
+            if (_hitPmissileToEnemy)
+            {
+                //ターゲット
+                if (_hitPmissileToEnemy.collider.tag == "Target")
+                {
+                    bool isDamage = _hitPmissileToEnemy.collider.GetComponent<TargetC>().HitTarget(_attackType, _hitPmissileToEnemy.collider.ClosestPoint(this.transform.position));
+                    if (!isDamage)
+                    {
+                        _isDeleteTrigger = true;
+                    }
+                }
+                else// if (_hitPmissileToEnemy.collider.tag == "Enemy"|| _hitPmissileToEnemy.collider.tag == "MechaUnit")
+                {
+                    _isAttacked = true;
+                    float attackPower = (float)(_attackPower * _attackMagnif[GameData.Difficulty]);
+                    bool delete = _hitPmissileToEnemy.collider.GetComponent<ECoreC>().Damage(attackPower, _attackType, _hitPmissileToEnemy.collider.ClosestPoint(transform.position));
+                    if (delete)
+                    {
+                        _isDeleteTrigger = true;
+                    }
+                    if (sosai) _isDeleteTrigger = true;
+                }
+            }
         }
+
+        _hitPmissileToEmissile = Physics2D.BoxCast(transform.position, GetComponent<BoxCollider2D>().size, transform.localEulerAngles.z, Vector2.zero, 0, 256);
+        if (_hitPmissileToEmissile)
+        {
+            int missileValue = _hitPmissileToEmissile.collider.GetComponent<EMCoreC>().HitToPmissile(_attackType == 2);
+            if ((missileValue == 2 && _attackType == 2) || missileValue == 3 || missileValue == 4) _isDeleteTrigger = true;
+        }
+
+        //down_ex
+        if (pos.y <= 0 && _down) _isDeleteTrigger = true;
+
+        //up_ex
+        if (pos.y >= 480 && _up) _isDeleteTrigger = true;
+
+        //left_ex
+        if (pos.x <= 0 && _left) _isDeleteTrigger = true;
+
+        //right_ex
+        if (pos.x >= 640 && _right) _isDeleteTrigger = true;
+
     }
+
+    public void SetDelete()
+    {
+        _isDeleteTrigger = true;
+    }
+
+    public bool DeleteMissileCheck()
+    {
+        return _isDeleteTrigger;
+    }
+
+
 }

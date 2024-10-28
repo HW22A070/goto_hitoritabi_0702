@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,18 +12,24 @@ public class HenchmanC : MonoBehaviour
 
     public EMissile1C EMissile1Prefab;
 
+    /// <summary>
+    /// スピーカ
+    /// </summary>
+    private AudioSource _audioGO;
+
     public AudioClip shotS;
 
 
     // Start is called before the first frame update
     void Start()
     {
+        _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
         Player = GameObject.Find("Player").transform;
     }
 
     public void EShot1(float angle, float time,float dnsk)
     {
-        var direction = GetDirection(angle);
+        var direction = GameData.GetDirection(angle);
         var angles = transform.localEulerAngles;
         angles.z = angle - 90;
         transform.localEulerAngles = angles;
@@ -32,15 +38,6 @@ public class HenchmanC : MonoBehaviour
         ttime = time;
         ddns = dnsk;
 
-    }
-
-    public Vector3 GetDirection(float angle)
-    {
-        Vector3 direction = new Vector3(
-            Mathf.Cos(angle * Mathf.Deg2Rad),
-            Mathf.Sin(angle * Mathf.Deg2Rad),
-            0);
-        return direction;
     }
 
     private void Update()
@@ -54,7 +51,7 @@ public class HenchmanC : MonoBehaviour
             EMissile1C shot = Instantiate(EMissile1Prefab, pos, rot);
             if (!audio)
             {
-                GameObject.FindObjectOfType<AudioSource>().PlayOneShot(shotS);
+                _audioGO.PlayOneShot(shotS);
                 audio = true;
             }
 
@@ -64,11 +61,5 @@ public class HenchmanC : MonoBehaviour
         {
             Destroy(gameObject);
         }
-    }
-
-    public float GetAngle(Vector2 direction)
-    {
-        float rad = Mathf.Atan2(direction.y, direction.x);
-        return rad * Mathf.Rad2Deg;
     }
 }

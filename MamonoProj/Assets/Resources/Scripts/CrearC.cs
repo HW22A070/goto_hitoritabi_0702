@@ -1,4 +1,4 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,41 +8,54 @@ using UnityEngine.InputSystem;
 
 public class CrearC : MonoBehaviour
 {
-    public Text roundText,LevelText,TimeText,ScoreText,RankText;
+    public Text roundText, LevelText, TimeText, PointText, RankText;
 
     float sc;
 
+    private int _loaded = 0;
+
     float lastscore;
+
+    private float _exitTimer = 0;
+
+    [SerializeField]
+    private float _exitFireTimeS = 20;
+
+    [SerializeField]
+    private SpriteRenderer _background;
+    [SerializeField]
+    private Sprite[] _back;
+
+    public static bool _isGiveUp;
+
     // Start is called before the first frame update
     void Start()
     {
-        GameData.LastCrearLound -= GameData.StartRound;
+        Screen.SetResolution(GameData.FirstWidth, GameData.FirstWidth, true);
 
-        lastscore = (float)((GameData.LastCrearLound * ((GameData.Difficulty * 0.3) + 0.7)) - (GameData.ClearTime / 60));
+        _background.sprite = _back[(int)(GameData.Round - 1) / 5];
+
+        GameData.LastCrearLound = 1 + GameData.LastCrearLound - GameData.StartRound;
+
+        //„Çº„É≠„ÅßÂâ≤„Çã„ÅÆ„ÇíÈÅø„Åë„Å¶„Åã„ÇâË®àÁÆó
+        if (GameData.ClearTime != 0) lastscore = (GameData.LastCrearLound * 10) * 150 / GameData.ClearTime;
+        else lastscore = 0;
+
+        if (_isGiveUp)
+        {
+            _isGiveUp = false;
+            lastscore /= 6;
+        }
+
 
         if (lastscore < 0) lastscore = 0;
 
-        TimeText.text= GameData.ClearTime.ToString("N2");
+        TimeText.text = GameData.ClearTime.ToString("N2") + " s";
 
-        if (GameData.Difficulty == 0)
-        {
-            LevelText.text = "ÉCÅ[ÉWÅ[";
-        }
-        else if (GameData.Difficulty == 1)
-        {
-            LevelText.text = "ÉmÅ[É}Éã";
-        }
-        else if (GameData.Difficulty == 2)
-        {
-            LevelText.text = "ÉnÅ[Éh";
-        }
-        else if (GameData.Difficulty == 3)
-        {
-            LevelText.text = "ñ≥óùÅI";
-        }
+        LevelText.text = GameData.TextDifficulty[GameData.Difficulty, GameData.Language];
 
-        roundText.text = "" + GameData.LastCrearLound.ToString(); 
-        if (GameData.LastCrearLound>30)
+        roundText.text = "" + GameData.LastCrearLound.ToString();
+        if (GameData.LastCrearLound > 30)
         {
             roundText.text = "D" + (GameData.LastCrearLound - 30).ToString();
         }
@@ -50,70 +63,95 @@ public class CrearC : MonoBehaviour
         {
             roundText.text = "Non";
         }
+
+
+    }
+
+    private void Update()
+    {
+        _exitTimer += Time.deltaTime;
+        if (_exitTimer >= _exitFireTimeS)
+        {
+            if (_loaded < 2)
+            {
+                _loaded = 2;
+                StartCoroutine(Load());
+            }
+        }
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        if (sc < lastscore) sc += 0.05f;
-            if (sc >= 33) RankText.text = "S+";
-            else if (sc >= 25) RankText.text = "S";
-            else if (sc >= 20) RankText.text = "A";
-            else if (sc >= 10) RankText.text = "B";
-            else RankText.text = "C";
-        
-        ScoreText.text = sc.ToString("N2");
-        
 
-        if (GameData.GameMode == 0)
+        if (_loaded < 2)
         {
-            UnityroomApiClient.Instance.SendScore(1, lastscore, ScoreboardWriteMode.Always);
+            if (sc < lastscore) sc += lastscore / 10;
+            else if (_loaded == 0)
+            {
+                sc = lastscore;
+                _loaded = 1;
+            }
         }
         else
         {
-            UnityroomApiClient.Instance.SendScore(2, GameData.Round - 100, ScoreboardWriteMode.Always);
+            sc = lastscore;
         }
 
-        if (GameData.Zuru)
+        if (sc >= 150) RankText.text = "S+";
+        else if (sc >= 80) RankText.text = "S";
+        else if (sc >= 50) RankText.text = "A";
+        else if (sc >= 10) RankText.text = "B";
+        else RankText.text = "C";
+
+        PointText.text = sc.ToString("N2");
+
+
+        if (GameData.GameMode == 0)
         {
-            GameData.Zuru = false;
-            GameData.Round = 1;
-            GameData.HP = 20;
-            GameData.Boss = 0;
-            GameData.IceFloor = 0;
-            GameData.Star = false;
-            GameData.TP = 0;
-            GameData.Score = 0;
-            GameData.GameMode = 0;
-            GameData.LastCrearLound = 0;
-            GameData.EX = 0;
-            GameData.ClearTime = 0;
-            SceneManager.LoadScene("Title");
+            UnityroomApiClient.Instance.SendPoint(1, lastscore, PointboardWriteMode.Always);
+        }
+        else
+        {
+            UnityroomApiClient.Instance.SendPoint(2, GameData.Round - 100, PointboardWriteMode.Always);
         }
     }
 
-    void FixedUpdate()
+    private IEnumerator Load()
     {
-        
+        yield return new WaitForSeconds(0.1f);
+        GameData.Round = 1;
+        GameData.HP = 20;
+        GameData.Boss = 0;
+        FloorManagerC.StageGimic(100, 0);
+        GameData.Star = false;
+        GameData.TP = 0;
+        GameData.Point = 0;
+        GameData.GameMode = 0;
+        GameData.LastCrearLound = 0;
+        GameData.EX = 0;
+        GameData.ClearTime = 0;
+        SceneManager.LoadScene("Title");
     }
 
     //Imput
     public void OnTitle(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && _loaded < 2)
         {
-            GameData.Round = 1;
-            GameData.HP = 20;
-            GameData.Boss = 0;
-            GameData.IceFloor = 0;
-            GameData.Star = false;
-            GameData.TP = 0;
-            GameData.Score = 0;
-            GameData.GameMode = 0;
-            GameData.LastCrearLound = 0;
-            GameData.EX = 0;
-            GameData.ClearTime = 0;
-            SceneManager.LoadScene("Title");
+            switch (_loaded)
+            {
+                case 0:
+                    _loaded = 1;
+                    break;
+                case 1:
+                    _loaded = 2;
+                    StartCoroutine(Load());
+                    break;
+                case 2:
+                    break;
+            }
+
         }
     }
 }

@@ -18,7 +18,7 @@ namespace unityroom.Api
         /// <summary>
         /// スコアボードAPIクライアント
         /// </summary>
-        private readonly Dictionary<int, Scoreboard> _scoreboards = new Dictionary<int, Scoreboard>();
+        private readonly Dictionary<int, Pointboard> _scoreboards = new Dictionary<int, Pointboard>();
         /// <summary>
         /// シングルトンインスタンスを取得
         /// </summary>
@@ -58,21 +58,21 @@ namespace unityroom.Api
         /// <param name="boardNo">ボードNo</param>
         /// <param name="score">送信するスコア</param>
         /// <param name="mode">スコアボードの書き込み設定</param>
-        public void SendScore(
+        public void SendPoint(
             int boardNo
             , float score
-            , ScoreboardWriteMode mode
+            , PointboardWriteMode mode
         )
         {
             if (!_scoreboards.ContainsKey(boardNo))
             {
-                var b = gameObject.AddComponent<Scoreboard>();
+                var b = gameObject.AddComponent<Pointboard>();
                 b.Initialize(boardNo, HmacKey);
                 _scoreboards.Add(boardNo, b);
             }
 
             var scoreboard = _scoreboards[boardNo];
-            scoreboard.AddScore(score, mode);
+            scoreboard.AddPoint(score, mode);
         }
     }
 }

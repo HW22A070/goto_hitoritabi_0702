@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -94,7 +94,7 @@ public class MonitorC : MonoBehaviour
         }
         else if (mode == 2)
         {
-            GameData.IceFloor = 1;
+            FloorManagerC.StageGimic(100,1);
             texture = 4;
             if (shotdown != 0) shotdown -= Time.deltaTime;
             if (shotdown <= 0)
@@ -152,7 +152,7 @@ public class MonitorC : MonoBehaviour
     {
         if (time == 0)
         {
-            GameData.IceFloor = 0;
+            FloorManagerC.StageGimic(100,0);
             movex = Random.Range(50, 590);
             movey = Random.Range(50, 430);
             movex = (movex - pos.x) / 50;
@@ -198,13 +198,7 @@ public class MonitorC : MonoBehaviour
                 break;
         }
     }
-
-    public float GetAngle(Vector2 direction)
-    {
-        float rad = Mathf.Atan2(direction.y, direction.x);
-        return rad * Mathf.Rad2Deg;
-    }
-
+    
     private void Damage(int hit)
     {
         hp--;
@@ -217,7 +211,7 @@ public class MonitorC : MonoBehaviour
             pos = new Vector3(360, -100, 0);
             StaffRollC staff = Instantiate(StaffPrefab, pos, transform.localRotation);
             staff.Summon(0);
-            GameData.IceFloor = 0;
+            FloorManagerC.StageIce(100) = 0;
             Destroy(gameObject);
             */
 

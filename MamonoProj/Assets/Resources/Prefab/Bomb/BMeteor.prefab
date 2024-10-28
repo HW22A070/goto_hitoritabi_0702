@@ -12,11 +12,11 @@ GameObject:
   - component: {fileID: 1478278737224898294}
   - component: {fileID: 3056101085339816763}
   - component: {fileID: 9137651915838007928}
-  - component: {fileID: 3744423899151402837}
+  - component: {fileID: 8855422248372738649}
   - component: {fileID: 2046118263094330464}
   m_Layer: 0
   m_Name: BMeteor
-  m_TagString: Enemy6
+  m_TagString: EM
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -56,7 +56,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -100,17 +100,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8314ba47b0428cc45a33c33cdfc9928f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  up: 0
-  down: 1
-  right: 0
-  left: 0
-  player: 0
-  PM: 0
   ExpPrefab: {fileID: 2970820811139437609, guid: 8b757c2b9ab5e3a49885175511ee359f,
     type: 3}
   expS: {fileID: 8300000, guid: d5a282c9faedf684a8ec6e889e4bce4c, type: 3}
   bombbarrier: 0
   bombsosai: 0
+  _prhbExpShining: {fileID: -4044055410789821065, guid: 449e28a8868bcb242a1054bf0e390920,
+    type: 3}
 --- !u!58 &9137651915838007928
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -146,33 +142,26 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 32}
   serializedVersion: 2
   m_Radius: 12
---- !u!50 &3744423899151402837
-Rigidbody2D:
-  serializedVersion: 4
+--- !u!114 &8855422248372738649
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 968507221927611264}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 848c3c09004f3504fbc2d50d832f70ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _destroyToPM: 0
+  _right: 1
+  _left: 1
+  _up: 1
+  _down: 1
+  _palyerDelete: 0
+  _HitInvincible: 0.5
+  _attackPower: 6
 --- !u!114 &2046118263094330464
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -187,7 +176,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ExpPrefab: {fileID: -946376290874723850, guid: 7765e1b65254528459d317c05a6a9efb,
     type: 3}
+  _isKaitenLock: 0
   sizex: 32
   sizey: 32
   speed: 1
   delete: 0.5
+  _loop: 1

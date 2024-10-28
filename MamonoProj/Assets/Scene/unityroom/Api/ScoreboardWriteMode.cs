@@ -1,16 +1,16 @@
 namespace unityroom.Api
 {
-    public enum ScoreboardWriteMode
+    public enum PointboardWriteMode
     {
         /// <summary>
         /// ハイスコア（降順）として記録する
         /// </summary>
-        HighScoreDesc
+        HighPointDesc
         ,
         /// <summary>
         /// ハイスコア（昇順）として記録する
         /// </summary>
-        HighScoreAsc
+        HighPointAsc
         ,
         /// <summary>
         /// ハイスコア（常に記録）として記録する

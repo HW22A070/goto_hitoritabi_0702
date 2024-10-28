@@ -1,31 +1,40 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class BombC : MonoBehaviour
 {
-    Vector3 velocity, pos;
-    float sspeed, kkaso, aang, eexp, eexptim;
-    int i, hunj;
+    protected Vector3 velocity, pos;
+    protected float sspeed, kkaso, aang, eexp, eexptim;
+    protected int i, hunj;
 
-    public bool up, down, right, left, player,PM;
-    private bool exp;
+    /// <summary>
+    /// スピーカ
+    /// </summary>
+    protected private AudioSource _audioGO;
 
-    public ExpC ExpPrefab;
+    [SerializeField]
+    protected ExpC ExpPrefab;
 
-    public AudioClip expS;
+    [SerializeField]
+    protected AudioClip expS;
 
-    public bool bombbarrier = true, bombsosai;
+    [SerializeField]
+    protected bool bombbarrier = true, bombsosai;
+
+    [SerializeField]
+    [Tooltip("爆発物")]
+    protected ExpC _prhbExpShining;
 
     // Start is called before the first frame update
-    void Start()
+    protected void Start()
     {
-
+        _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
     }
 
     public void EShot1(float angle, float speed, float kasoku, float exp, int hunjin, float exptime)
     {
-        var direction = GetDirection(angle);
+        var direction = GameData.GetDirection(angle);
         velocity = direction * speed;
         var angles = transform.localEulerAngles;
         angles.z = angle - 90;
@@ -39,46 +48,27 @@ public class BombC : MonoBehaviour
         hunj = hunjin;
     }
 
-    public Vector3 GetDirection(float angle)
-    {
-        Vector3 direction = new Vector3(
-            Mathf.Cos(angle * Mathf.Deg2Rad),
-            Mathf.Sin(angle * Mathf.Deg2Rad),
-            0);
-        return direction;
-    }
-
     // Update is called once per frame
-    void FixedUpdate()
+    protected void FixedUpdate()
     {
         pos = transform.position;
 
         transform.localPosition += velocity;
         sspeed += kkaso;
-        var direction = GetDirection(aang);
+        var direction = GameData.GetDirection(aang);
         velocity = direction * sspeed;
 
         //time_ex
         eexp--;
-        if (eexp <= 0) exp = true;
+        if (eexp <= 0) Explosion();
 
-        //down_ex
-        if (pos.y <= 0 && down == true) exp = true;
-
-        //up_ex
-        if (pos.y >= 480 && up == true) exp = true;
-
-        //left_ex
-        if (pos.x <= 0 && left == true) exp = true;
-
-        //right_ex
-        if (pos.x >= 640 && right == true) exp = true;
-
-        if (exp) Explosion();
+        if (GetComponent<EMCoreC>().DeleteMissileCheck()) Explosion();
     }
 
     public void Explosion()
     {
+        if (_prhbExpShining != null) ExpEffect(4);
+
         for (i = 0; i < hunj; i++)
         {
             
@@ -88,32 +78,17 @@ public class BombC : MonoBehaviour
             ExpC shot2 = Instantiate(ExpPrefab, pos, rot2);
             shot2.EShot1(angle2, Random.Range(1, 10.0f), eexptim);
         }
-        GameObject.FindObjectOfType<AudioSource>().PlayOneShot(expS);
+        _audioGO.PlayOneShot(expS);
         Destroy(gameObject);
     }
 
-    public void OnTriggerEnter2D(Collider2D collision)
+    protected void ExpEffect(int shiningValue)
     {
-        if ((collision.gameObject.tag == "PBeam"
-            || collision.gameObject.tag == "PBullet"
-            || collision.gameObject.tag == "PFire"
-            || collision.gameObject.tag == "PExp")
-            && PM)
+        Instantiate(_prhbExpShining, pos, Quaternion.Euler(0, 0, 0)).EShot1(0, 0, 0.3f);
+        for (int i = 0; i < shiningValue; i++)
         {
-            Destroy(gameObject);
-        }
-        if (collision.gameObject.tag == "PBomb" && bombbarrier)
-        {
-            if (bombsosai)
-            {
-                PBombC bomb;
-                GameObject obj = collision.gameObject;
-                bomb = obj.GetComponent<PBombC>();
-                bomb.EXPEffect(7);
-                exp = true;
-
-            }
-            Destroy(gameObject);
+            Instantiate(_prhbExpShining, pos + new Vector3(Random.Range(-48, 48), Random.Range(-48, 48), 0), Quaternion.Euler(0, 0, 0))
+                .EShot1(0, 0, 0.3f);
         }
     }
 

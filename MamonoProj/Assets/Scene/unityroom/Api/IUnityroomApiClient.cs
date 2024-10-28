@@ -2,10 +2,10 @@ namespace unityroom.Api
 {
     public interface IUnityroomApiClient
     {
-        void SendScore(
+        void SendPoint(
             int boardNo
             , float score
-            , ScoreboardWriteMode mode
+            , PointboardWriteMode mode
         );
     }
 }

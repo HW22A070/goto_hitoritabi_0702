@@ -1,12 +1,11 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class UfoC : MonoBehaviour
 {
-
     /// <summary>
-    /// â¡ë¨ìx
+    /// Âä†ÈÄüÂ∫¶
     /// </summary>
     private float _xMove=0,_yMove=0;
 
@@ -23,40 +22,50 @@ public class UfoC : MonoBehaviour
     public GuardC GuardPrefab;
     public EMissile1C EMissile1Prefab;
     public ExpC LEPrefab;
+    public StaffRollC StaffPrefab;
 
     public SpriteRenderer spriteRenderer;
     public Sprite a, b;
 
     private GameObject GM;
 
+    /// <summary>
+    /// „Ç¢„Éã„É°„Éº„Ç∑„Éß„É≥
+    /// </summary>
+    private Animator _animAttackEffect;
+
     [SerializeField]
     [Tooltip("PlayerGameObject")]
     private GameObject playerGO;
+
+    /// <summary>
+    /// „Çπ„Éî„Éº„Ç´
+    /// </summary>
+    private AudioSource _audioGO;
 
     public AudioClip magicS, moveS, chargeS;
 
     private Vector3 hitPos;
 
     /// <summary>
-    /// ECoreCÇÃÉRÉìÉ|Å[ÉlÉìÉg
+    /// ECoreC„ÅÆ„Ç≥„É≥„Éù„Éº„Éç„É≥„Éà
     /// </summary>
     private ECoreC _eCoreC;
 
     // Start is called before the first frame update
     void Start()
     {
-
-    }
-
-    public void Summon(int judge)
-    {
-        _eCoreC = GetComponent<ECoreC>();
-        _eCoreC.IsBoss = true;
+        _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
         playerGO = GameObject.Find("Player");
         GM = GameObject.Find("GameManager");
+        //„Ç¢„Éã„É°„Éº„Ç∑„Éß„É≥
+        _animAttackEffect = GetComponent<Animator>();
+
+        _eCoreC = GetComponent<ECoreC>();
+        _eCoreC.IsBoss = true;
         GM.GetComponent<GameManagement>()._bossNowHp = _eCoreC.hp[0];
         GM.GetComponent<GameManagement>()._bossMaxHp = _eCoreC.hp[0];
-        StartCoroutine("Moving");
+        StartCoroutine(Moving());
     }
 
     // Update is called once per frame
@@ -75,9 +84,11 @@ public class UfoC : MonoBehaviour
 
     void FixedUpdate()
     {
-        //éÄ
+        //Ê≠ª
         if (_eCoreC.BossLifeMode == 2)
         {
+            GameData.TimerMoving = false;
+            GameData.Star = true;
             AllCoroutineStop();
 
             GM.GetComponent<GameManagement>()._bossNowHp = 0;
@@ -85,15 +96,23 @@ public class UfoC : MonoBehaviour
             transform.localEulerAngles += new Vector3(0, 0, 10);
             if (pos.y < -64)
             {
-                playerGO.GetComponent<PlayerC>().StageMoveAction();
+                if (GameData.Round == GameData.GoalRound)
+                {
+                    Instantiate(StaffPrefab, new Vector3(320, -100, 0), Quaternion.Euler(0, 0, 0)).Summon(0);
+                }
+                else
+                {
+                    playerGO.GetComponent<PlayerC>().StageMoveAction();
+                }
                 Destroy(gameObject);
             }
         }
     }
 
-    //à⁄ìÆ
+    //ÁßªÂãï
     private IEnumerator Moving()
     {
+
         movex = Random.Range(50, 590);
         movey = Random.Range(50, 430);
         for (j = 0; j < 30; j++)
@@ -106,22 +125,25 @@ public class UfoC : MonoBehaviour
         }
         movexx = (movex - pos.x) / 10;
         moveyy = (movey - pos.y) / 10;
-        GameObject.FindObjectOfType<AudioSource>().PlayOneShot(moveS);
-        spriteRenderer.sprite = b;
+        _audioGO.PlayOneShot(moveS);
+        //ÊîªÊíÉ„Ç¢„Éã„É°„Éº„Ç∑„Éß„É≥„Çπ„Çø„Éº„Éà
+        _animAttackEffect.SetBool("Attack", true);
+
         for (j = 0; j < 10; j++)
         {
             transform.localPosition += new Vector3(movexx, moveyy, 0);
             yield return new WaitForSeconds(0.03f);
         }
-        spriteRenderer.sprite = a;
+        //ÊîªÊíÉ„Ç¢„Éã„É°„Éº„Ç∑„Éß„É≥„Åä„Çè„Çä
+        _animAttackEffect.SetBool("Attack", false);
         yield return new WaitForSeconds(0.03f);
         StartCoroutine("ActionBranch");
     }
 
-    //çsìÆïœÇÌÇÈÉÑÉc
+    //Ë°åÂãïÂ§â„Çè„Çã„É§„ÉÑ
     private IEnumerator ActionBranch()
     {
-        yield return new WaitForSeconds(0.03f);
+        yield return new WaitForSeconds(0.3f);
         _attackMode = Random.Range(0, 4);
         if (_attackMode == 1) StartCoroutine("GuardianBeam");
         else if (_attackMode == 2) StartCoroutine("MachineGun");
@@ -134,16 +156,19 @@ public class UfoC : MonoBehaviour
                 GuardC shot = Instantiate(GuardPrefab, pos, rot);
                 shot.EShot1(10, i * 45, -1, 5, pos);
             }
-            GameObject.FindObjectOfType<AudioSource>().PlayOneShot(magicS);
+            _audioGO.PlayOneShot(magicS);
             HowManyAttack();
         }
     }
 
-    //âÒì]ÉGÉlÉãÉMÅ[íe
+    //ÂõûËª¢„Ç®„Éç„É´„ÇÆ„ÉºÂºæ
     private IEnumerator GuardianBeam()
     {
-        GameObject.FindObjectOfType<AudioSource>().PlayOneShot(chargeS);
+        _animAttackEffect.SetBool("Beam", true);
+
+        _audioGO.PlayOneShot(chargeS);
         yield return new WaitForSeconds(0.3f);
+        _animAttackEffect.SetBool("Beam", false);
         for (k = 0; k < 5; k++)
         {
             for (j = 0; j < 6; j++)
@@ -158,25 +183,26 @@ public class UfoC : MonoBehaviour
                 GuardC shot = Instantiate(GuardPrefab, pos, rot);
                 shot.EShot1(10, j * 60, -1.5f, 10, pos);
             }
-            spriteRenderer.sprite = b;
-            yield return new WaitForSeconds(0.03f);
-            spriteRenderer.sprite = a;
-            yield return new WaitForSeconds(0.27f);
-            GameObject.FindObjectOfType<AudioSource>().PlayOneShot(magicS);
+            yield return new WaitForSeconds(0.3f);
+            _audioGO.PlayOneShot(magicS);
         }
+
         HowManyAttack();
     }    
     
-    //É}ÉVÉìÉKÉì
+    //„Éû„Ç∑„É≥„Ç¨„É≥
     private IEnumerator MachineGun()
     {
-        GameObject.FindObjectOfType<AudioSource>().PlayOneShot(chargeS);
+        _animAttackEffect.SetBool("Beam", true);
+
+        _audioGO.PlayOneShot(chargeS);
         yield return new WaitForSeconds(0.3f);
-        for (j = 0; j < 10; j++)
+        _animAttackEffect.SetBool("Beam", false);
+        for (j = 0; j < 20; j++)
         {
-            GameObject.FindObjectOfType<AudioSource>().PlayOneShot(magicS);
+            _audioGO.PlayOneShot(magicS);
             Vector3 direction = ppos - pos;
-            float angle = GetAngle(direction);
+            float angle = GameData.GetAngle(pos,ppos);
             angle += Random.Range(20, 340);
             if (pos.y > 240) angle = Random.Range(260, 280);
             for (k = 10; k < 40; k+=2)
@@ -185,19 +211,19 @@ public class UfoC : MonoBehaviour
                 EMissile1C shot = Instantiate(EMissile1Prefab, pos, rot);
                 shot.EShot1(angle, 0, k + 1);
             }
-            spriteRenderer.sprite = b;
-            yield return new WaitForSeconds(0.03f);
-            spriteRenderer.sprite = a;
             yield return new WaitForSeconds(0.06f);
         }
         HowManyAttack();
     }    
     
-    //í«îˆìÀêi
+    //ËøΩÂ∞æÁ™ÅÈÄ≤
     private IEnumerator Horming()
     {
-        GameObject.FindObjectOfType<AudioSource>().PlayOneShot(chargeS);
+        //ÊîªÊíÉ„Ç¢„Éã„É°„Éº„Ç∑„Éß„É≥„Çπ„Çø„Éº„Éà
+        _animAttackEffect.SetBool("Attack", true);
+        _audioGO.PlayOneShot(chargeS);
         yield return new WaitForSeconds(0.3f);
+
         for (j = 0; j < 150; j++)
         {
             if (pos.x > ppos.x - 64)
@@ -217,25 +243,14 @@ public class UfoC : MonoBehaviour
                 if (_yMove < 7) _yMove += 0.4f;
             }
             transform.localPosition += new Vector3(_xMove, _yMove, 0);
-            texture++;
-            if (texture > 2) texture = 0;
-            switch (texture)
-            {
-                case 0:
-                    spriteRenderer.sprite = a;
-                    break;
-                case 1:
-                    spriteRenderer.sprite = b;
-                    break;
-            }
 
             yield return new WaitForSeconds(0.03f);
         }
-        spriteRenderer.sprite = a;
+        _animAttackEffect.SetBool("Attack", false);
         HowManyAttack();
     }
 
-    //çUåÇâΩâÒñ⁄ÅHÇPÇ»ÇÁÇ‡Ç¡Ç©Ç¢ÇQÇ»ÇÁèIÇÌÇË
+    //ÊîªÊíÉ‰ΩïÂõûÁõÆÔºüÔºë„Å™„Çâ„ÇÇ„Å£„Åã„ÅÑÔºí„Å™„ÇâÁµÇ„Çè„Çä
     private void HowManyAttack()
     {
         if (!_isFirstAttack)
@@ -258,10 +273,4 @@ public class UfoC : MonoBehaviour
         StopCoroutine("GuardianBeam");
         StopCoroutine("Moving");
     }
-
-    public float GetAngle(Vector2 direction)
-    {
-        float rad = Mathf.Atan2(direction.y, direction.x);
-        return rad * Mathf.Rad2Deg;
-    }    
 }

@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,58 +8,54 @@ public class IfritC : MonoBehaviour
     private float damagePar = 100;
 
     private int i, j;
-    private bool wing;
     private int _attackVariation = 0;
     private int mae = 0;
     private int look = 0;
-
-    private int flying = 0;
-    private float flyt = 0;
 
     private float angle;
 
     private float movex = 0, _modeDelta = 0;
     private float movey = 0;
 
-    private Vector3 pos, ppos, target, face,fireworklockon;
+    private Vector3 pos, ppos, target, face, fireworklockon;
 
     public SpriteRenderer spriteRenderer;
-    public Sprite a, b, c;
     private bool _lookLock = false;
 
     private Quaternion rot;
 
     public BombC BombPrefab;
     public ExpC ExpPrefab, PowderPrefab;
+    public StaffRollC StaffPrefab;
 
     private GameObject GM;
 
-    public AudioClip fireS,volS,wingS;
+    /// <summary>
+    /// ã‚¹ãƒ”ãƒ¼ã‚«
+    /// </summary>
+    private AudioSource _audioGO;
+
+    public AudioClip fireS, volS, wingS;
 
     private bool _isDeathActionStarted;
 
-    [SerializeField]
-    [Tooltip("PlayerGameObject")]
     private GameObject playerGO;
 
     /// <summary>
-    /// “®ì’†‚ÌƒRƒ‹[ƒ`ƒ“
+    /// å‹•ä½œä¸­ã®ã‚³ãƒ«ãƒ¼ãƒãƒ³
     /// </summary>
     private Coroutine _movingCoroutine;
 
     /// <summary>
-    /// ECoreC‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
+    /// ECoreCã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
     /// </summary>
     private ECoreC _eCoreC;
 
     // Start is called before the first frame update
     void Start()
     {
-
-    }
-
-    public void Summon(int judge)
-    {
+        FloorManagerC.StageGimic(100, 0);
+        _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
         _eCoreC = GetComponent<ECoreC>();
         _eCoreC.IsBoss = true;
         firstHP = _eCoreC.hp[0];
@@ -73,7 +69,7 @@ public class IfritC : MonoBehaviour
     void Update()
     {
         damagePar = _eCoreC.hp[0] * 100 / firstHP;
-        rot= transform.localRotation;
+        rot = transform.localRotation;
         pos = transform.position;
         ppos = playerGO.transform.position;
 
@@ -91,30 +87,6 @@ public class IfritC : MonoBehaviour
             }
         }
 
-        //Flying
-        flyt -= Time.deltaTime;
-        if (flyt <= 0)
-        {
-            flying++;
-            flyt = 0.2f;
-        }
-        if (flying > 2) flying = 0;
-        if (flying == 0) spriteRenderer.sprite = a;
-        else if (flying == 1)
-        {
-            if (!wing)
-            {
-                GameObject.FindObjectOfType<AudioSource>().PlayOneShot(wingS);
-                wing = true;
-            }
-            spriteRenderer.sprite = b;
-        }
-        else if (flying == 2)
-        {
-            wing = false;
-            spriteRenderer.sprite = c;
-        }
-
     }
 
 
@@ -122,23 +94,20 @@ public class IfritC : MonoBehaviour
     void FixedUpdate()
     {
         pos = transform.position;
-        if (_modeDelta != 0)
-        {
-            movex = (ppos.x - pos.x) / _modeDelta;
-            movey = (ppos.y - pos.y) / _modeDelta;
-            transform.localPosition += new Vector3(movex, movey, 0);
-        }
+        if (_modeDelta != 0) transform.localPosition += GameData.GetSneaking(pos, ppos, _modeDelta);
 
-        //“oê
+        //ç™»å ´
         if (_eCoreC.BossLifeMode == 0)
         {
             _movingCoroutine = StartCoroutine(ActionBranch());
             _eCoreC.BossLifeMode = 1;
         }
 
-        //€
+        //æ­»
         if (_eCoreC.BossLifeMode == 2)
         {
+            FloorManagerC.StageGimic(100, 0);
+            GameData.Star = true;
             GameData.TimerMoving = false;
             if (!_isDeathActionStarted)
             {
@@ -150,10 +119,10 @@ public class IfritC : MonoBehaviour
         }
     }
 
-    
+
 
     /// <summary>
-    /// s“®•ªŠò
+    /// è¡Œå‹•åˆ†å²
     /// </summary>
     /// <returns></returns>
     private IEnumerator ActionBranch()
@@ -164,37 +133,40 @@ public class IfritC : MonoBehaviour
             _attackVariation = Random.Range(0, 3);
         } while (_attackVariation == mae);
         mae = _attackVariation;
+        FloorManagerC.StageGimic(100, 0);
+        FloorManagerC.StageGimic((int)(100 - damagePar) / 2, 2);
         if (_attackVariation == 0) _movingCoroutine = StartCoroutine(FireWork());
         else if (_attackVariation == 1) Volcano();
-        else if (_attackVariation == 2) _movingCoroutine=StartCoroutine(FireAttack());
+        else if (_attackVariation == 2) _movingCoroutine = StartCoroutine(FireAttack());
     }
 
     /// <summary>
-    /// ‰Î‹…•úË
+    /// ç«çƒæ”¾å°„
     /// </summary>
     /// <returns></returns>
     private IEnumerator FireWork()
     {
         _modeDelta = 100;
+        float targetAngle = GameData.GetAngle(pos, ppos);
         for (int j = 0; j < 50; j++)
         {
             for (i = 0; i < 3; i++)
             {
                 Vector3 tar = pos + new Vector3(Random.Range(-100, 100), Random.Range(-100, 100), 0);
                 Vector3 direction2 = pos - tar + new Vector3(0, 30, 0);
-                Instantiate(ExpPrefab, tar, rot).EShot1(GetAngle(direction2), 10, 0.1f);
+                Instantiate(ExpPrefab, tar, rot).EShot1(GameData.GetAngle(tar + new Vector3(0, 30, 0), pos), 10, 0.1f);
             }
             yield return new WaitForSeconds(0.03f);
         }
-        StartCoroutine(FireWorks(GetAngle(ppos - pos)));
-        GameObject.FindObjectOfType<AudioSource>().PlayOneShot(fireS);
+        StartCoroutine(FireWorks(targetAngle));
+        _audioGO.PlayOneShot(fireS);
         yield return new WaitForSeconds(0.3f);
         _movingCoroutine = StartCoroutine(ActionBranch());
     }
 
 
     /// <summary>
-    /// ‰Î‰Š•úË
+    /// ç«ç‚æ”¾å°„
     /// </summary>
     /// <returns></returns>
     private void Volcano()
@@ -214,17 +186,17 @@ public class IfritC : MonoBehaviour
         {
             _movingCoroutine = StartCoroutine(VolcanoSlash());
         }
-        
+
     }
 
     /// <summary>
-    /// ‰Î‚Ì•²“Ëi
+    /// ç«ã®ç²‰çªé€²
     /// </summary>
     /// <returns></returns>
     private IEnumerator FireAttack()
     {
         _modeDelta = 0;
-        for (int j = 0; j <20; j++)
+        for (int j = 0; j < 20; j++)
         {
             for (i = 0; i < 3; i++)
             {
@@ -236,7 +208,7 @@ public class IfritC : MonoBehaviour
             }
         }
         _modeDelta = 50;
-        GameObject.FindObjectOfType<AudioSource>().PlayOneShot(volS);
+        _audioGO.PlayOneShot(volS);
         for (int j = 0; j < 40; j++)
         {
             for (i = 0; i < 3; i++)
@@ -252,7 +224,7 @@ public class IfritC : MonoBehaviour
     }
 
     /// <summary>
-    /// ”š”­‰Î‹…•úË
+    /// çˆ†ç™ºç«çƒæ”¾å°„
     /// </summary>
     /// <returns></returns>
     private IEnumerator FireWorks(float targetAngle)
@@ -269,7 +241,7 @@ public class IfritC : MonoBehaviour
     }
 
     /// <summary>
-    /// L”ÍˆÍ‰Î‰Š•úË0
+    /// åºƒç¯„å›²ç«ç‚æ”¾å°„0
     /// </summary>
     /// <returns></returns>
     private IEnumerator VolcanoBreath()
@@ -311,11 +283,11 @@ public class IfritC : MonoBehaviour
             yield return new WaitForSeconds(0.03f);
 
         }
-        GameObject.FindObjectOfType<AudioSource>().PlayOneShot(volS);
+        _audioGO.PlayOneShot(volS);
 
         for (int j = 0; j < 70; j++)
         {
-            
+
             for (i = 0; i < 10; i++)
             {
                 if (look == 0)
@@ -344,12 +316,12 @@ public class IfritC : MonoBehaviour
     }
 
     /// <summary>
-    /// ’ÇÕ‰Î‰Š•úË1
+    /// è¿½è·¡ç«ç‚æ”¾å°„1
     /// </summary>
     /// <returns></returns>
     private IEnumerator VolcanoHorming()
     {
-        
+
         for (int j = 0; j < 40; j++)
         {
             if (j < 20)
@@ -372,14 +344,14 @@ public class IfritC : MonoBehaviour
             {
 
                 Vector3 direction = target - pos;
-                float angle = GetAngle(direction) + Random.Range(-20, 20);
+                float angle = GameData.GetAngle(pos, target) + Random.Range(-20, 20);
                 ExpC shot2 = Instantiate(PowderPrefab, face, rot);
                 shot2.EShot1(angle, Random.Range(15, 135), 0.4f);
             }
             yield return new WaitForSeconds(0.03f);
 
         }
-        GameObject.FindObjectOfType<AudioSource>().PlayOneShot(volS);
+        _audioGO.PlayOneShot(volS);
 
         for (int j = 0; j < 70; j++)
         {
@@ -387,7 +359,7 @@ public class IfritC : MonoBehaviour
             {
 
                 Vector3 direction = target - pos;
-                float angle = GetAngle(direction) + Random.Range(-20, 20);
+                float angle = GameData.GetAngle(pos, target) + Random.Range(-20, 20);
                 ExpC shot2 = Instantiate(ExpPrefab, face, rot);
                 shot2.EShot1(angle, Random.Range(15, 135), 0.4f);
             }
@@ -395,14 +367,14 @@ public class IfritC : MonoBehaviour
             yield return new WaitForSeconds(0.03f);
 
         }
-        
+
         _lookLock = false;
         yield return new WaitForSeconds(0.3f);
         _movingCoroutine = StartCoroutine(ActionBranch());
     }
 
     /// <summary>
-    /// ‚È‚¬‚Í‚ç‚¢‰Î‰Š•úË2
+    /// ãªãã¯ã‚‰ã„ç«ç‚æ”¾å°„2
     /// </summary>
     /// <returns></returns>
     private IEnumerator VolcanoSlash()
@@ -432,11 +404,11 @@ public class IfritC : MonoBehaviour
             yield return new WaitForSeconds(0.03f);
 
         }
-        GameObject.FindObjectOfType<AudioSource>().PlayOneShot(volS);
+        _audioGO.PlayOneShot(volS);
 
         for (int j = 0; j < 70; j++)
         {
-            
+
             for (i = 0; i < 10; i++)
             {
                 if (look == 0)
@@ -471,20 +443,21 @@ public class IfritC : MonoBehaviour
     }
 
     /// <summary>
-    /// €ƒAƒNƒVƒ‡ƒ“
+    /// æ­»ã‚¢ã‚¯ã‚·ãƒ§ãƒ³
     /// </summary>
     /// <returns></returns>
     private IEnumerator DeathAction()
     {
+        _modeDelta = 0;
         _eCoreC.SummonItems();
         for (int k = 0; k < 3; k++)
         {
-            for(int j = 0; j < 5; j++)
+            for (int j = 0; j < 5; j++)
             {
-                for(int l = 0; l < 10; l++)
+                for (int l = 0; l < 10; l++)
                 {
 
-                    Instantiate(PowderPrefab, pos, rot).EShot1(Random.Range(0, 360), 10+(j*10), 0.4f);
+                    Instantiate(PowderPrefab, pos, rot).EShot1(Random.Range(0, 360), 10 + (j * 10), 0.4f);
                 }
             }
 
@@ -499,13 +472,14 @@ public class IfritC : MonoBehaviour
         {
             Instantiate(PowderPrefab, pos, rot).EShot1(Random.Range(0, 360), 20, 0.4f);
         }
-        playerGO.GetComponent<PlayerC>().StageMoveAction();
+        if (GameData.Round == GameData.GoalRound)
+        {
+            Instantiate(StaffPrefab, new Vector3(320, -100, 0), Quaternion.Euler(0, 0, 0)).Summon(0);
+        }
+        else
+        {
+            playerGO.GetComponent<PlayerC>().StageMoveAction();
+        }
         Destroy(gameObject);
-    }
-
-    public float GetAngle(Vector2 direction)
-    {
-        float rad = Mathf.Atan2(direction.y, direction.x);
-        return rad * Mathf.Rad2Deg;
     }
 }

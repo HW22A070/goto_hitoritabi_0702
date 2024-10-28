@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -55,8 +55,7 @@ public class MagicalC : MonoBehaviour
         if (down <= 1)
         {
             Vector3 tar = pos + new Vector3(Random.Range(-300, 300), Random.Range(0, 300), 0);
-            Vector3 direction2 = pos - tar + new Vector3(0, 30, 0);
-            float angle2 = GetAngle(direction2);
+            float angle2 = GameData.GetAngle(tar + new Vector3(0, 30, 0), pos);
             ExpC shot2 = Instantiate(EffectPrefab, tar, rot);
             shot2.EShot1(angle2, 10, 0.1f);
             spriteRenderer.sprite = magical;
@@ -95,8 +94,7 @@ public class MagicalC : MonoBehaviour
         {
             if (i == 0)
             {
-                Vector3 direction = ppos - pos;
-                angle = GetAngle(direction);
+                angle = GameData.GetAngle(pos,ppos);
             }
 
             if (i < 50 + hp)
@@ -191,12 +189,6 @@ public class MagicalC : MonoBehaviour
             }
 
         }
-    }
-
-    public float GetAngle(Vector2 direction)
-    {
-        float rad = Mathf.Atan2(direction.y, direction.x);
-        return rad * Mathf.Rad2Deg;
     }
 
     private void Damage(int hit)

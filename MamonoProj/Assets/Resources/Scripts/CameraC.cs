@@ -1,13 +1,13 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraC : MonoBehaviour
 {
-    Quaternion rot;
-    int kka = 0;
+    private Quaternion rot;
+    private int kka = 0;
     public int i;
-    Vector3 pos;
+    private Vector3 pos;
 
     public static bool IsCriticalShake,IsDamageShake;
 
@@ -34,40 +34,50 @@ public class CameraC : MonoBehaviour
         {
             transform.localEulerAngles = new Vector3(0, 0, GameData.Camera);
         }
-
-        if (IsCriticalShake)
-        {
-            StartCoroutine("CriticalShake");
-            transform.localPosition = pos;
-            IsCriticalShake = false;
-        }
-
-        if (IsDamageShake)
-        {
-            StartCoroutine("DamageShake");
-            transform.localPosition = pos;
-            IsDamageShake = false;
-        }
     }
 
-    private IEnumerator CriticalShake()
+    /// <summary>
+    /// 縦シェイク発動
+    /// </summary>
+    /// <param name="power">最大振動</param>
+    /// <param name="loop">振動回数（loop*0.03=秒）</param>
+    public void StartShakeVertical(int power, int loop)
     {
-        for (i = 0; i < 10; i++)
-        {
-            transform.localPosition = pos + new Vector3(0, Random.Range(-3,4), 0);
-            yield return new WaitForSeconds(0.03f);
-        }
-        transform.localPosition =pos;
+        StopAllCoroutines();
+        transform.position = pos;
+        StartCoroutine(ShakeVertical(power,loop));
     }
 
-    private IEnumerator DamageShake()
+    /// <summary>
+    /// 横シェイク発動
+    /// </summary>
+    /// <param name="power">最大振動</param>
+    /// <param name="loop">振動回数（loop*0.03=秒）</param>
+    public void StartShakeBeside(int power, int loop)
     {
-        for (i = 0; i < 15; i++)
+        StopAllCoroutines();
+        transform.position = pos;
+        StartCoroutine(ShakeBeside(power, loop));
+    }
+
+    private IEnumerator ShakeVertical(int power, int loop)
+    {
+        for (i = 0; i < loop; i++)
         {
-            transform.localPosition =pos+ new Vector3(Random.Range(-3, 4),0 , 0);
+            transform.localPosition = pos + new Vector3(0, Random.Range(-power,power+1), 0);
             yield return new WaitForSeconds(0.03f);
         }
-        transform.localPosition = pos;
+        transform.position =pos;
+    }
+
+    private IEnumerator ShakeBeside(int power, int loop)
+    {
+        for (i=0;i<loop;i++)
+        {
+            transform.localPosition = pos + new Vector3(Random.Range(-power, power + 1), 0, 0);
+            yield return new WaitForSeconds(0.03f);
+        }
+        transform.position = pos;
     }
 
     /*private IEnumerator Game()

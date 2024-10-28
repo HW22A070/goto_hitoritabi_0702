@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -19,7 +19,7 @@ public class PlantC : MonoBehaviour
 
     public void EShot1(float angle,float time,float deti,int hiro,float haba)
     {
-        var direction = GetDirection(angle);
+        var direction = GameData.GetDirection(angle);
         var angles = transform.localEulerAngles;
         angles.z = angle - 90;
         transform.localEulerAngles = angles;
@@ -30,15 +30,6 @@ public class PlantC : MonoBehaviour
         down = time;
         down2 = time;
         delete = deti;
-    }
-
-    public Vector3 GetDirection(float angle)
-    {
-        Vector3 direction = new Vector3(
-            Mathf.Cos(angle * Mathf.Deg2Rad),
-            Mathf.Sin(angle * Mathf.Deg2Rad),
-            0);
-        return direction;
     }
 
     private void Update()

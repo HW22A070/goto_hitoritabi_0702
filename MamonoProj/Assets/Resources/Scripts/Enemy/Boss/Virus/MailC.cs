@@ -1,4 +1,4 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,6 +14,11 @@ public class MailC : MonoBehaviour
     public SpriteRenderer spriteRenderer;
     public Sprite normal;
 
+    /// <summary>
+    /// „Çπ„Éî„Éº„Ç´
+    /// </summary>
+    private AudioSource _audioGO;
+
     public AudioClip mailS;
 
     [SerializeField]
@@ -21,12 +26,12 @@ public class MailC : MonoBehaviour
     private GameObject playerGO;
 
     /// <summary>
-    /// ìÆçÏíÜÇÃÉRÉãÅ[É`Éì
+    /// Âãï‰Ωú‰∏≠„ÅÆ„Ç≥„É´„Éº„ÉÅ„É≥
     /// </summary>
     private Coroutine _movingCoroutine;
 
     /// <summary>
-    /// ECoreCÇÃÉRÉìÉ|Å[ÉlÉìÉg
+    /// ECoreC„ÅÆ„Ç≥„É≥„Éù„Éº„Éç„É≥„Éà
     /// </summary>
     private ECoreC _eCoreC;
 
@@ -34,21 +39,16 @@ public class MailC : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
-    }
-
-
-    public void Summon(int judge)
-    {
+        _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
+        playerGO = GameObject.Find("Player");
         _eCoreC = GetComponent<ECoreC>();
         pos = transform.position;
         VirusC.VirusMode = 0;
         GM = GameObject.Find("GameManager");
         GM.GetComponent<GameManagement>()._bossNowHp = _eCoreC.hp[0];
         GM.GetComponent<GameManagement>()._bossMaxHp = _eCoreC.hp[0];
-        GameObject.FindObjectOfType<AudioSource>().PlayOneShot(mailS);
+        _audioGO.PlayOneShot(mailS);
         _eCoreC.IsBoss = true;
-        playerGO = GameObject.Find("Player");
     }
 
     // Update is called once per frame
@@ -68,6 +68,8 @@ public class MailC : MonoBehaviour
 
     void FixedUpdate()
     {
+
+
 
         //SummonAction
         if (_eCoreC.BossLifeMode == 0)

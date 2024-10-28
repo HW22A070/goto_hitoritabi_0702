@@ -1,4 +1,4 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,6 +15,8 @@ public class InsectBossC : MonoBehaviour
 
     private float spritenumber = 0;
 
+    public StaffRollC StaffPrefab;
+
     [SerializeField]
     private  SpriteRenderer spriteRenderer;
     public Sprite[] sprites;
@@ -22,18 +24,24 @@ public class InsectBossC : MonoBehaviour
     public ExpC LightningP;
     
     private GameManagement _gameManaC;
+
+    /// <summary>
+    /// „Çπ„Éî„Éº„Ç´
+    /// </summary>
+    private AudioSource _audioGO;
+
     public AudioClip shotS,chargeS,effectS,expS;
 
     [SerializeField,Tooltip("PlayerGameObject")]
     private GameObject playerGO;
 
     /// <summary>
-    /// ìÆçÏíÜÇÃÉRÉãÅ[É`Éì
+    /// Âãï‰Ωú‰∏≠„ÅÆ„Ç≥„É´„Éº„ÉÅ„É≥
     /// </summary>
     private Coroutine _movingCoroutine;
 
     /// <summary>
-    /// ECoreCÇÃÉRÉìÉ|Å[ÉlÉìÉg
+    /// ECoreC„ÅÆ„Ç≥„É≥„Éù„Éº„Éç„É≥„Éà
     /// </summary>
     private ECoreC _eCoreC;
 
@@ -42,20 +50,7 @@ public class InsectBossC : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        damagePar = _eCoreC.hp[0] * 100 / firstHP;
-        pos = transform.position;
-        ppos = playerGO.transform.position;
-        if (_eCoreC.BossLifeMode != 2) _gameManaC._bossNowHp = _eCoreC.hp[0];
-    }
-
-    public void Summon(int judge)
-    {
+        _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
         _eCoreC = GetComponent<ECoreC>();
         _gameManaC = GameObject.Find("GameManager").GetComponent<GameManagement>();
         firstHP = _eCoreC.hp[0];
@@ -68,14 +63,22 @@ public class InsectBossC : MonoBehaviour
         pos = transform.position;
         ppos = GameObject.Find("Player").transform.position;
         Quaternion rot = transform.localRotation;
-        GameObject.FindObjectOfType<AudioSource>().PlayOneShot(expS);
+        _audioGO.PlayOneShot(expS);
         for (int i = 0; i < 50; i++)
         {
             ExpC shot4 = Instantiate(LightningP, GameData.RandomWindowPosition(), rot);
             shot4.EShot1(Random.Range(0, 360), 0, 0.1f);
         }
         _eCoreC.BossLifeMode = 1;
+    }
 
+    // Update is called once per frame
+    void Update()
+    {
+        damagePar = _eCoreC.hp[0] * 100 / firstHP;
+        pos = transform.position;
+        ppos = playerGO.transform.position;
+        if (_eCoreC.BossLifeMode != 2) _gameManaC._bossNowHp = _eCoreC.hp[0];
     }
 
     void FixedUpdate()
@@ -91,9 +94,10 @@ public class InsectBossC : MonoBehaviour
             }
         }
 
-        //éÄ
+        //Ê≠ª
         if (_eCoreC.BossLifeMode == 2)
         {
+            GameData.Star = true;
             GameData.TimerMoving = false;
             spriteRenderer.sprite = sprites[6];
             AllCoroutineStop();
@@ -107,25 +111,31 @@ public class InsectBossC : MonoBehaviour
             transform.localEulerAngles += new Vector3(0, 0, 10);
             if (pos.y < -64)
             {
-                playerGO.GetComponent<PlayerC>().StageMoveAction();
+                if (GameData.Round == GameData.GoalRound)
+                {
+                    Instantiate(StaffPrefab, new Vector3(320, -100, 0), Quaternion.Euler(0,0,0)).Summon(0);
+                }
+                else
+                {
+                    playerGO.GetComponent<PlayerC>().StageMoveAction();
+                }
                 Destroy(gameObject);
             }
         }
     }
 
-    //çsìÆïœÇÌÇÈÉÑÉc
+    //Ë°åÂãïÂ§â„Çè„Çã„É§„ÉÑ
     private IEnumerator ActionBranch()
     {
         yield return new WaitForSeconds(0.15f);
         _movingCoroutine = StartCoroutine("Charge");
     }
 
-    //î≠éÀèÄîı
+    //Áô∫Â∞ÑÊ∫ñÂÇô
     private IEnumerator Charge()
     {
-        Debug.Log(damagePar);
         //charge
-        GameObject.FindObjectOfType<AudioSource>().PlayOneShot(chargeS);
+        _audioGO.PlayOneShot(chargeS);
         for (int j = 0; j < 50; j++)
         {
             Quaternion rot = transform.localRotation;
@@ -133,7 +143,7 @@ public class InsectBossC : MonoBehaviour
             shot4.EShot1(Random.Range(0, 360), 0, 0.1f);
             if (Random.Range(0, 50 - j) <= 2)
             {
-                GameObject.FindObjectOfType<AudioSource>().PlayOneShot(effectS);
+                _audioGO.PlayOneShot(effectS);
                 _isLightning = true;
                 shot4 = Instantiate(LightningP, pos, rot);
                 shot4.EShot1(Random.Range(0, 360), 0, 0.1f);
@@ -149,7 +159,7 @@ public class InsectBossC : MonoBehaviour
         else StartCoroutine("FireAction3");
     }
 
-    //î≠éÀàÍòA1
+    //Áô∫Â∞Ñ‰∏ÄÈÄ£1
     private IEnumerator FireAction1()
     {
         Fire();
@@ -157,7 +167,7 @@ public class InsectBossC : MonoBehaviour
         OnAnimatorMove();
     }
 
-    //î≠éÀàÍòA2
+    //Áô∫Â∞Ñ‰∏ÄÈÄ£2
     private IEnumerator FireAction2()
     {
         for(int j = 0; j < 3; j++)
@@ -168,7 +178,7 @@ public class InsectBossC : MonoBehaviour
         OnAnimatorMove();
     }
 
-    //î≠éÀàÍòA3
+    //Áô∫Â∞Ñ‰∏ÄÈÄ£3
     private IEnumerator FireAction3()
     {
         for (int j = 0; j < 6; j++)
@@ -179,18 +189,16 @@ public class InsectBossC : MonoBehaviour
         OnAnimatorMove();
     }
 
-    //î≠éÀ
+    //Áô∫Â∞Ñ
     private void Fire()
     {
-        Vector3 direction = new Vector3(0, 0, 0);
-        float angle = GetAngle(direction);
         Quaternion rot = transform.localRotation;
         EMissile1C shot = Instantiate(EMissile1Prefab, pos, rot);
-        GameObject.FindObjectOfType<AudioSource>().PlayOneShot(shotS);
-        shot.EShot1(angle, 0, 3);
+        _audioGO.PlayOneShot(shotS);
+        shot.EShot1(0, 0, 3);
     }
 
-    //à⁄ìÆÉâÉìÉ_ÉÄ
+    //ÁßªÂãï„É©„É≥„ÉÄ„É†
     private void OnAnimatorMove()
     {
         _isLightning = false;
@@ -198,7 +206,7 @@ public class InsectBossC : MonoBehaviour
         else _movingCoroutine = StartCoroutine("HomingMoving");
     }
 
-    //à⁄ìÆ
+    //ÁßªÂãï
     private IEnumerator Moving()
     {
         futurey = Random.Range(2, 5) * 90;
@@ -211,7 +219,7 @@ public class InsectBossC : MonoBehaviour
         _movingCoroutine = StartCoroutine("ActionBranch");
     }
 
-    //ïﬂë®
+    //ÊçïÊçâ
     private IEnumerator HomingMoving()
     {
         futurey = ((int)ppos.y / 90 * 90) + 32;
@@ -224,7 +232,7 @@ public class InsectBossC : MonoBehaviour
         _movingCoroutine = StartCoroutine("ActionBranch");
     }
 
-    //ëSí‚é~
+    //ÂÖ®ÂÅúÊ≠¢
     private void AllCoroutineStop() {
         StopCoroutine("ActionBranch");
         StopCoroutine("Charge");
@@ -233,12 +241,6 @@ public class InsectBossC : MonoBehaviour
         StopCoroutine("FireAction3");
         StopCoroutine("Moving");
         _movingCoroutine = null;
-    }
-
-    public float GetAngle(Vector2 direction)
-    {
-        float rad = Mathf.Atan2(direction.y, direction.x);
-        return rad * Mathf.Rad2Deg;
     }
 
 }

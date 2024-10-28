@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 
 namespace unityroom.Api.Internals
 {
-    internal class Scoreboard : MonoBehaviour
+    internal class Pointboard : MonoBehaviour
     {
         /// <summary>
         /// サーバーにスコアを送信する最短の間隔(秒)
@@ -16,14 +16,14 @@ namespace unityroom.Api.Internals
         /// </summary>
         private const int MaxTryCount = 2;
         private readonly RetryCounter _retryCounter = new RetryCounter(MaxTryCount);
-        private readonly ScoreHolder _scoreHolder = new ScoreHolder();
+        private readonly PointHolder _scoreHolder = new PointHolder();
         private readonly TimeKeeper _timeKeeper = new TimeKeeper(IntervalSeconds);
         private int _boardNo;
         private string _hmacKey;
 
         private void Update()
         {
-            if (_scoreHolder.ScoreChanged && !_timeKeeper.IsBusy()) { StartCoroutine(SendScoreEnumerator()); }
+            if (_scoreHolder.PointChanged && !_timeKeeper.IsBusy()) { StartCoroutine(SendPointEnumerator()); }
         }
 
         internal void Initialize(int boardNo, string hmacKey)
@@ -32,29 +32,29 @@ namespace unityroom.Api.Internals
             _hmacKey = hmacKey;
         }
 
-        internal void AddScore(float score, ScoreboardWriteMode mode)
+        internal void AddPoint(float score, PointboardWriteMode mode)
         {
-            var scoreUpdated = _scoreHolder.SetNewScore(score, mode);
+            var scoreUpdated = _scoreHolder.SetNewPoint(score, mode);
             Debug.Log(
-                scoreUpdated ? $"[unityroom] スコア送信予約 BoardNo={_boardNo} Score={score}"
-                    : $"[unityroom] ハイスコア未更新のため送信しません BoardNo={_boardNo} Score={score}"
+                scoreUpdated ? $"[unityroom] スコア送信予約 BoardNo={_boardNo} Point={score}"
+                    : $"[unityroom] ハイスコア未更新のため送信しません BoardNo={_boardNo} Point={score}"
             );
         }
 
-        private IEnumerator SendScoreEnumerator()
+        private IEnumerator SendPointEnumerator()
         {
             _timeKeeper.Reset();
-            var score = _scoreHolder.Score;
+            var score = _scoreHolder.Point;
             if (Util.IsEditor())
             {
-                Debug.Log($"[unityroom] スコア送信 BoardNo={_boardNo} Score={score} (unityroomにゲームをアップロードすると実際に送信されます)");
+                Debug.Log($"[unityroom] スコア送信 BoardNo={_boardNo} Point={score} (unityroomにゲームをアップロードすると実際に送信されます)");
                 _retryCounter.Reset();
                 _scoreHolder.ResetChangedFlag();
                 yield break;
             }
 
             Debug.Log(
-                $"[unityroom] スコア送信開始 BoardNo={_boardNo} Score={score} {(_retryCounter.Count > 0 ? $"リトライ{_retryCounter.Count}回目" : "")}"
+                $"[unityroom] スコア送信開始 BoardNo={_boardNo} Point={score} {(_retryCounter.Count > 0 ? $"リトライ{_retryCounter.Count}回目" : "")}"
             );
             using var request = CreateRequest(score);
             yield return request.SendWebRequest();
@@ -64,7 +64,7 @@ namespace unityroom.Api.Internals
             if (request.result == UnityWebRequest.Result.Success)
             {
                 Debug.Log(
-                    $"[unityroom] スコア送信成功 BoardNo={_boardNo} Score={score} Response={request.responseCode} Data={request.downloadHandler.text} "
+                    $"[unityroom] スコア送信成功 BoardNo={_boardNo} Point={score} Response={request.responseCode} Data={request.downloadHandler.text} "
                 );
                 _retryCounter.Reset();
                 _scoreHolder.ResetChangedFlag();
@@ -73,7 +73,7 @@ namespace unityroom.Api.Internals
             {
                 //失敗
                 Debug.Log(
-                    $"[unityroom] スコア送信失敗 BoardNo={_boardNo} Score={score} Response={request.responseCode} Data={request.downloadHandler.text} リトライ残={_retryCounter.RemainCount} "
+                    $"[unityroom] スコア送信失敗 BoardNo={_boardNo} Point={score} Response={request.responseCode} Data={request.downloadHandler.text} リトライ残={_retryCounter.RemainCount} "
                 );
             }
 

@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -22,7 +22,10 @@ public class StaffRollC : MonoBehaviour
     [SerializeField]
     private ExpC _virusEf;
 
-
+    /// <summary>
+    /// スピーカ
+    /// </summary>
+    private AudioSource _audioGO;
 
 
     // Start is called before the first frame update
@@ -31,6 +34,7 @@ public class StaffRollC : MonoBehaviour
         playerGO = GameObject.Find("Player");
         StartCoroutine(StaffrollUpper());
         //GameData.StageMovingAction = true;
+        _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -38,7 +42,8 @@ public class StaffRollC : MonoBehaviour
     {
         pos = transform.position;
 
-        if (pos.y >= 200 && GameData.Difficulty >= 2&&!_isBug)
+        //ウィルス発生！
+        if (pos.y >= 200 && GameData.Difficulty >= 2&&GameData.StartRound==1&& GameData.GoalRound== 30 && !_isBug)
         {
             _isBug = true;
             StartCoroutine(VirusStart());
@@ -58,7 +63,7 @@ public class StaffRollC : MonoBehaviour
     {
         while (pos.y <500)
         {
-            transform.localPosition += new Vector3(0, 2, 0);
+            transform.localPosition += new Vector3(0, 4, 0);
             if (Random.Range(0, 40) ==0)
             {
                 Firework();
@@ -108,16 +113,16 @@ public class StaffRollC : MonoBehaviour
 
     private IEnumerator VirusStart() {
         GameData.GoalRound = 35;
-        GameObject.FindObjectOfType<AudioSource>().PlayOneShot(_sickS);
+        _audioGO.PlayOneShot(_sickS);
         StopCoroutine(StaffrollUpper());
         GameData.Star = false;
         GameData.EX = 1;
         GameData.VirusBugEffectLevel = 3;
-        GameData.Score += 100000;
+        GameData.Point += 100000;
         for (j = 0; j < 33; j++)
         {
             for (int k = 0; k < 10; k++) VirusEf();
-            GameObject.FindObjectOfType<AudioSource>().PlayOneShot(_effectS);
+            _audioGO.PlayOneShot(_effectS);
             yield return new WaitForSeconds(0.03f);
         }
         GameData.VirusBugEffectLevel = 0;
