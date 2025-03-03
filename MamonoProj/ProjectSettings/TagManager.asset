@@ -17,6 +17,7 @@ TagManager:
   - Barrier
   - MechaUnit
   - Text
+  - Enemy2
   layers:
   - Default
   - TransparentFX
@@ -53,4 +54,34 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: BackGround
+    uniqueID: 4201224737
+    locked: 0
+  - name: Floor
+    uniqueID: 4195612191
+    locked: 0
+  - name: Item
+    uniqueID: 2615948323
+    locked: 0
+  - name: Missile
+    uniqueID: 1191421425
+    locked: 0
+  - name: Enemy
+    uniqueID: 3734733331
+    locked: 0
+  - name: Player
+    uniqueID: 3939021161
+    locked: 0
+  - name: Effect
+    uniqueID: 1249423489
+    locked: 0
+  - name: GUI
+    uniqueID: 1921905521
+    locked: 0
+  - name: UI
+    uniqueID: 2835831649
+    locked: 0
+  - name: Virus
+    uniqueID: 81378227
     locked: 0

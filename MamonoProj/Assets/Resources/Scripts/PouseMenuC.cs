@@ -24,31 +24,31 @@ public class PouseMenuC : MenuSystemC
     }
 
 
-    protected override void Option1() { StartCoroutine(DoOption(0)); }
-    protected override void Option2() { StartCoroutine(DoOption(1)); }
-    protected override void Option3() { StartCoroutine(DoOption(2)); }
+    protected override void Option1() => StartCoroutine(DoOption(0));
+    protected override void Option2() => StartCoroutine(DoOption(1));
+    protected override void Option3() => StartCoroutine(DoOption(2));
 
     private IEnumerator DoOption(int mode)
     {
-        if (GameData.Pouse)
+        if (GameData.IsPouse)
         {
             if (mode == 0)
             {
-                PouseOnAndOff(false);
+                SetPouseTF(false);
             }
             else if (mode == 1)
             {
                 yield return new WaitForSecondsRealtime(0.5f);
                 GameData.Language++;
                 if (GameData.Language > 2) GameData.Language = 0;
-                start = false;
+                _isStart = false;
             }
             else if (mode == 2)
             {
                 yield return new WaitForSecondsRealtime(1.0f);
                 GameData.PlayerMoveAble = 6;
                 TimeManager.ChangeTimeValue(1.0f);
-                GameData.Pouse = false;
+                GameData.IsPouse = false;
 
                 if (GameData.Round <= 0)
                 {
@@ -57,7 +57,7 @@ public class PouseMenuC : MenuSystemC
                 }
                 else
                 {
-                    CrearC._isGiveUp = true;
+                    ClearC._isGiveUp = true;
                     SceneManager.LoadScene("Clear");
                 }
             }
@@ -67,21 +67,21 @@ public class PouseMenuC : MenuSystemC
     //Imput
     public void OnPouse(InputAction.CallbackContext context)
     {
-        start = false;
+        _isStart = false;
         //ポーズ処理
         if (context.started)
         {
             _titleMode = 0;
-            PouseOnAndOff(true);
+            SetPouseTF(true);
         }
     }
 
-    private void PouseOnAndOff(bool pouse)
+    private void SetPouseTF(bool pouse)
     {
         _audioSource.PlayOneShot(pouseS);
         if (pouse)
         {
-            GameData.Pouse = true;
+            GameData.IsPouse = true;
             _goMenuPouse.SetActive(true);
             _goGameMan.GetComponent<PlayerInput>().SwitchCurrentActionMap("Main");
             GameData.PlayerMoveAble = 0;
@@ -90,7 +90,7 @@ public class PouseMenuC : MenuSystemC
         }
         else
         {
-            GameData.Pouse = false;
+            GameData.IsPouse = false;
             GameData.PlayerMoveAble = 6;
             _goGameMan.GetComponent<PlayerInput>().SwitchCurrentActionMap("Player");
             TimeManager.ChangeTimeValue(_timeBeforePouse);

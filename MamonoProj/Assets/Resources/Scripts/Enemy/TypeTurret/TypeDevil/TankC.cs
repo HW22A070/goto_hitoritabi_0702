@@ -22,7 +22,7 @@ public class TankC : ETypeDevilC
         base.Update();
 
         if (shotdown != 0) shotdown -= Time.deltaTime;
-        if (ppos.y >= pos.y - 16 && ppos.y <= pos.y + 16 && shotdown <= 0)
+        if (_posPlayer.y >= _posOwn.y - 16 && _posPlayer.y <= _posOwn.y + 16 && shotdown <= 0)
         {
             StartCoroutine(Shoot());
             shotdown = 3;
@@ -32,7 +32,7 @@ public class TankC : ETypeDevilC
     protected IEnumerator Shoot()
     {
         _isDontDown = true;
-        if (pos.x > ppos.x)
+        if (_posOwn.x > _posPlayer.x)
         {
             angle = 180;
             spriteRenderer.flipX = false;
@@ -43,18 +43,18 @@ public class TankC : ETypeDevilC
             spriteRenderer.flipX = true;
         }
         _isCharging = true;
-        if (pos.x > ppos.x) spriteRenderer.flipX = false;
+        if (_posOwn.x > _posPlayer.x) spriteRenderer.flipX = false;
         else spriteRenderer.flipX = true;
 
-        float movetemp = move;
-        move = 0;
+        float movetemp = _move;
+        _move = 0;
         yield return new WaitForSeconds(1.00f);
 
         Quaternion rot = transform.localRotation;
-        Instantiate(EMissile1Prefab, pos, rot).EShot1(angle, 1, 0.07f);
+        Instantiate(EMissile1Prefab, _posOwn, rot).EShot1(angle, 1, 0.07f);
         _audioGO.PlayOneShot(shotS);
         yield return new WaitForSeconds(0.5f);
-        move = movetemp;
+        _move = movetemp;
         _isDontDown = false;
         _isCharging = false;
     }

@@ -1,57 +1,52 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class CubeC : MonoBehaviour
+public class CubeC : ETypeCoreC
 {
-    int mode = 0;
-   
-    Vector3 scare;
-    float size = 0;
+    private bool _isExpansion = true;
 
-    BoxCollider2D Col;
+    private Vector3 _scareOwn;
+    private float _size = 0;
+
+    private BoxCollider2D _boxColliderOwn;
 
     // Start is called before the first frame update
-    void Start()
+    new void Start()
     {
-        Col = GetComponent<BoxCollider2D>();
-        scare = gameObject.transform.localScale;
-        scare = new Vector3(0.01f, 0.01f, 0);
-        gameObject.transform.localScale = scare;
-        Col.size = new Vector3(size, size, 0);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
+        base.Start();
+        _boxColliderOwn = GetComponent<BoxCollider2D>();
+        _scareOwn = gameObject.transform.localScale;
+        _scareOwn = new Vector3(0.01f, 0.01f, 0);
+        gameObject.transform.localScale = _scareOwn;
+        _boxColliderOwn.size = new Vector3(_size, _size, 0);
     }
 
     void FixedUpdate()
     {
-            if (mode == 0)
-            {
-                scare = gameObject.transform.localScale;
-                scare += new Vector3(0.02f, 0.02f, 0);
-                size += 2.56f;
-                Col.size = new Vector3(size, size, 0);
-                gameObject.transform.localScale = scare;
-            }
-            if (scare.x >= 1)
-            {
-                mode = 1;
-            }
-            if (mode == 1)
-            {
-                scare = gameObject.transform.localScale;
-                scare -= new Vector3(0.02f, 0.02f, 0);
-                size -= 2.56f;
-                Col.size = new Vector3(size, size, 0);
-                gameObject.transform.localScale = scare;
-            }
-            if (scare.x <= 0)
-            {
-                Destroy(gameObject);
-            }
+
+        if (!_isExpansion)
+        {
+            _scareOwn = gameObject.transform.localScale;
+            _scareOwn += new Vector3(0.02f, 0.02f, 0);
+            _size += 2.56f;
+            _boxColliderOwn.size = new Vector3(_size, _size, 0);
+            gameObject.transform.localScale = _scareOwn;
+        }
+        if (_scareOwn.x >= 1)
+        {
+            _isExpansion = false;
+        }
+        if (_isExpansion)
+        {
+            _scareOwn = gameObject.transform.localScale;
+            _scareOwn -= new Vector3(0.02f, 0.02f, 0);
+            _size -= 2.56f;
+            _boxColliderOwn.size = new Vector3(_size, _size, 0);
+            gameObject.transform.localScale = _scareOwn;
+        }
+        if (_scareOwn.x <= 0)
+        {
+            Destroy(gameObject);
+        }
     }
 
     

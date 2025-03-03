@@ -18,11 +18,11 @@ public class BeamChildC : ChildsCoreC
     private PExpC _prfbEffect;
 
     // Start is called before the first frame update
-    void Start()
+    protected override void Start()
     {
+        base.Start();
         _looprRadius = _looprRadiusBase;
         _loopSpeedDelta = _loopSpeedBase;
-        playerGO = GameObject.Find("Player");
     }
 
     public void SetOfset(float ofset) {
@@ -35,9 +35,10 @@ public class BeamChildC : ChildsCoreC
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    protected override void FixedUpdate()
     {
-        
+        base.FixedUpdate();
+
         transform.position +=_posDelta;
 
         _loopSpeed += _loopSpeedDelta;
@@ -60,9 +61,9 @@ public class BeamChildC : ChildsCoreC
     private void SetPosition()
     {
         _pos = transform.position;
-        _ppos = playerGO.transform.position;
+        _posPlayer = playerGO.transform.position;
         _loopOfset = new Vector3(Mathf.Sin((_loopSpeed + _posOfset) * Mathf.Deg2Rad) * _looprRadius, Mathf.Cos((_loopSpeed + _posOfset) * Mathf.Deg2Rad) * _looprRadius, 0);
-        _posDelta = GameData.GetSneaking(_pos, _ppos, 4) + GameData.GetSneaking(_center, _loopOfset, 4);
+        _posDelta = GameData.GetSneaking(_pos, _posPlayer, 4) + GameData.GetSneaking(_center, _loopOfset, 4);
     }
 
     /// <summary>
@@ -73,14 +74,14 @@ public class BeamChildC : ChildsCoreC
         for (int i = -3; i <= 3; i += 2)
         {
             PMissile shot = Instantiate(PRaserP, transform.position, transform.rotation);
-            shot.Shot(180 + (PlayerC.muki * 180) + i * 10, 0, 1000);
+            shot.Shot((_scPlayer.CheckPlayerAngleIsRight() ? 0 : 180) + i * 10, 0, 1000);
             shot.transform.position += shot.transform.up * 320;
         }
 
         /*
         _loopSpeedDelta =30;
         _looprRadius = 96;
-        transform.position= _ppos + new Vector3(Mathf.Sin((_loopSpeed + _posOfset) * Mathf.Deg2Rad) * _looprRadius, Mathf.Cos((_loopSpeed + _posOfset) * Mathf.Deg2Rad) * _looprRadius, 0);
+        transform.position= _posPlayer + new Vector3(Mathf.Sin((_loopSpeed + _posOfset) * Mathf.Deg2Rad) * _looprRadius, Mathf.Cos((_loopSpeed + _posOfset) * Mathf.Deg2Rad) * _looprRadius, 0);
         float angle = GetTagPosition(transform.position);
         Instantiate(_prfbBeamBoll, _pos, transform.rotation).SetFirstPos(_pos + GameData.GetDirection(-(_loopSpeed + _posOfset) % 360) * 64, PlayerC.muki);
         PMissile shot = Instantiate(PRaserP, transform.position, transform.rotation);
@@ -103,14 +104,14 @@ public class BeamChildC : ChildsCoreC
     /// 敵場所特定、自分とのアングルを求める
     /// </summary>
     /// <returns></returns>
-    private float GetTagPosition(Vector3 pos)
+    private float GetAngleWithEnemy(Vector3 _posOwn)
     {
         GameObject[] myObjects;
         myObjects = GameObject.FindGameObjectsWithTag("Enemy");
         if (myObjects.Length > 0)
         {
             Vector3 enemyPos = GameData.FixPosition(myObjects[Random.Range(0, myObjects.Length)].transform.position, 32, 32);
-            return GameData.GetAngle(pos, enemyPos);
+            return GameData.GetAngle(_posOwn, enemyPos);
         }
         else
         {
@@ -120,10 +121,10 @@ public class BeamChildC : ChildsCoreC
                 if (myObjects.Length > 0)
                 {
                     Vector3 enemyPos = GameData.FixPosition(myObjects[Random.Range(0, myObjects.Length)].transform.position, 32, 32);
-                    return GameData.GetAngle(pos, enemyPos);
+                    return GameData.GetAngle(_posOwn, enemyPos);
                 }
             }
-            return 180 - (PlayerC.muki * 180);
+            return _scPlayer.CheckPlayerAngleIsRight() ? 0 : 180;
         }
     }
 }

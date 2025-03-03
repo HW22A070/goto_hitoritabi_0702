@@ -11,13 +11,6 @@ public class FlagC : MonoBehaviour
     /// </summary>
     private RaycastHit2D _hitFlagToPlayer;
 
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
     // Update is called once per frame
     void FixedUpdate()
     {
@@ -25,7 +18,7 @@ public class FlagC : MonoBehaviour
         if (_hitFlagToPlayer)
         {
             _tutorialGO = GameObject.FindGameObjectsWithTag("Tutorial");
-            for (int i = 0; i < _tutorialGO.Length; i++) _tutorialGO[i].GetComponent<TutorialC>().GoTutorial();
+            for (int i = 0; i < _tutorialGO.Length; i++) _tutorialGO[i].GetComponent<TutorialC>().GoToTutorial();
             Destroy(gameObject);
         }
     }

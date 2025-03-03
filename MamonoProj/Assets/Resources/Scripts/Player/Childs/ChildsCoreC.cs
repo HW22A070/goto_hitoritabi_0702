@@ -1,10 +1,11 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EnumDic.Player;
 
 public class ChildsCoreC : MonoBehaviour
 {
-    protected Vector3 _ppos, _pos, _posDelta;
+    protected Vector3 _posPlayer, _pos, _posDelta;
 
     protected GameObject playerGO;
 
@@ -12,15 +13,21 @@ public class ChildsCoreC : MonoBehaviour
 
     protected SpriteRenderer spriteRenderer;
 
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField]
+    protected MODE_GUN _modeWeapon;
+
+    protected virtual void Start()
     {
-        
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        playerGO = GameObject.Find("Player");
+        _scPlayer = playerGO.GetComponent<PlayerC>();
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void FixedUpdate()
     {
-        
+        if (_scPlayer.CheckIsAbleChargeShot(_modeWeapon)) spriteRenderer.color = new Color(1f, 1f, 1f, 1f);
+        else spriteRenderer.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+
     }
 }

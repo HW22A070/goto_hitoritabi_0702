@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ETypeArmyC : ETypeDevilC
 {
@@ -10,14 +8,14 @@ public class ETypeArmyC : ETypeDevilC
     protected new void FixedUpdate()
     {
         base.FixedUpdate();
-        if (pos.x > ppos.x - 32)
+        if (_posOwn.x > _posPlayer.x - 32)
         {
-            if (move > -_moveSpeedMax) move -= _moveSpeedDelta;
+            if (_move > -_moveSpeedMax) _move -= _moveSpeedDelta;
             spriteRenderer.flipX = false;
         }
-        if (pos.x < ppos.x + 32)
+        if (_posOwn.x < _posPlayer.x + 32)
         {
-            if (move < _moveSpeedMax) move += _moveSpeedDelta;
+            if (_move < _moveSpeedMax) _move += _moveSpeedDelta;
             spriteRenderer.flipX = true;
         }
     }

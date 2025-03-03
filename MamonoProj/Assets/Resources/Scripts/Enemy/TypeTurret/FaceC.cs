@@ -18,9 +18,9 @@ public class FaceC : ETypeTurretC
         if (shotdown != 0) shotdown -= Time.deltaTime; ;
         if (shotdown <= 0)
         {
-            float angle = GameData.GetAngle(transform.position,ppos);
+            float angle = GameData.GetAngle(transform.position,_posPlayer);
             Quaternion rot = transform.localRotation;
-            EMissile1C shot = Instantiate(EMissile1Prefab, pos, rot);
+            EMissile1C shot = Instantiate(EMissile1Prefab, _posOwn, rot);
             shot.EShot1(angle, 5, 0);
             _audioGO.PlayOneShot(shotS);
             shotdown = 2.0f;

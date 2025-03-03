@@ -4,18 +4,24 @@ using UnityEngine;
 
 public class LoveC : MonoBehaviour
 {
-    float time = 1.0f;
-    public EMissile1C EMissile1Prefab;
-    public ExpC ExpPrefab;
-    Vector3 pos;
+    private float _time = 1.0f;
+
+    [SerializeField]
+    private EMissile1C EMissile1Prefab;
+
+    [SerializeField]
+    private ExpC ExpPrefab;
+    private Vector3 _posOwn;
 
     /// <summary>
     /// スピーカ
     /// </summary>
     private AudioSource _audioGO;
 
-    public AudioClip loveS;
-    new bool audio;
+
+    [SerializeField]
+    private AudioClip loveS;
+    private bool _isAudio;
 
     // Start is called before the first frame update
     void Start()
@@ -23,44 +29,39 @@ public class LoveC : MonoBehaviour
         _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
     }
 
-    public void EShot1()
-    {
-    }
-
     // Update is called once per frame
     void Update()
     {
-        pos = transform.position;
+        _posOwn = transform.position;
 
-        time -= Time.deltaTime;
+        _time -= Time.deltaTime;
 
     }
 
     void FixedUpdate()
     {
-            if (time > 0)
-            {
-                float angle = 270;
-                Quaternion rot = transform.localRotation;
-                angle = Random.Range(0, 360);
-                ExpC shot = Instantiate(ExpPrefab, pos-new Vector3(0,Random.Range(0,480),0), rot);
-                shot.EShot1(angle, 1, 0.3f);
-            }
-            if (time <= 0)
-            {
-                float angle = 270;
-                Quaternion rot = transform.localRotation;
-                EMissile1C shot = Instantiate(EMissile1Prefab, pos, rot);
-                shot.EShot1(angle, 80, 0);
-                if (!audio)
-                {
-                    _audioGO.PlayOneShot(loveS);
-                    audio = true;
-                }
+        float angle = 270;
+        Quaternion rot = transform.localRotation;
 
-                Destroy(gameObject,0.2f);
-
+        if (_time > 0)
+        {
+            angle = Random.Range(0, 360);
+            ExpC shot = Instantiate(ExpPrefab, _posOwn - new Vector3(0, Random.Range(0, 480), 0), rot);
+            shot.EShot1(angle, 1, 0.3f);
+        }
+        else
+        {
+            EMissile1C shot = Instantiate(EMissile1Prefab, _posOwn, rot);
+            shot.EShot1(angle, 80, 0);
+            if (!_isAudio)
+            {
+                _audioGO.PlayOneShot(loveS);
+                _isAudio = true;
             }
+
+            Destroy(gameObject, 0.2f);
+
+        }
 
     }
 }

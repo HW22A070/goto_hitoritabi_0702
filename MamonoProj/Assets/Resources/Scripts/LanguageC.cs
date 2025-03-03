@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 英語対応
+/// </summary>
 public class LanguageC : MonoBehaviour
 {
     [SerializeField,Header("日本語")]
@@ -13,9 +16,6 @@ public class LanguageC : MonoBehaviour
 
     [SerializeField, Header("English")]
     private string _en;
-
-    //[SerializeField, Header("English")]
-    private string _G;
 
     private Text _ownText;
 
@@ -39,7 +39,6 @@ public class LanguageC : MonoBehaviour
             case 2:
                 _ownText.text = _en;
                 break;
-
         }
     }
 }

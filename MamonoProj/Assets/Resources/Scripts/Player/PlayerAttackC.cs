@@ -1,173 +1,235 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EnumDic.Player;
+using System;
+using Random = UnityEngine.Random;
+using EnumDic.System;
 
 public class PlayerAttackC : MonoBehaviour
 {
-    private Vector3 pos;
-    private Quaternion rot;
+    private Vector3 _posOwn;
+    private Quaternion _rotOwn;
 
     /// <summary>
-    /// ƒvƒŒƒCƒ„[‚ÌƒOƒ‰ƒtƒBƒbƒN‚©‚¿‚å‚Á‚Æ‚Å‚©‚¢‚Ô‚ñe‚ÌêŠ‚ğ‰º‚°‚é’l
+    /// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ã‚°ãƒ©ãƒ•ã‚£ãƒƒã‚¯ã‹ã¡ã‚‡ã£ã¨ã§ã‹ã„ã¶ã‚“éŠƒã®å ´æ‰€ã‚’ä¸‹ã’ã‚‹å€¤
     /// </summary>
-    private Vector3 _shotPos;
+    private Vector3 _posShot;
+
+
+    [SerializeField, Tooltip("æ­¦å™¨ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹")]
+    private GunStates[] _statesWeapon = new GunStates[4]{
+        new GunStates{
+            mode=MODE_GUN.Shining,
+            energyChargeTick=1.66f,
+            cooltimeDefault=0.1f,
+            cooltimeNow=0f,
+            energy=100f,
+            enegyConsumption=2f,
+            isLoaded=true
+        },
+        new GunStates{
+            mode=MODE_GUN.Physical,
+            energyChargeTick=1.5f,
+            cooltimeDefault=0.08f,
+            cooltimeNow=0f,
+            energy=100f,
+            enegyConsumption=2f,
+            isLoaded=true
+        },
+        new GunStates{
+            mode=MODE_GUN.Crash,
+            energyChargeTick=2.0f,
+            cooltimeDefault=0.6f,
+            cooltimeNow=0f,
+            energy=100f,
+            enegyConsumption=8f,
+            isLoaded=true
+        },
+        new GunStates{
+            mode=MODE_GUN.Heat,
+            energyChargeTick=0.75f,
+            cooltimeDefault=0.03f,
+            cooltimeNow=0f,
+            energy=100f,
+            enegyConsumption=1f,
+            isLoaded=true
+        },
+    };
+
+    private float _enegyConsumptionChargeShot = 90f;
 
     /// <summary>
-    /// ƒN[ƒ‹ƒ^ƒCƒ€ƒZƒbƒg
+    /// 0=ãƒ“ãƒ¼ãƒ 
+    /// 1=ãƒãƒ¬ãƒƒãƒˆ
+    /// 2=ãƒœãƒ 
+    /// 3=ãƒãƒ¼ãƒ³
     /// </summary>
-    private float[] _defaultCoolTime = { 1.8f, 0.1f, 2.0f, 0.08f, 1.5f, 0.6f, 4.0f, 0.03f };
+    private MODE_GUN _modeGun;
+    //private int _playerNumber = 0;
 
     /// <summary>
-    /// Œ»İ‚ÌƒN[ƒ‹ƒ^ƒCƒ€
-    /// </summary>
-    private float[] shotdown = { 0, 0, 0, 0, 0, 0, 0, 0 };
-
-    /// <summary>
-    /// 0=ƒr[ƒ€
-    /// 1=ƒoƒŒƒbƒg
-    /// 2=ƒ{ƒ€
-    /// 3=ƒo[ƒ“
-    /// </summary>
-    private int _gunMode = 1;
-    private int plnum = 0;
-
-    /// <summary>
-    /// ‰“‹——£•Ší‚ªƒ[ƒh‚³‚ê‚Ä‚¢‚é‚©
-    /// </summary>
-    private bool[] _isLoaded = { true, true, true, true };
-
-    /// <summary>
-    /// •ÏŒ`’†
+    /// å¤‰å½¢ä¸­
     /// </summary>
     private bool _isChanging;
 
-    [SerializeField, Tooltip("’eƒAƒ^ƒbƒ`")]
-    private PMissile PBulletP;
+    [SerializeField, Tooltip("å¼¾ã‚¢ã‚¿ãƒƒãƒ")]
+    private PMissile _prhbMissile;
 
-    [SerializeField, Tooltip("’eƒAƒ^ƒbƒ`A")]
+    [SerializeField, Tooltip("å¼¾ã‚¢ã‚¿ãƒƒãƒã€")]
     private PBombC PBombP, PMinePutP, PMineP, PMinecristalP;
 
-    [SerializeField, Tooltip("’eƒAƒ^ƒbƒ`")]
+    [SerializeField, Tooltip("å¼¾ã‚¢ã‚¿ãƒƒãƒ")]
     private PExpC PFireP, PSlashP;
 
-    [SerializeField, Tooltip("’eƒAƒ^ƒbƒ`")]
+    [SerializeField, Tooltip("å¼¾ã‚¢ã‚¿ãƒƒãƒ")]
     private EMissile1C TPwazaPrefab;
 
-    [SerializeField, Tooltip("ƒGƒtƒFƒNƒgƒAƒ^ƒbƒ`")]
+    [SerializeField, Tooltip("ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¢ã‚¿ãƒƒãƒ")]
     private ExpC _prhbBulletShot;
 
-    [SerializeField, Tooltip("ƒr[ƒ€•KE")]
+    [SerializeField, Tooltip("ãƒ“ãƒ¼ãƒ å¿…æ®º")]
     private PSpecialBeamC BeamMP;
 
-    [SerializeField, Tooltip("ƒoƒŒƒbƒg•KE")]
+    [SerializeField, Tooltip("ãƒãƒ¬ãƒƒãƒˆå¿…æ®º")]
     private PMachineGunC PMachinegunP;
 
-    [SerializeField, Tooltip("ƒo[ƒ“•KE")]
+    [SerializeField, Tooltip("ãƒãƒ¼ãƒ³å¿…æ®º")]
     private PMeteorC PMeteorP;
 
-    [SerializeField, Tooltip("Æ€ƒGƒtƒFƒNƒgƒAƒ^ƒbƒ`")]
+    [SerializeField, Tooltip("ç…§æº–ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¢ã‚¿ãƒƒãƒ")]
     private ExpC _prfbTarget;
 
-    [SerializeField, Header("ƒr[ƒ€ƒ`ƒƒƒCƒ‹ƒh")]
+    [SerializeField, Header("ãƒ“ãƒ¼ãƒ ãƒãƒ£ã‚¤ãƒ«ãƒ‰")]
     private GameObject _prhbBeamChild;
 
-    [SerializeField, Header("ƒoƒŒƒbƒgƒ`ƒƒƒCƒ‹ƒh")]
+    [SerializeField, Header("ãƒãƒ¬ãƒƒãƒˆãƒãƒ£ã‚¤ãƒ«ãƒ‰")]
     private GameObject _prhbBulletChild;
 
-    [SerializeField, Header("ƒ{ƒ€ƒ`ƒƒƒCƒ‹ƒh")]
+    [SerializeField, Header("ãƒœãƒ ãƒãƒ£ã‚¤ãƒ«ãƒ‰")]
     private GameObject _prhbBombChild;
 
-    [SerializeField, Header("ƒo\ƒ“ƒ`ƒƒƒCƒ‹ƒh")]
+    [SerializeField, Header("ãƒâ€•ãƒ³ãƒãƒ£ã‚¤ãƒ«ãƒ‰")]
     private GameObject _prhbBurnChild;
 
     /// <summary>
-    /// ƒ[ƒh‚³‚ê‚½‚â‚ÂŠÇ——p
+    /// ãƒ­ãƒ¼ãƒ‰ã•ã‚ŒãŸãƒãƒ£ã‚¤ãƒ«ãƒ‰ç®¡ç†ç”¨
     /// </summary>
     private List<GameObject> _goChild = new List<GameObject> { };
 
-    [SerializeField, Tooltip("ƒTƒEƒ“ƒh")]
+    [SerializeField, Tooltip("ã‚µã‚¦ãƒ³ãƒ‰")]
     private AudioClip shotS,magicuseS, exprosionS, bulletS, putS, fireS, ChangeS, SlashS;
 
-    [SerializeField, Tooltip("ƒ[ƒhƒTƒEƒ“ƒh")]
+    [SerializeField, Tooltip("ãƒ­ãƒ¼ãƒ‰ã‚µã‚¦ãƒ³ãƒ‰")]
     private AudioClip[] _loadS;
 
 
     private PlayerC _scPlayer;
     private GameObject _goCamera;
-    private AudioSource _audioGO;
+    private AudioSource _goAudio;
+
+
 
     // Start is called before the first frame update
     void Start()
     {
         _scPlayer = GetComponent<PlayerC>();
-        _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
+        _goAudio = GameObject.Find("AudioManager").GetComponent<AudioSource>();
         _goCamera = GameObject.Find("Main Camera");
 
-        pos = transform.position;
+        _posOwn = transform.position;
         Summon_Child();
 
-        if (GameData.Difficulty >= 3)
+        
+        //ã•ã¤ã‚Šããƒã‚·ãƒ³ã®æ­¦å™¨å¼·åŒ–
+        if (GameData.Difficulty ==MODE_DIFFICULTY.Berserker)
         {
-            for (int i = 0; i < _defaultCoolTime.Length; i++) _defaultCoolTime[i] *= 0.3f;
+            for(int i = 0; i < _statesWeapon.Length; i++)
+            {
+                _statesWeapon[i].energyChargeTick *= 2f;
+                _statesWeapon[i].cooltimeDefault *= 0.5f;
+                _statesWeapon[i].enegyConsumption *= 0.5f;
+            }
         }
     }
 
     // Update is called once per frame
     void Update()
     {
-        pos = transform.position;
-        rot = transform.localRotation;
+        _posOwn = transform.position;
+        _rotOwn = transform.localRotation;
+        _posShot = _posOwn - (transform.up * 4);
 
-        _shotPos = pos - (transform.up * 4);
-
-        for (int i = 0; i < 8; i++)
+        for (int mode = 0; mode < _statesWeapon.Length; mode++)
         {
-            if (shotdown[i] != 0)
+            //çŸ­è·é›¢æ­¦å™¨ã‚¯ãƒ¼ãƒ«ã‚¿ã‚¤ãƒ ã®å›å¾©
+            if (_statesWeapon[mode].cooltimeNow > 0)
             {
-                if (_gunMode != i / 2) shotdown[i] -= Time.deltaTime * 2;
-                else shotdown[i] -= Time.deltaTime;
+                _statesWeapon[mode].cooltimeNow -= Time.deltaTime;
             }
         }
 
-        //ƒ[ƒh‚³‚ê‚½‚çSE
-        for (int i = 0; i < 4; i++)
-        {
-            if (shotdown[i * 2] <= 0 && !_isLoaded[i])
-            {
-                _audioGO.PlayOneShot(_loadS[i]);
-                _isLoaded[i] = true;
-            }
-        }
     }
 
     private void FixedUpdate()
     {
-        //eƒ‚[ƒh’†‚ÍÆ€o‚·
-        if (_gunMode == 1)
+        
+        switch (_modeGun)
         {
-            GameObject flontObj = _scPlayer.GetFlontEnemy();
-            if (flontObj != null)
+            case MODE_GUN.Physical:
+
+                //éŠƒãƒ¢ãƒ¼ãƒ‰ä¸­ã¯ç…§æº–å‡ºã™
+                GameObject flontObj = _scPlayer.GetFlontEnemy();
+                if (flontObj != null)
+                {
+                    Vector3 flontObjPos = GameData.FixPosition(flontObj.transform.position, 32, 32);
+                    Instantiate(_prfbTarget, flontObjPos, _rotOwn).EShot1(0, 0, 0.03f);
+                }
+                break;
+        }
+
+        //ã‚¨ãƒãƒ«ã‚®ãƒ¼å›å¾©
+        for (int mode = 0; mode < _statesWeapon.Length; mode++)
+        {
+            if (_statesWeapon[mode].energy < 100)
             {
-                Vector3 flontObjPos = GameData.FixPosition(flontObj.transform.position, 32, 32);
-                Instantiate(_prfbTarget, flontObjPos, rot).EShot1(0, 0, 0.03f);
+                if (_modeGun != (MODE_GUN)mode) _statesWeapon[mode].energy += _statesWeapon[mode].energyChargeTick * 2;
+                else
+                {
+                    if(_statesWeapon[mode].cooltimeNow <= 0) _statesWeapon[mode].energy += _statesWeapon[mode].energyChargeTick;
+                }
+
+                if (_statesWeapon[mode].energy >= 100)
+                {
+                    _goAudio.PlayOneShot(_loadS[mode]);
+
+                    if (!_statesWeapon[mode].isLoaded)
+                    {
+
+                        _statesWeapon[mode].isLoaded = true;
+                    }
+
+                    _statesWeapon[mode].energy = 100;
+                }
             }
+
         }
     }
 
     private void Summon_Child()
     {
-        switch (_gunMode)
+        switch (_modeGun)
         {
-            case 0:
+            case MODE_GUN.Shining:
                 Change_Beam();
                 break;
-            case 1:
+            case MODE_GUN.Physical:
                 Change_Bullet();
                 break;
-            case 2:
+            case MODE_GUN.Crash:
                 Change_Bomb();
                 break;
-            case 3:
+            case MODE_GUN.Heat:
                 Change_Burn();
                 break;
         }
@@ -175,13 +237,13 @@ public class PlayerAttackC : MonoBehaviour
 
 
     /// <summary>
-    /// •ÏŒ`
+    /// å¤‰å½¢
     /// </summary>
     /// <param name="modevalue"></param>
-    public void GunModeChange(int modevalue)
+    public void SetGunModeChange(MODE_GUN modevalue)
     {
 
-        if (modevalue != _gunMode)
+        if (modevalue != _modeGun)
         {
             _isChanging = true;
             StartCoroutine(ChangingAnim(modevalue));
@@ -189,20 +251,20 @@ public class PlayerAttackC : MonoBehaviour
     }
 
     /// <summary>
-    /// •ÏŒ`ƒfƒBƒŒƒC
+    /// å¤‰å½¢ãƒ‡ã‚£ãƒ¬ã‚¤
     /// </summary>
     /// <param name="modevalue"></param>
     /// <returns></returns>
-    private IEnumerator ChangingAnim(int modevalue)
+    private IEnumerator ChangingAnim(MODE_GUN modevalue)
     {
-        _audioGO.PlayOneShot(ChangeS);
-        yield return new WaitForSeconds(0.2f);
-        _gunMode = modevalue;
-        if (_isLoaded[modevalue]) _audioGO.PlayOneShot(_loadS[_gunMode]);
+        _goAudio.PlayOneShot(ChangeS);
+        yield return new WaitForSeconds(0.21f);
+        _modeGun = modevalue;
+        if (CheckIsLoad(modevalue)) _goAudio.PlayOneShot(_loadS[(int)_modeGun]);
         
-        DeleteChild();
+        DeleteAllChild();
         Summon_Child();
-        _scPlayer.PlayerAnimReset();
+        _scPlayer.ResetPlayerAnim();
 
         _isChanging = false;
     }
@@ -210,67 +272,101 @@ public class PlayerAttackC : MonoBehaviour
 
 
     /// <summary>
-    /// ƒr[ƒ€ƒ`ƒƒƒCƒ‹ƒhŒÄ‚Ño‚µ
+    /// ãƒ“ãƒ¼ãƒ ãƒãƒ£ã‚¤ãƒ«ãƒ‰å‘¼ã³å‡ºã—
     /// </summary>
     private void Change_Beam()
     {
-        for (int hoge = 0; hoge < 3; hoge++)_goChild.Add(Instantiate(_prhbBeamChild, pos, rot));
+        for (int hoge = 0; hoge < 3; hoge++)_goChild.Add(Instantiate(_prhbBeamChild, _posOwn, _rotOwn));
         for(int hoge=0;hoge< _goChild.Count;hoge++)_goChild[hoge].GetComponent<BeamChildC>().SetOfset(hoge * (360/_goChild.Count));
     }
 
     /// <summary>
-    /// ƒoƒŒƒbƒgƒ`ƒƒƒCƒ‹ƒhŒÄ‚Ño‚µ
+    /// ãƒãƒ¬ãƒƒãƒˆãƒãƒ£ã‚¤ãƒ«ãƒ‰å‘¼ã³å‡ºã—
     /// </summary>
     private void Change_Bullet()
     {
-        for (int hoge = 0; hoge < 2; hoge++)_goChild.Add(Instantiate(_prhbBulletChild, pos, rot));
+        for (int hoge = 0; hoge < 2; hoge++)_goChild.Add(Instantiate(_prhbBulletChild, _posOwn, _rotOwn));
         for (int hoge = 0; hoge < _goChild.Count; hoge++) _goChild[hoge].GetComponent<BulletChildC>().SetOfset(new Vector3(0, hoge * 32, 0));
 
     }
 
     /// <summary>
-    /// ƒ{ƒ€ƒ`ƒƒƒCƒ‹ƒhŒÄ‚Ño‚µ
+    /// ãƒœãƒ ãƒãƒ£ã‚¤ãƒ«ãƒ‰å‘¼ã³å‡ºã—
     /// </summary>
     private void Change_Bomb()
     {
-        for (int hoge = 0; hoge < 1; hoge++) _goChild.Add(Instantiate(_prhbBombChild, pos, rot));
+        for (int hoge = 0; hoge < 1; hoge++) _goChild.Add(Instantiate(_prhbBombChild, _posOwn, _rotOwn));
         for (int hoge = 0; hoge < _goChild.Count; hoge++) _goChild[hoge].GetComponent<BombChildC>().SetOfset(new Vector3(0, (hoge+1)*48, 0));
     }
 
     /// <summary>
-    /// ƒ{ƒ€ƒ`ƒƒƒCƒ‹ƒhŒÄ‚Ño‚µ
+    /// ãƒœãƒ ãƒãƒ£ã‚¤ãƒ«ãƒ‰å‘¼ã³å‡ºã—
     /// </summary>
     private void Change_Burn()
     {
-        for (int hoge = 0; hoge < 1; hoge++)_goChild.Add(Instantiate(_prhbBurnChild, pos, rot));
+        for (int hoge = 0; hoge < 1; hoge++)_goChild.Add(Instantiate(_prhbBurnChild, _posOwn, _rotOwn));
         //for (int hoge = 0; hoge < _goChild.Count; hoge++) _goChild[hoge].GetComponent<FireChildC>();
     }
 
     /// <summary>
-    /// ‰“‹——£UŒ‚
+    /// é è·é›¢æ”»æ’ƒ
     /// </summary>
     public void Fire()
     {
         if (!_isChanging)
         {
-            if (_gunMode < 1 && shotdown[0] <= 0) Shot_Raser();
-            else if (_gunMode >= 1 && _gunMode < 2 && shotdown[2] <= 0) Shot_Bullet();
-            else if (_gunMode >= 2 && _gunMode < 3 && shotdown[4] <= 0) Shot_Drop();
-            else if (_gunMode >= 3 && _gunMode < 4 && shotdown[6] <= 0) Shot_Rocket();
+            if (GetWeaponState(_modeGun).energy >= _enegyConsumptionChargeShot && GetWeaponState(_modeGun).isLoaded)
+            {
+                switch (_modeGun)
+                {
+                    case MODE_GUN.Shining:
+                        Shot_Raser();
+                        break;
+
+                    case MODE_GUN.Physical:
+                        Shot_Bullet();
+                        break;
+
+                    case MODE_GUN.Crash:
+                        Shot_Drop();
+                        break;
+
+                    case MODE_GUN.Heat:
+                        Shot_Rocket();
+                        break;
+                }
+            }
         }
     }
 
     /// <summary>
-    /// ‹ß‹——£UŒ‚
+    /// è¿‘è·é›¢æ”»æ’ƒ
     /// </summary>
     public void Fire2()
     {
         if (!_isChanging)
         {
-            if (_gunMode < 1 && shotdown[1] <= 0) Shot_Slash();
-            else if (_gunMode >= 1 && _gunMode < 2 && shotdown[3] <= 0) Shot_ShotGun();
-            else if (_gunMode >= 2 && _gunMode < 3 && shotdown[5] <= 0) Shot_MineSield();
-            else if (_gunMode >= 3 && _gunMode < 4 && shotdown[7] <= 0) Shot_Fire();
+            if (GetWeaponState(_modeGun).cooltimeNow <= 0 && GetWeaponState(_modeGun).isLoaded)
+            {
+                switch (_modeGun)
+                {
+                    case MODE_GUN.Shining:
+                        Shot_Slash();
+                        break;
+
+                    case MODE_GUN.Physical:
+                        Shot_ShotGun();
+                        break;
+
+                    case MODE_GUN.Crash:
+                        Shot_MineSield();
+                        break;
+
+                    case MODE_GUN.Heat:
+                        Shot_Fire();
+                        break;
+                }
+            }
         }
     }
 
@@ -287,9 +383,9 @@ public class PlayerAttackC : MonoBehaviour
             child.GetComponent<BeamChildC>().DoAttackRaser();
         }
             
-        _audioGO.PlayOneShot(shotS);
-        _isLoaded[0] = false;
-        shotdown[0] = _defaultCoolTime[0];
+        _goAudio.PlayOneShot(shotS);
+
+        DoUseEnegry(MODE_GUN.Shining, true);
     }
 
     /// <summary>
@@ -302,11 +398,13 @@ public class PlayerAttackC : MonoBehaviour
             child.GetComponent<BeamChildC>().DoAttackSlash();
         }
 
-        PExpC prefab = Instantiate(PSlashP, _shotPos, rot);
-        prefab.EShot1(180 + (PlayerC.muki * 180), 0, 0.08f);
+        PExpC prefab = Instantiate(PSlashP, _posShot, _rotOwn);
+        prefab.EShot1(_scPlayer.CheckPlayerAngleIsRight() ? 0 : 180, 0, 0.08f);
         prefab.transform.position += prefab.transform.up * 64;
-        _audioGO.PlayOneShot(SlashS);
-        shotdown[1] = _defaultCoolTime[1];
+        _goAudio.PlayOneShot(SlashS);
+
+        DoUseEnegry(MODE_GUN.Shining, false);
+
     }
 
     /// <summary>
@@ -319,10 +417,12 @@ public class PlayerAttackC : MonoBehaviour
             child.GetComponent<BulletChildC>().DoAttackSniper();
         }
 
-        _goCamera.GetComponent<CameraC>().StartShakeVertical(4, 5);
+        _goCamera.GetComponent<CameraShakeC>().StartShakeVertical(4, 5);
         //Instantiate(PBulletExpP, _shotPos, rot).EShot1(180 + (muki * 180) + Random.Range(-4, 4), 70, 0.1f);
-        _audioGO.PlayOneShot(bulletS);
-        shotdown[2] = _defaultCoolTime[2];
+        _goAudio.PlayOneShot(bulletS);
+
+        DoUseEnegry(MODE_GUN.Physical, true);
+
     }
 
     /// <summary>
@@ -330,15 +430,16 @@ public class PlayerAttackC : MonoBehaviour
     /// </summary>
     private void Shot_ShotGun()
     {
-        PMissile prefab = Instantiate(PBulletP, _shotPos, rot);
-        prefab.Shot(180 + (PlayerC.muki * 180) + Random.Range(-4, 4), 70, 0);
+        PMissile prefab = Instantiate(_prhbMissile, _posShot, _rotOwn);
+        prefab.Shot((_scPlayer.CheckPlayerAngleIsRight() ? 0 : 180) + Random.Range(-4, 4), 70, 0);
         prefab.transform.position += prefab.transform.up * 16;
-        _goCamera.GetComponent<CameraC>().StartShakeVertical(2, 4);
-        BulletEffect();
+        _goCamera.GetComponent<CameraShakeC>().StartShakeVertical(2, 4);
+        PlayBulletEffect();
 
         //Instantiate(PBulletExpP, _shotPos, rot).EShot1(180 + (muki * 180) + Random.Range(-4, 4), 70, 0.1f);
-        _audioGO.PlayOneShot(bulletS);
-        shotdown[3] = _defaultCoolTime[3];
+        _goAudio.PlayOneShot(bulletS);
+
+        DoUseEnegry(MODE_GUN.Physical, false);
     }
 
     /// <summary>
@@ -352,9 +453,11 @@ public class PlayerAttackC : MonoBehaviour
             child.GetComponent<BombChildC>().DoAttackDrop();
         }
 
-        _audioGO.PlayOneShot(putS);
-        _isLoaded[2] = false;
-        shotdown[4] = _defaultCoolTime[4];
+        _goAudio.PlayOneShot(putS);
+
+        SetCoolTimeToDefault(MODE_GUN.Crash);
+        
+        DoUseEnegry(MODE_GUN.Crash, true);
     }
 
     /// <summary>
@@ -362,10 +465,11 @@ public class PlayerAttackC : MonoBehaviour
     /// </summary>
     private void Shot_MineSield()
     {
-        PBombC shot = Instantiate(PMinePutP, new Vector3(_shotPos.x - 48 + (96 * PlayerC.muki), _shotPos.y, 0), rot);
+        PBombC shot = Instantiate(PMinePutP, new Vector3(_posShot.x + (_scPlayer.CheckPlayerAngleIsRight() ? 48 : -48), _posShot.y, 0), _rotOwn);
         shot.EShot1(270, 0, 0, 100, 3, 0.5f);
-        _audioGO.PlayOneShot(putS);
-        shotdown[5] = _defaultCoolTime[5];
+        _goAudio.PlayOneShot(putS);
+        
+        DoUseEnegry(MODE_GUN.Crash, false);
     }
 
     /// <summary>
@@ -379,9 +483,8 @@ public class PlayerAttackC : MonoBehaviour
             child.GetComponent<FireChildC>().DoAttackRocket();
         }
 
-        _audioGO.PlayOneShot(bulletS);
-        _isLoaded[3] = false;
-        shotdown[6] = _defaultCoolTime[6];
+        _goAudio.PlayOneShot(bulletS);
+        DoUseEnegry(MODE_GUN.Heat, true);
     }
 
     /// <summary>
@@ -389,100 +492,128 @@ public class PlayerAttackC : MonoBehaviour
     /// </summary>
     private void Shot_Fire()
     {
-        PExpC shot4 = Instantiate(PFireP, _shotPos, rot);
-        shot4.EShot1(180 + (PlayerC.muki * 180) + Random.Range(-20, 20), Random.Range(2, 20), 0.2f);
-        _audioGO.PlayOneShot(fireS);
+        PExpC shot4 = Instantiate(PFireP, _posShot, _rotOwn);
+        shot4.EShot1((_scPlayer.CheckPlayerAngleIsRight() ? 0 : 180) + Random.Range(-20, 20), Random.Range(2, 20), 0.2f);
+        _goAudio.PlayOneShot(fireS);
 
         foreach (GameObject child in _goChild)
         {
             child.GetComponent<FireChildC>().DoAttackBress();
         }
 
-
-        shotdown[7] = _defaultCoolTime[7];
+        DoUseEnegry(MODE_GUN.Heat, false);
     }
 
     /// <summary>
-    /// e’e”­ËŒõƒGƒtƒFƒNƒg
+    /// ã‚¨ãƒãƒ«ã‚®ãƒ¼ã‚’æ¶ˆè²»ã•ã›ã‚‹
     /// </summary>
-    private void BulletEffect()
+    /// <param name="mode"></param>
+    /// <param name="isChargeShot"></param>
+    private void DoUseEnegry(MODE_GUN mode,bool isChargeShot)
     {
-        //”­ËƒGƒtƒFƒNƒg
-        ExpC bulletEf = Instantiate(_prhbBulletShot, _shotPos, rot);
+        SetUseEnergy(mode,isChargeShot);
+
+        if (!isChargeShot) SetCoolTimeToDefault(mode);
+
+        if (GetWeaponState(mode).energy <= 0)SetIsLoad(mode,false);
+    }
+
+    /// <summary>
+    /// éŠƒå¼¾ç™ºå°„å…‰ã‚¨ãƒ•ã‚§ã‚¯ãƒˆ
+    /// </summary>
+    private void PlayBulletEffect()
+    {
+        //ç™ºå°„ã‚¨ãƒ•ã‚§ã‚¯ãƒˆ
+        ExpC bulletEf = Instantiate(_prhbBulletShot, _posShot, _rotOwn);
         bulletEf.transform.parent = transform;
-        bulletEf.EShot1(180 + (PlayerC.muki * 180), 0, 0.06f);
+        bulletEf.EShot1(_scPlayer.CheckPlayerAngleIsRight() ? 0 : 180, 0, 0.06f);
         bulletEf.transform.position += bulletEf.transform.up * 24;
     }
 
     /// <summary>
-    /// •KE”­“®
+    /// å¿…æ®ºç™ºå‹•
     /// </summary>
-    public void Magic()
+    public void PlayMagic()
     {
-        _audioGO.PlayOneShot(magicuseS);
-        _audioGO.PlayOneShot(exprosionS);
+        _goAudio.PlayOneShot(magicuseS);
+        _goAudio.PlayOneShot(exprosionS);
         GameData.TP -= 1;
-        if (_gunMode < 1 && shotdown[1] <= 0) Magic_SuperRaser();
-        else if (_gunMode >= 1 && _gunMode < 2 && shotdown[3] <= 0) Magic_BackMachinegun();
-        else if (_gunMode >= 2 && _gunMode < 3 && shotdown[5] <= 0) Magic_MineCristal();
-        else if (_gunMode >= 3 && _gunMode < 4 && shotdown[7] <= 0) Magic_Meteor();
+
+        switch (_modeGun)
+        {
+            case MODE_GUN.Shining:
+                PlayMagic_SuperRaser();
+                break;
+
+            case MODE_GUN.Physical:
+                PlayMagic_BackMachinegun();
+                break;
+
+            case MODE_GUN.Crash:
+                PlayMagic_MineCristal();
+                break;
+
+            case MODE_GUN.Heat:
+                PlayMagic_Meteor();
+                break;
+        }
+        
     }
 
 
     /// <summary>
-    /// •KEƒr[ƒ€
+    /// å¿…æ®ºãƒ“ãƒ¼ãƒ 
     /// </summary>
-    private void Magic_SuperRaser()
+    private void PlayMagic_SuperRaser()
     {
-
         for (short i = 0; i < 2; i++)
         {
             /*BeamMC shot = */
-            Instantiate(BeamMP, pos, rot).SetPos(i);
-            //‰ä‚ªq‚É‚·‚é
+            Instantiate(BeamMP, _posOwn, _rotOwn).SetPos(i);
+            //æˆ‘ãŒå­ã«ã™ã‚‹
             //shot.transform.parent = transform;
             //shot.EShot1(i*120);
         }
     }
 
     /// <summary>
-    /// •KEƒ}ƒVƒ“ƒKƒ“
+    /// å¿…æ®ºãƒã‚·ãƒ³ã‚¬ãƒ³
     /// </summary>
-    private void Magic_BackMachinegun()
+    private void PlayMagic_BackMachinegun()
     {
-        PMachineGunC machine = Instantiate(PMachinegunP, _shotPos, rot);
-        //‰ä‚ªq‚É‚·‚é
+        PMachineGunC machine = Instantiate(PMachinegunP, _posShot, _rotOwn);
+        //æˆ‘ãŒå­ã«ã™ã‚‹
         machine.transform.parent = transform;
     }
 
     /// <summary>
-    /// •KEƒ{ƒ€
+    /// å¿…æ®ºãƒœãƒ 
     /// </summary>
-    private void Magic_MineCristal()
+    private void PlayMagic_MineCristal()
     {
         Quaternion rot = transform.localRotation;
 
         for (int i = 10; i < 640; i += 40)
         {
-            PBombC shot = Instantiate(PMinecristalP, new Vector3(i, _shotPos.y, 0), rot);
+            PBombC shot = Instantiate(PMinecristalP, new Vector3(i, _posShot.y, 0), rot);
             shot.EShot1(Random.Range(0, 360), 0, 0.001f, 300 - (i / 10), 10, 1.0f);
         }
         for (int i = 10; i < 480; i += 40)
         {
-            PBombC shot = Instantiate(PMinecristalP, new Vector3(_shotPos.x, i, 0), rot);
+            PBombC shot = Instantiate(PMinecristalP, new Vector3(_posShot.x, i, 0), rot);
             shot.EShot1(Random.Range(0, 360), 0, 0.001f, 300 - (i / 10), 10, 1.0f);
         }
         for (int i = 10; i < 360; i += 40)
         {
-            PBombC shot = Instantiate(PMinecristalP, _shotPos + (new Vector3(Mathf.Sin(i * Mathf.Deg2Rad), Mathf.Cos(i * Mathf.Deg2Rad), 0) * 100), rot);
+            PBombC shot = Instantiate(PMinecristalP, _posShot + (new Vector3(Mathf.Sin(i * Mathf.Deg2Rad), Mathf.Cos(i * Mathf.Deg2Rad), 0) * 100), rot);
             shot.EShot1(Random.Range(0, 360), 0, 0.001f, 350, 10, 1.0f);
         }
     }
 
     /// <summary>
-    /// •KEƒtƒ@ƒCƒ„
+    /// å¿…æ®ºãƒ•ã‚¡ã‚¤ãƒ¤
     /// </summary>
-    private void Magic_Meteor()
+    private void PlayMagic_Meteor()
     {
 
         foreach (GameObject child in _goChild)
@@ -494,10 +625,10 @@ public class PlayerAttackC : MonoBehaviour
 
 
     /// <summary>
-    /// ƒ`ƒƒƒCƒ‹ƒh‘SÁ‚µ
+    /// ãƒãƒ£ã‚¤ãƒ«ãƒ‰å…¨æ¶ˆã—
     /// </summary>
     /// <returns></returns>
-    private void DeleteChild()
+    private void DeleteAllChild()
     {
         foreach (GameObject child in _goChild)
         {
@@ -508,32 +639,130 @@ public class PlayerAttackC : MonoBehaviour
     }
 
 
-    public int GetGunMode()
+    public MODE_GUN GetGunMode()
     {
-        return _gunMode;
+        return _modeGun;
     }
 
-    public float GetShotdown(int value)
-    {
-        return shotdown[value];
-    }
-
-    public bool GetIsChanging()
+    public bool CheckIsChanging()
     {
         return _isChanging;
     }
 
     /// <summary>
-    /// “Á’è‚Ì•Ší‚ÌƒN[ƒ‹ƒ^ƒCƒ€Š„‡‚ğ•Ô‚·
+    /// ç‰¹å®šã®æ­¦å™¨ã®ã‚¨ãƒŠã‚¸ãƒ¼å‰²åˆã‚’è¿”ã™
     /// </summary>
-    public float CheckCoolTime(int weaponValue)
+    public float CheckEnergy(MODE_GUN mode)
     {
-        return shotdown[weaponValue * 2] / _defaultCoolTime[weaponValue * 2];
+        return 1.0f- GetWeaponState(mode).energy / 100.0f;
     }
 
-    public void SetGunMode(int value)
+    public bool CheckIsAbleChargeShot(MODE_GUN mode)
     {
-        _gunMode = value;
-        _audioGO.PlayOneShot(ChangeS);
+        return GetWeaponState(mode).energy >= _enegyConsumptionChargeShot;
+    }
+
+    public void SetGunMode(MODE_GUN value)
+    {
+        _modeGun = value;
+        _goAudio.PlayOneShot(ChangeS);
+    }
+
+    /// <summary>
+    /// ç‰¹å®šã®æ­¦å™¨ã®ç¾åœ¨ã®ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã‚’è¿”ã™
+    /// </summary>
+    /// <param name="mode"></param>
+    /// <returns></returns>
+    public GunStates GetWeaponState(MODE_GUN mode)
+    {
+        foreach(GunStates state in _statesWeapon)
+        {
+            if (state.mode == mode) return state;
+        }
+        return _statesWeapon[0];
+
+    }
+
+    /// <summary>
+    /// ç‰¹å®šã®æ­¦å™¨ã®ã‚¯ãƒ¼ãƒ«ã‚¿ã‚¤ãƒ ã‚’ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã«è¨­å®šã—ç™ºå‹•
+    /// </summary>
+    /// <param name="mode"></param>
+    /// <returns></returns>
+    private void SetCoolTimeToDefault(MODE_GUN mode)
+    {
+        for(int i = 0; i < _statesWeapon.Length; i++)
+        {
+            if (_statesWeapon[i].mode == mode)
+            {
+                _statesWeapon[i].cooltimeNow =_statesWeapon[i].cooltimeDefault;
+                return;
+            }
+        }
+    }
+
+    /// <summary>
+    /// ç‰¹å®šã®æ­¦å™¨ã®ã‚¨ãƒãƒ«ã‚®ãƒ¼ã‚’æ¶ˆè²»
+    /// </summary>
+    /// <param name="mode"></param>
+    /// <returns></returns>
+    private void SetUseEnergy(MODE_GUN mode,bool isChargeShot)
+    {
+        for (int i = 0; i < _statesWeapon.Length; i++)
+        {
+            if (_statesWeapon[i].mode == mode)
+            {
+
+                _statesWeapon[i].energy -= isChargeShot ? _enegyConsumptionChargeShot : _statesWeapon[i].enegyConsumption;
+                return;
+            }
+        }
+    }
+
+    /// <summary>
+    /// ç‰¹å®šã®æ­¦å™¨ã®æ­¦å™¨ãƒ­ãƒ¼ãƒ‰çŠ¶æ…‹ã‚’ç¢ºèª
+    /// </summary>
+    /// <param name="mode"></param>
+    /// <returns></returns>
+    private bool CheckIsLoad(MODE_GUN mode)
+    {
+        for (int i = 0; i < _statesWeapon.Length; i++)
+        {
+            if (_statesWeapon[i].mode == mode)
+            {
+                return _statesWeapon[i].isLoaded;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// ç‰¹å®šã®æ­¦å™¨ã®æ­¦å™¨ãƒ­ãƒ¼ãƒ‰çŠ¶æ…‹ã‚’å¤‰æ›´
+    /// </summary>
+    /// <param name="mode"></param>
+    /// <returns></returns>
+    private void SetIsLoad(MODE_GUN mode, bool isLoad)
+    {
+        for (int i = 0; i < _statesWeapon.Length; i++)
+        {
+            if (_statesWeapon[i].mode == mode)
+            {
+                _statesWeapon[i].isLoaded = isLoad;
+                return;
+            }
+        }
+    }
+
+    public void SetAllEnergyHeal()
+    {
+        for (int i = 0; i < _statesWeapon.Length; i++)
+        {
+            if (_statesWeapon[i].energy < 90)
+            {
+                _statesWeapon[i].energy +=10f;
+                
+            }
+            _statesWeapon[i].isLoaded = true;
+
+        }
     }
 }

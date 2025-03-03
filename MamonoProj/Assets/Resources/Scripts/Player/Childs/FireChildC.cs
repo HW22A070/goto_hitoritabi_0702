@@ -19,8 +19,9 @@ public class FireChildC : ChildsCoreC
     private PFireBallC PFireBallP;
 
     // Start is called before the first frame update
-    void Start()
+    protected override void Start()
     {
+        base.Start();
         _unitSpeedDelta = _unitSpeedMax;
         spriteRenderer = GetComponent<SpriteRenderer>();
         playerGO = GameObject.Find("Player");
@@ -34,12 +35,14 @@ public class FireChildC : ChildsCoreC
 
 
         _pos = transform.position;
-        _ppos = playerGO.transform.position +new Vector3(24 - PlayerC.muki * 48, Mathf.Cos(_radius * Mathf.Deg2Rad)*4, 0);
-        _posDelta = GameData.GetSneaking(_pos, _ppos, 3);
+        _posPlayer = playerGO.transform.position +new Vector3(_scPlayer.CheckPlayerAngleIsRight() ? -24 : 24, Mathf.Cos(_radius * Mathf.Deg2Rad)*4, 0);
+        _posDelta = GameData.GetSneaking(_pos, _posPlayer, 3);
     }
 
-    private void FixedUpdate()
+    protected override void FixedUpdate()
     {
+        base.FixedUpdate();
+
         while (_radius >= 360.0f)
         {
             _radius -= 360.0f;
@@ -47,7 +50,7 @@ public class FireChildC : ChildsCoreC
 
         transform.position += _posDelta;
 
-        if (PlayerC.muki == 1)
+        if (_scPlayer.CheckPlayerAngleIsRight())
         {
             spriteRenderer.flipX = true;
         }
@@ -67,7 +70,7 @@ public class FireChildC : ChildsCoreC
     {
         _pos = transform.position;
         _unitSpeedDelta = 30.0f;
-        Instantiate(_prfbBomb, _pos, transform.rotation).EShot1(180 + (PlayerC.muki * 180) + Random.Range(-5, 5), 20, -0.3f, 660, 20, 2.0f);
+        Instantiate(_prfbBomb, _pos, transform.rotation).EShot1((_scPlayer.CheckPlayerAngleIsRight() ? 0 : 180) + Random.Range(-5, 5), 20, -0.3f, 660, 20, 2.0f);
     }
 
     public void DoAttackBress()
@@ -75,12 +78,9 @@ public class FireChildC : ChildsCoreC
        if(_unitSpeedDelta<15) _unitSpeedDelta += 1.5f;
     }
 
-    public void DoAttackSpecial()
-    {
-        StartCoroutine(FireBall());
-    }
+    public void DoAttackSpecial() => StartCoroutine(PlayFireBall());
 
-    private IEnumerator FireBall()
+    private IEnumerator PlayFireBall()
     {
         for (int j = 0; j < 360; j+=36)
         {

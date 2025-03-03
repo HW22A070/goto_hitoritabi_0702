@@ -17,9 +17,9 @@ public class FlyCannonC : ETypeFireC
     {
         base.Update();
         if (shotdown != 0 && mode !=0) shotdown -= Time.deltaTime;
-        if (ppos.y >= pos.y - 16 && ppos.y <= pos.y + 16 && shotdown <= 0&&mode==1)
+        if (_posPlayer.y >= _posOwn.y - 16 && _posPlayer.y <= _posOwn.y + 16 && shotdown <= 0&&mode==1)
         {
-            if (pos.x > ppos.x)
+            if (_posOwn.x > _posPlayer.x)
             {
                 angle = 180;
                 spriteRenderer.flipX = false;
@@ -30,11 +30,11 @@ public class FlyCannonC : ETypeFireC
                 spriteRenderer.flipX = true;
             }
             Quaternion rot = transform.localRotation;
-            pos.y += 8;
+            _posOwn.y += 8;
             for (i = 0; i <= 1; i++)
             {
-                pos.y -= i*16;
-                Instantiate(EMissile1Prefab, pos, rot).EShot1(angle, 10, 0);
+                _posOwn.y -= i*16;
+                Instantiate(EMissile1Prefab, _posOwn, rot).EShot1(angle, 10, 0);
                 _audioGO.PlayOneShot(shotS);
             }
             shotdown = 3;

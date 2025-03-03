@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,7 +33,7 @@ public class TankDangerC : ETypeDevilC
         base.Update();
 
         if (shotdown > 0) shotdown -= Time.deltaTime;
-        if (ppos.y >= pos.y - 16 && ppos.y <= pos.y + 16 && shotdown <= 0)
+        if (_posPlayer.y >= _posOwn.y - 16 && _posPlayer.y <= _posOwn.y + 16 && shotdown <= 0)
         {
             StartCoroutine(Shoot());
             shotdown = 6;
@@ -43,7 +43,7 @@ public class TankDangerC : ETypeDevilC
     protected IEnumerator Shoot()
     {
         _isDontDown = true;
-        if (pos.x > ppos.x)
+        if (_posOwn.x > _posPlayer.x)
         {
             angle = 180;
             spriteRenderer.flipX = false;
@@ -54,24 +54,24 @@ public class TankDangerC : ETypeDevilC
             spriteRenderer.flipX = true;
         }
         _isCharging = true;
-        if (pos.x > ppos.x) spriteRenderer.flipX = false;
+        if (_posOwn.x > _posPlayer.x) spriteRenderer.flipX = false;
         else spriteRenderer.flipX = true;
 
-        float movetemp = move;
-        move = 0;
+        float movetemp = _move;
+        _move = 0;
         yield return new WaitForSeconds(1.5f);
 
         Quaternion rot = transform.localRotation;
         _audioGO.PlayOneShot(_seGun);
         _audioGO.PlayOneShot(_seEXP);
-        _goCamera.GetComponent<CameraC>().StartShakeVertical(10, 10);
-        EMissile1C shot = Instantiate(EMissile1Prefab, pos, rot);
+        _goCamera.GetComponent<CameraShakeC>().StartShakeVertical(10, 10);
+        EMissile1C shot = Instantiate(EMissile1Prefab, _posOwn, rot);
         shot.EShot1(angle, 100, 0);
         shot.transform.position += shot.transform.up * 64;
 
         Instantiate(_prfbFlashEffect, GameData.WindowSize / 2, rot).EShot1(0, 0, 0.1f);
         yield return new WaitForSeconds(0.5f);
-        move = movetemp;
+        _move = movetemp;
         _isDontDown = false;
         _isCharging = false;
     }

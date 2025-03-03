@@ -5,13 +5,17 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using EnumDic.Floor;
+using EnumDic.Player;
+
+
 
 public class PlayerC : MonoBehaviour
 {
     /// <summary>
     /// プレイヤースプライト
     /// </summary>
-    private SpriteRenderer _spriteRPlayer;
+    private SpriteRenderer _srOwn;
 
     [SerializeField, Tooltip("プレイヤー画像データ")]
     private Sprite[] _playerGurNormal, _playerGurWark;
@@ -22,32 +26,40 @@ public class PlayerC : MonoBehaviour
     [SerializeField, Tooltip("プレイヤー変形中")]
     private Sprite _playerChanging;
 
+    /// <summary>
+    /// HP
+    /// </summary>
+    private int _hp = 100;
 
+    /// <summary>
+    /// 行動の有無
+    /// </summary>
     private bool _isMoveL, _isMoveR, _isFireing, _isFireing2, _isFireingChange2, Jumping, Downing, SP1ing, SP2ing;
 
     /// <summary>
-    /// 00=left,01=right;
+    /// 右を向いているか
     /// </summary>
-    public static int muki = 0;
+    private bool _isRight;
 
     /// <summary>
     /// プレイヤーの速さ
     /// </summary>
-    private float pfast = 0;
-    private bool warking = false;
-    private int warktime = 0;
+    private float _speedMove = 0;
 
-    private Vector3 pos;
 
-    private Quaternion rot;
+    private bool _isWalking = false;
+    private int _timeWarking = 0;
 
-    private float pmspeed = 0;
-    private float tpwdown = 0;
+    private Vector3 _posOwn;
 
-    private float warkcount = 0;
-    private float _invincibleTime = 0;
+    private Quaternion _rotOwn;
 
-    private float wh = 0;
+    /// <summary>
+    /// 必殺技クールタイム
+    /// </summary>
+    private float _cooltimeSpecialAttack = 0;
+
+    private float _timeInvincible = 0;
 
     private float _gunModeMouseValue = 1.1f;
 
@@ -58,8 +70,6 @@ public class PlayerC : MonoBehaviour
 
     [SerializeField, Tooltip("エフェクトアタッチ")]
     private ExpC DamagePrefab, HealEffectPrefab, BDE, ExpPrefab;
-
-    public object gameobject { get; private set; }
 
     [SerializeField, Tooltip("サウンド")]
     private AudioClip healS, damageS, magicgetS, magicuseS;
@@ -80,17 +90,17 @@ public class PlayerC : MonoBehaviour
     private int _gravityDelta = 4;
 
     /// <summary>
-    /// 現在重力
+    /// 重力現在
     /// </summary>
     private int _gravityNow = 0;
 
     /// <summary>
-    /// ジャンプなう
+    /// ジャンプ中か
     /// </summary>
     private bool _isJumping;
 
     /// <summary>
-    /// 下降中なう
+    /// 下降中か
     /// </summary>
     private bool _isDowning;
 
@@ -107,17 +117,22 @@ public class PlayerC : MonoBehaviour
     [SerializeField, Header("Effect")]
     private SpriteRenderer _spriteREffect;
 
-    [SerializeField, Tooltip("プレートGUI")]
-    private Sprite[] _effectGur;
-
     /// <summary>
     /// カメラオブジェクト
     /// </summary>
     [SerializeField, Tooltip("カメラオブジェクト")]
     private GameObject _goCamera;
 
+    /// <summary>
+    /// 最下層か否か
+    /// </summary>
     private bool _isnowBedRock;
-    private int _floorMode = 0;
+
+    /// <summary>
+    /// 現在立っている地面のモード
+    /// </summary>
+    private MODE_FLOOR _floorMode = MODE_FLOOR.Normal;
+
 
     private PlayerAttackC _scPAttack;
 
@@ -125,38 +140,48 @@ public class PlayerC : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _scPAttack = GetComponent<PlayerAttackC>();
+        SetGetComponents();
 
-        muki = 0;
-        _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
+        _hp = GameData.GetMaxHP();
+        _isRight = true;
+        
         var gamepad = Gamepad.current;
-        _spriteRPlayer = GetComponent<SpriteRenderer>();
-        StartCoroutine(EffectAnim());
-        pos = transform.position;
+        
+        StartCoroutine(SetEffectAnim());
+        _posOwn = transform.position;
+    }
+
+    /// <summary>
+    /// Componentの取得
+    /// </summary>
+    private void SetGetComponents()
+    {
+        _scPAttack = GetComponent<PlayerAttackC>();
+        _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
+        _srOwn = GetComponent<SpriteRenderer>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        pos = transform.position;
-        //プレイヤーのグラフィックかちょっとでかいぶん銃の場所を下げる
-        
-        rot = transform.localRotation;
+        _posOwn = transform.position;
+        _rotOwn = transform.localRotation;
 
         if (GameData.PlayerMoveAble >= 1)
         {
             //Bound
-            if (pos.x > 624)
+            if (_posOwn.x > 624)
             {
-                MoveBound(new Vector3(624, pos.y, 0));
+                MoveBound(new Vector3(624, _posOwn.y, 0));
             }
-            if (pos.x < 16)
+            if (_posOwn.x < 16)
             {
-                MoveBound(new Vector3(16, pos.y, 0));
+                MoveBound(new Vector3(16, _posOwn.y, 0));
             }
         }
 
 
+        /*
         //マウス
         //GunModeChange
         if (GameData.PlayerMoveAble >= 5) _gunModeMouseValue += Input.GetAxis("Mouse ScrollWheel") * 5;
@@ -164,22 +189,23 @@ public class PlayerC : MonoBehaviour
         if (_gunModeMouseValue <= 0.0f) _gunModeMouseValue = 4.0f - 0.1f;
         if (_gunModeMouseValue >= 4.0f) _gunModeMouseValue = 0.1f;
 
-        if (_scPAttack.GetGunMode() != (int)_gunModeMouseValue && !_scPAttack.GetIsChanging())
+        if (_scPAttack.GetGunMode() != (int)_gunModeMouseValue && !_scPAttack.CheckIsChanging())
         {
             _scPAttack.GunModeChange((int)_gunModeMouseValue);
         }
+        */
 
         //if (wh < 0) wh = 15.0f;
         //if (wh > 15) wh = 0.0f;
 
         //Magic
-        if (tpwdown > 0)
+        if (_cooltimeSpecialAttack > 0)
         {
-            tpwdown -= Time.deltaTime;
+            _cooltimeSpecialAttack -= Time.deltaTime;
         }
 
         //StarTime
-        if (_invincibleTime != 0) _invincibleTime -= Time.deltaTime;
+        if (_timeInvincible != 0) _timeInvincible -= Time.deltaTime;
 
         //moveauto
         if (_isMoveL) MoveLeft(2);
@@ -190,10 +216,10 @@ public class PlayerC : MonoBehaviour
         if (_isFireing) _scPAttack.Fire();
         if (_isFireing2 || _isFireingChange2) _scPAttack.Fire2();
 
-        if (SP2ing && SP2ing && tpwdown <= 0 && GameData.TP > 0)
+        if (SP2ing && SP2ing && _cooltimeSpecialAttack <= 0 && GameData.TP > 0)
         {
-            tpwdown = 10;
-            _scPAttack.Magic();
+            _cooltimeSpecialAttack = 10;
+            _scPAttack.PlayMagic();
         }
 
         if (GameData.PlayerMoveAble < 4)
@@ -206,27 +232,31 @@ public class PlayerC : MonoBehaviour
         if (GameData.PlayerMoveAble < 2) Jumping = false;
 
         //上限
-        if (pos.y >= GameData.WindowSize.y - 20) transform.position = new Vector3(pos.x, GameData.WindowSize.y - 20, 0);
+        if (_posOwn.y >= GameData.WindowSize.y - 20) transform.position = new Vector3(_posOwn.x, GameData.WindowSize.y - 20, 0);
+        if (_hp > GameData.GetMaxHP()) _hp = GameData.GetMaxHP();
 
         //床下行ったらダメージ受けて一番上にワープ
-        if (pos.y <= -16)
+        if (_posOwn.y <= -16)
         {
-            transform.position = new Vector3(pos.x, GameData.WindowSize.y - 20, 0);
-            if (!GameData.StageMovingAction)
+            transform.position = new Vector3(_posOwn.x, GameData.WindowSize.y - 20, 0);
+            if (!GameData.IsStageMovingAction)
             {
-                Damage(1 + (int)GameData.HP / 2, 0);
+                SetDamage(1 + _hp / 2, 0);
             }
 
         }
 
         //炎上！
-        if (_floorMode == 3) Damage(1, 0.3f);
+        if (_floorMode == MODE_FLOOR.Burning) SetDamage(1, 0.3f);
         //刺傷！
-        if (_floorMode == 5) Damage(2, 0.1f);
+        if (_floorMode == MODE_FLOOR.Needle) SetDamage(2, 0.1f);
     }
 
+    #region Input
+    //=======================================================
+    //=========================Input=========================
+    //=======================================================
 
-    //Imput
     //十字移動
     public void OnMoveL(InputAction.CallbackContext context)
     {
@@ -321,16 +351,16 @@ public class PlayerC : MonoBehaviour
     {
         if (GameData.PlayerMoveAble >= 6)
         {
-            if (context.performed && tpwdown <= 0 && GameData.TP > 0)
+            if (context.performed && _cooltimeSpecialAttack <= 0 && GameData.TP > 0)
             {
-                tpwdown = 10;
-                _scPAttack.Magic();
+                _cooltimeSpecialAttack = 10;
+                _scPAttack.PlayMagic();
             }
         }
     }
     public void SP1(InputAction.CallbackContext context)
     {
-        if (GameData.PlayerMoveAble >= 6 && !_scPAttack.GetIsChanging())
+        if (GameData.PlayerMoveAble >= 6 && !_scPAttack.CheckIsChanging())
         {
             if (context.started) SP1ing = true;
             else if (context.canceled) SP1ing = false;
@@ -338,7 +368,7 @@ public class PlayerC : MonoBehaviour
     }
     public void SP2(InputAction.CallbackContext context)
     {
-        if (GameData.PlayerMoveAble >= 6 && !_scPAttack.GetIsChanging())
+        if (GameData.PlayerMoveAble >= 6 && !_scPAttack.CheckIsChanging())
         {
             if (context.started) SP2ing = true;
             else if (context.canceled) SP2ing = false;
@@ -350,7 +380,7 @@ public class PlayerC : MonoBehaviour
         if (context.performed && GameData.PlayerMoveAble >= 5)
         {
             _scPAttack.SetGunMode(_scPAttack.GetGunMode() + 1);
-            _spriteRPlayer.sprite = _playerGurNormal[_scPAttack.GetGunMode()];
+            _srOwn.sprite = _playerGurNormal[(int)_scPAttack.GetGunMode()];
         }
     }
     public void GunModeChangeDown(InputAction.CallbackContext context)
@@ -358,7 +388,7 @@ public class PlayerC : MonoBehaviour
         if (context.performed && GameData.PlayerMoveAble >= 5)
         {
             _scPAttack.SetGunMode(_scPAttack.GetGunMode() + 1);
-            _spriteRPlayer.sprite = _playerGurNormal[_scPAttack.GetGunMode()];
+            _srOwn.sprite = _playerGurNormal[(int)_scPAttack.GetGunMode()];
         }
     }
     //NEWS変形
@@ -366,7 +396,7 @@ public class PlayerC : MonoBehaviour
     {
         if (context.performed && GameData.PlayerMoveAble >= 5)
         {
-            _scPAttack.GunModeChange(0);
+            _scPAttack.SetGunModeChange(MODE_GUN.Shining);
             if (context.started) _isFireingChange2 = true;
             else if (context.canceled) _isFireingChange2 = false;
         }
@@ -375,7 +405,7 @@ public class PlayerC : MonoBehaviour
     {
         if (context.performed && GameData.PlayerMoveAble >= 5)
         {
-            _scPAttack.GunModeChange(1);
+            _scPAttack.SetGunModeChange(MODE_GUN.Physical);
             if (context.started) _isFireingChange2 = true;
             else if (context.canceled) _isFireingChange2 = false;
         }
@@ -388,7 +418,7 @@ public class PlayerC : MonoBehaviour
     {
         if (context.performed && GameData.PlayerMoveAble >= 5)
         {
-            _scPAttack.GunModeChange(2);
+            _scPAttack.SetGunModeChange(MODE_GUN.Crash);
             if (context.started) _isFireingChange2 = true;
             else if (context.canceled) _isFireingChange2 = false;
         }
@@ -401,7 +431,7 @@ public class PlayerC : MonoBehaviour
     {
         if (context.performed && GameData.PlayerMoveAble >= 5)
         {
-            _scPAttack.GunModeChange(3);
+            _scPAttack.SetGunModeChange(MODE_GUN.Heat);
             if (context.started) _isFireingChange2 = true;
             else if (context.canceled) _isFireingChange2 = false;
         }
@@ -414,7 +444,7 @@ public class PlayerC : MonoBehaviour
     public void GunModeChangeBeamStick(InputAction.CallbackContext context)
     {
         bool isAction = context.ReadValue<float>() > 0.95f;
-        if (isAction && GameData.PlayerMoveAble >= 5) _scPAttack.GunModeChange(0);
+        if (isAction && GameData.PlayerMoveAble >= 5) _scPAttack.SetGunModeChange(MODE_GUN.Shining);
         if (GameData.PlayerMoveAble >= 4)
         {
             if (isAction) _isFireingChange2 = true;
@@ -424,7 +454,7 @@ public class PlayerC : MonoBehaviour
     public void GunModeChangeBulletStick(InputAction.CallbackContext context)
     {
         bool isAction = context.ReadValue<float>() > 0.95f;
-        if (isAction && GameData.PlayerMoveAble >= 5) _scPAttack.GunModeChange(1);
+        if (isAction && GameData.PlayerMoveAble >= 5) _scPAttack.SetGunModeChange(MODE_GUN.Physical);
         if (GameData.PlayerMoveAble >= 4)
         {
             if (isAction) _isFireingChange2 = true;
@@ -434,7 +464,7 @@ public class PlayerC : MonoBehaviour
     public void GunModeChangeRocketStick(InputAction.CallbackContext context)
     {
         bool isAction = context.ReadValue<float>() > 0.95f;
-        if (isAction && GameData.PlayerMoveAble >= 5) _scPAttack.GunModeChange(2);
+        if (isAction && GameData.PlayerMoveAble >= 5) _scPAttack.SetGunModeChange(MODE_GUN.Crash);
         if (GameData.PlayerMoveAble >= 4)
         {
             if (isAction) _isFireingChange2 = true;
@@ -444,20 +474,18 @@ public class PlayerC : MonoBehaviour
     public void GunModeChangeMineStick(InputAction.CallbackContext context)
     {
         bool isAction = context.ReadValue<float>() > 0.95f;
-        if (isAction && GameData.PlayerMoveAble >= 5) _scPAttack.GunModeChange(3);
+        if (isAction && GameData.PlayerMoveAble >= 5) _scPAttack.SetGunModeChange(MODE_GUN.Heat);
         if (GameData.PlayerMoveAble >= 4)
         {
             if (isAction) _isFireingChange2 = true;
             else _isFireingChange2 = false;
         }
     }
-
-
-
+    #endregion
 
     private void FixedUpdate()
     {
-        int gunMode = _scPAttack.GetGunMode();
+        MODE_GUN gunMode = _scPAttack.GetGunMode();
 
         //重力
         Ray2D playerFootRay = new Ray2D(transform.position - new Vector3(16, 20 + 1.0f, 0), new Vector2(32, 0));
@@ -487,10 +515,10 @@ public class PlayerC : MonoBehaviour
         {
             GameObject floor = _hitPlayerToFloor.collider.gameObject;
             _isnowBedRock = floor.GetComponent<FloorC>()._isBedRock;
-            _floorMode = floor.GetComponent<FloorC>()._floorMode;
-            pos = transform.position;
+            _floorMode = floor.GetComponent<FloorC>().GetFloorMode();
+            _posOwn = transform.position;
 
-            transform.position = new Vector3(pos.x
+            transform.position = new Vector3(_posOwn.x
                 , floor.transform.position.y + (floor.GetComponent<BoxCollider2D>().size.y / 2) + ((GetComponent<BoxCollider2D>().size.y - GetComponent<BoxCollider2D>().offset.y) / 2), 0);
 
             //重力ゼロ
@@ -508,7 +536,7 @@ public class PlayerC : MonoBehaviour
 
 
         //MoveAction
-        transform.localPosition += new Vector3(pfast, 0, 0);
+        transform.localPosition += new Vector3(_speedMove, 0, 0);
 
 
         //TPEffect
@@ -524,33 +552,33 @@ public class PlayerC : MonoBehaviour
 
         //graphic
         //ジャンプ中は歩きGur
-        if (warktime < 4) warktime++;
+        if (_timeWarking < 4) _timeWarking++;
         if (_isJumping)
         {
-            _spriteRPlayer.sprite = _playerGurWark[gunMode];
+            _srOwn.sprite = _playerGurWark[(int)gunMode];
         }
-        else if (warking == true)
+        else if (_isWalking == true)
         {
-            if (warktime > 3)
+            if (_timeWarking > 3)
             {
-                if (_spriteRPlayer.sprite == _playerGurNormal[gunMode]) _spriteRPlayer.sprite = _playerGurWark[gunMode];
-                else if (_spriteRPlayer.sprite == _playerGurWark[gunMode]) _spriteRPlayer.sprite = _playerGurNormal[gunMode];
-                warktime = 0;
+                if (_srOwn.sprite == _playerGurNormal[(int)gunMode]) _srOwn.sprite = _playerGurWark[(int)gunMode];
+                else if (_srOwn.sprite == _playerGurWark[(int)gunMode]) _srOwn.sprite = _playerGurNormal[(int)gunMode];
+                _timeWarking = 0;
             }
         }
         else
         {
-            _spriteRPlayer.sprite = _playerGurNormal[gunMode];
+            _srOwn.sprite = _playerGurNormal[(int)gunMode];
         }
-        if (_scPAttack.GetIsChanging())
+        if (_scPAttack.CheckIsChanging())
         {
-            _spriteRPlayer.sprite = _playerChanging;
-            _spriteREffect.sprite = _effectGur[16];
+            _srOwn.sprite = _playerChanging;
+            _spriteREffect.sprite = null;
         }
-        if (GameData.HP <= 0)
+        if (_hp <= 0)
         {
-            _spriteRPlayer.sprite = _playerDeath;
-            _spriteREffect.sprite = _effectGur[16];
+            _srOwn.sprite = _playerDeath;
+            _spriteREffect.sprite = null;
         }
         if (GameData.PlayerMoveAble < 4)
         {
@@ -570,79 +598,48 @@ public class PlayerC : MonoBehaviour
                 }
             }
         }
-
-        /*
-        //攻撃時
-        else
-        {
-            if (tate == 1)
-            {
-                _spriteRPlayer.sprite =_playerGurWarkAttack[(int)_gunMode];
-            }
-            else if (warking == true)
-            {
-                if (warktime > 3)
-                {
-                    if (_spriteRPlayer.sprite ==_playerGurNormalAttack[(int)_gunMode])
-                    {
-                        _spriteRPlayer.sprite =_playerGurWarkAttack[(int)_gunMode];
-                    }
-                    else if (_spriteRPlayer.sprite ==_playerGurWarkAttack[(int)_gunMode])
-                    {
-                        _spriteRPlayer.sprite =_playerGurNormalAttack[(int)_gunMode];
-                    }
-                    warktime = 0;
-                }
-
-                warktime++;
-            }
-            else if (tate == 0)
-            {
-                _spriteRPlayer.sprite =_playerGurNormalAttack[(int)_gunMode];
-            }
-        }
-        */
-
     }
 
     /// <summary>
-    /// 帽子や薬莢などのアニメーションを管理
+    /// 武器エフェクトアニメーション
     /// </summary>
     /// <returns></returns>
-    private IEnumerator EffectAnim()
+    private IEnumerator SetEffectAnim()
     {
-        int gunMode = _scPAttack.GetGunMode();
+        GunStates state = _scPAttack.GetWeaponState(_scPAttack.GetGunMode());
 
-        for (int hoge = 0; hoge < 4; hoge++)
+        Sprite[] sprite = state.spritesWeapon;
+
+        for (int i = 0; i < sprite.Length; i++)
         {
-            if (_scPAttack.GetShotdown(gunMode * 2) <= 0/* &&shotdown[((int)_gunMode*2)+1] <= 0*/)
+            if (state.isLoaded)
             {
-                _spriteREffect.sprite = _effectGur[hoge + (gunMode * 4)];
+                _spriteREffect.sprite = sprite[i];
             }
-            else _spriteREffect.sprite = _effectGur[16];
+            else _spriteREffect.sprite = null;
 
             yield return new WaitForSeconds(0.03f);
-            if (_scPAttack.GetShotdown(gunMode * 2 + 1) <= 0) yield return new WaitForSeconds(0.07f);
+            if (state.cooltimeNow <= 0) yield return new WaitForSeconds(0.07f);
         }
-        StartCoroutine(EffectAnim());
+        StartCoroutine(SetEffectAnim());
     }
 
-    public void PlayerAnimReset()
+    public void ResetPlayerAnim()
     {
-        int gunMode = _scPAttack.GetGunMode();
-        _spriteRPlayer.sprite = _playerGurNormal[gunMode];
-        _gunModeMouseValue = gunMode + 0.5f;
+        MODE_GUN gunMode = _scPAttack.GetGunMode();
+        _srOwn.sprite = _playerGurNormal[(int)gunMode];
+        _gunModeMouseValue = (int)gunMode + 0.5f;
     }
 
     /// <summary>
     /// コントローラー振動管理
     /// </summary>
-    public void CriticalVibration()
+    public void VibrationCritical()
     {
-        if (GameData.IsVibration) StartCoroutine("CriticalControllerVibration");
+        if (GameData.IsVibration) StartCoroutine(VibrationControllerCritical());
     }
 
-    private IEnumerator CriticalControllerVibration()
+    private IEnumerator VibrationControllerCritical()
     {
         var gamepad = Gamepad.current;
 
@@ -654,7 +651,7 @@ public class PlayerC : MonoBehaviour
         }
     }
 
-    private IEnumerator DamageControllerVibration()
+    private IEnumerator VibrationControllerDamage()
     {
         var gamepad = Gamepad.current;
 
@@ -675,12 +672,12 @@ public class PlayerC : MonoBehaviour
     /// <param name="mo"></param>
     private void MoveRight(float mo)
     {
-        warking = true;
-        muki = 1;
+        _isWalking = true;
+        _isRight = true;
         _spriteREffect.flipX = true;
-        _spriteRPlayer.flipX = true;
-        pfast += mo;
-        if (pfast >= _moveMax) pfast = _moveMax;
+        _srOwn.flipX = true;
+        _speedMove += mo;
+        if (_speedMove >= _moveMax) _speedMove = _moveMax;
     }
 
     /// <summary>
@@ -689,12 +686,12 @@ public class PlayerC : MonoBehaviour
     /// <param name="mo"></param>
     private void MoveLeft(float mo)
     {
-        warking = true;
-        muki = 0;
+        _isWalking = true;
+        _isRight = false;
         _spriteREffect.flipX = false;
-        _spriteRPlayer.flipX = false;
-        pfast -= mo;
-        if (pfast <= -_moveMax) pfast = -_moveMax;
+        _srOwn.flipX = false;
+        _speedMove -= mo;
+        if (_speedMove <= -_moveMax) _speedMove = -_moveMax;
     }
 
     /// <summary>
@@ -702,28 +699,28 @@ public class PlayerC : MonoBehaviour
     /// </summary>
     private void MoveStop()
     {
-        if (_floorMode == 1)
+        if (_floorMode == MODE_FLOOR.IceFloor)
         {
             //IceFloor
-            warking = false;
-            if (muki == 0 && pfast != 0)
+            _isWalking = false;
+            if (!_isRight && _speedMove != 0)
             {
                 //pfast -= 2;
-                if (pfast <= -12) pfast = -12;
+                if (_speedMove <= -12) _speedMove = -12;
             }
-            else if (muki == 1 && pfast != 0)
+            else if (_isRight && _speedMove != 0)
             {
                 //pfast += 2;
-                if (pfast >= 12) pfast = 12;
+                if (_speedMove >= 12) _speedMove = 12;
             }
         }
         else
         {
             //Stop
-            warking = false;
-            if (pfast > 1) pfast--;
-            else if (pfast < -1) pfast++;
-            else if (pfast <= 1 && pfast >= -1) pfast = 0;
+            _isWalking = false;
+            if (_speedMove > 1) _speedMove--;
+            else if (_speedMove < -1) _speedMove++;
+            else if (_speedMove <= 1 && _speedMove >= -1) _speedMove = 0;
         }
     }
 
@@ -734,9 +731,9 @@ public class PlayerC : MonoBehaviour
     private void MoveBound(Vector3 mpos)
     {
         transform.localPosition = mpos;
-        if (_floorMode == 1)
+        if (_floorMode == MODE_FLOOR.IceFloor)
         {
-            pfast = -pfast;
+            _speedMove = -_speedMove;
         }
     }
 
@@ -767,16 +764,16 @@ public class PlayerC : MonoBehaviour
     /// <summary>
     /// 回復
     /// </summary>
-    /// <param name="dhp"></param>
-    public bool Heal(int dhp)
+    /// <param name="heal"></param>
+    public bool SetHeal(int heal)
     {
-        if (GameData.HP < GameManagement.maxhp || GameData.StageMovingAction)
+        if (_hp < GameData.GetMaxHP() || GameData.IsStageMovingAction)
         {
             _audioGO.PlayOneShot(healS);
-            GameData.HP += dhp;
+            _hp += heal;
             for (int i = 0; i < 7; i++)
             {
-                ExpC shot = Instantiate(HealEffectPrefab, pos, rot);
+                ExpC shot = Instantiate(HealEffectPrefab, _posOwn, _rotOwn);
                 shot.EShot1(Random.Range(80, 100), Random.Range(10, 15), 0.3f);
             }
             return true;
@@ -788,9 +785,9 @@ public class PlayerC : MonoBehaviour
     /// 必殺チャージ
     /// </summary>
     /// <param name="dhp"></param>
-    public bool MagicCharge()
+    public bool SetAddMagic()
     {
-        if (GameData.TP < 5 || GameData.StageMovingAction)
+        if (GameData.TP < 5 || GameData.IsStageMovingAction)
         {
             _audioGO.PlayOneShot(magicgetS);
             if (GameData.TP < 5) GameData.TP += 1;
@@ -803,27 +800,27 @@ public class PlayerC : MonoBehaviour
     /// 統合ダメージ
     /// </summary>
     /// <param name="dhp"></param>
-    public void Damage(int dhp, float addInvincible)
+    public void SetDamage(int dhp, float addInvincible)
     {
-        if (dhp > 0 && !GameData.Star)
+        if (dhp > 0 && !GameData.IsInvincible)
         {
-            if (_invincibleTime <= 0)
+            if (_timeInvincible <= 0)
             {
-                StartCoroutine("DamageControllerVibration");
-                _goCamera.GetComponent<CameraC>().StartShakeBeside(5, 10);
-                GameData.HP -= dhp;
-                if (GameData.HP < 0)
+                StartCoroutine(VibrationControllerDamage());
+                _goCamera.GetComponent<CameraShakeC>().StartShakeBeside(5, 10);
+                _hp -= dhp;
+                if (_hp < 0)
                 {
-                    GameData.HP = 0;
+                    _hp = 0;
                 }
                 _audioGO.PlayOneShot(damageS);
-                Instantiate(BDE, GameData.WindowSize / 2, rot).EShot1(0, 0, 0.1f);
+                Instantiate(BDE, GameData.WindowSize / 2, _rotOwn).EShot1(0, 0, 0.1f);
                 for (int i = 0; i < 10; i++)
                 {
-                    rot = transform.localRotation;
-                    Instantiate(DamagePrefab, pos, rot).EShot1(Random.Range(0, 360), Random.Range(5, 20), 0.3f);
+                    _rotOwn = transform.localRotation;
+                    Instantiate(DamagePrefab, _posOwn, _rotOwn).EShot1(Random.Range(0, 360), Random.Range(5, 20), 0.3f);
                 }
-                _invincibleTime = addInvincible;
+                _timeInvincible = addInvincible;
             }
         }
 
@@ -834,14 +831,14 @@ public class PlayerC : MonoBehaviour
     /// 敵場所特定、自分とのアングルを求める
     /// </summary>
     /// <returns></returns>
-    private float GetTagPosition(Vector3 pos)
+    private float GetTagPosition(Vector3 _posOwn)
     {
         GameObject[] myObjects;
         myObjects = GameObject.FindGameObjectsWithTag("Enemy");
         if (myObjects.Length > 0)
         {
             Vector3 enemyPos = GameData.FixPosition(myObjects[Random.Range(0, myObjects.Length)].transform.position, 32, 32);
-            return GameData.GetAngle(pos, enemyPos);
+            return GameData.GetAngle(_posOwn, enemyPos);
         }
         else
         {
@@ -851,10 +848,10 @@ public class PlayerC : MonoBehaviour
                 if (myObjects.Length > 0)
                 {
                     Vector3 enemyPos = GameData.FixPosition(myObjects[Random.Range(0, myObjects.Length)].transform.position, 32, 32);
-                    return GameData.GetAngle(pos, enemyPos);
+                    return GameData.GetAngle(_posOwn, enemyPos);
                 }
             }
-            return 180 - (PlayerC.muki * 180);
+            return _isRight ? 0 : 180;
         }
     }
 
@@ -870,7 +867,7 @@ public class PlayerC : MonoBehaviour
         flontEnemy = GetFlontEnemy();
         if (flontEnemy != null)
         {
-            return GameData.GetAngle(pos, flontEnemy.transform.position);
+            return GameData.GetAngle(_posOwn, flontEnemy.transform.position);
         }
 
         //チュートリアル中であれば的探してアングル返して終了
@@ -878,13 +875,13 @@ public class PlayerC : MonoBehaviour
         {
             GameObject[] myObjects;
             myObjects = GameObject.FindGameObjectsWithTag("Target");
-            if (myObjects.Length > 0) return GameData.GetAngle(pos, myObjects[Random.Range(0, myObjects.Length)].transform.position);
+            if (myObjects.Length > 0) return GameData.GetAngle(_posOwn, myObjects[Random.Range(0, myObjects.Length)].transform.position);
         }
-        return 180 - (PlayerC.muki * 180);
+        return _isRight ? 0 : 180;
     }
 
     /// <summary>
-    /// 前の敵場所特定
+    /// 前方の敵場所特定
     /// </summary>
     /// <returns></returns>
     public GameObject GetFlontEnemy()
@@ -896,8 +893,8 @@ public class PlayerC : MonoBehaviour
         for (int hoge = 0; hoge < myObjects.Length; hoge++)
         {
 
-            if (muki == 0) find = myObjects[hoge].transform.position.x < pos.x;
-            else find = myObjects[hoge].transform.position.x >= pos.x;
+            if (!_isRight) find = myObjects[hoge].transform.position.x < _posOwn.x;
+            else find = myObjects[hoge].transform.position.x >= _posOwn.x;
 
             if (find)
             {
@@ -914,7 +911,7 @@ public class PlayerC : MonoBehaviour
     /// </summary>
     public void StageMoveAction()
     {
-        if (!GameData.StageMovingAction)
+        if (!GameData.IsStageMovingAction)
         {
             StopCoroutine(StageMove());
             StartCoroutine(StageMove());
@@ -927,9 +924,9 @@ public class PlayerC : MonoBehaviour
     /// </summary>
     private IEnumerator StageMove()
     {
-        GameData.TimerMoving = false;
-        GameData.StageMovingAction = true;
-        pfast = 0;
+        GameData.IsTimerMoving = false;
+        GameData.IsStageMovingAction = true;
+        _speedMove = 0;
         while (!_isGround)
         {
             yield return new WaitForSeconds(0.03f);
@@ -947,21 +944,21 @@ public class PlayerC : MonoBehaviour
             yield return new WaitForSeconds(0.03f);
         }
         _isMoveR = false;
-        transform.position = new Vector3(32, pos.y, 0);
-        GameData.AllDeleteEnemy();
-        GameData.AllDeleteEMissile();
+        transform.position = new Vector3(32, _posOwn.y, 0);
+        GameData.DeleteAllEnemys();
+        GameData.DeleteAllEMissiles();
         AllEnemyDelete();
-        GameData.Star = false;
+        GameData.IsInvincible = false;
         GameData.Point += 100000;
         GameData.PlayerMoveAble = 6;
-        GameData.TimerMoving = true;
-        GameData.StageMovingAction = false;
+        GameData.IsTimerMoving = true;
+        GameData.IsStageMovingAction = false;
     }
 
     private void TPEffect()
     {
         float angle = Random.Range(0, 360);
-        ExpC shot = Instantiate(ExpPrefab, pos, rot);
+        ExpC shot = Instantiate(ExpPrefab, _posOwn, _rotOwn);
         shot.EShot1(angle, 1.0f, 0.5f);
         //Gui.sprite = gm;
     }
@@ -974,11 +971,11 @@ public class PlayerC : MonoBehaviour
     {
         if (context.performed)
         {
-            if (GameData.Pouse)
+            if (GameData.IsPouse)
             {
                 GameData.PlayerMoveAble = 6;
                 TimeManager.ChangeTimeValue(1.0f);
-                GameData.Pouse = false;
+                GameData.IsPouse = false;
             }
 
 
@@ -988,16 +985,13 @@ public class PlayerC : MonoBehaviour
             }
             else
             {
-                CrearC._isGiveUp = true;
+                ClearC._isGiveUp = true;
                 SceneManager.LoadSceneAsync("Clear");
             }
         }
     }
 
-    private void AllEnemyDelete()
-    {
-        TagDelete("Effect");
-    }
+    private void AllEnemyDelete()=>TagDelete("Effect");
 
     private void TagDelete(string tagName)
     {
@@ -1009,24 +1003,51 @@ public class PlayerC : MonoBehaviour
     }
 
     /// <summary>
-    /// 特定の武器のクールタイムを返す
+    /// その武器のクールタイムを返す
     /// </summary>
-    public float CheckCoolTime(int weaponValue)
-    {
-        return _scPAttack.CheckCoolTime(weaponValue);
-    }
+    public float GetCoolTime(MODE_GUN mode)=>_scPAttack.CheckEnergy(mode);
 
     /// <summary>
-    /// 現在の武器を返す
+    /// 現在の武器を取得
     /// </summary>
-    public int CheckWeaponValue()
-    {
-        return _scPAttack.GetGunMode();
-    }
+    public MODE_GUN CheckWeaponValue() => _scPAttack.GetGunMode();
 
-    public void ChangeWeapon(int mode)
-    {
-        _scPAttack. GunModeChange(mode);
-    }
+    /// <summary>
+    /// その武器に強制変更
+    /// </summary>
+    /// <param name="mode"></param>
+    public void ChangeWeapon(MODE_GUN mode) => _scPAttack.SetGunModeChange(mode);
+
+    /// <summary>
+    /// その武器の遠距離技が使えるか確認
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public bool CheckIsAbleChargeShot(MODE_GUN mode) => _scPAttack.CheckIsAbleChargeShot(mode);
+
+    /// <summary>
+    /// その武器が使用可能か確認
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public bool CheckIsLoaded(MODE_GUN mode) => _scPAttack.GetWeaponState(mode).isLoaded;
+
+    /// <summary>
+    /// HPを調べる
+    /// </summary>
+    /// <returns></returns>
+    public int GetHP() => _hp;
+
+    /// <summary>
+    /// HP強制変更
+    /// </summary>
+    /// <param name="value"></param>
+    public void SetHP(int value) => _hp = value;
+
+    /// <summary>
+    /// 右を向いているか
+    /// </summary>
+    /// <returns></returns>
+    public bool CheckPlayerAngleIsRight() => _isRight;
 
 }

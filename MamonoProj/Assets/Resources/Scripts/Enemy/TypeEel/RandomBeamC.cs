@@ -1,4 +1,4 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,10 +9,10 @@ public class RandomBeamC : MonoBehaviour
     [SerializeField]
     private EMissile1C EMissile1Prefab;
 
-    private Vector3 pos;
+    private Vector3 _posOwn;
 
     /// <summary>
-    /// ÉXÉsÅ[ÉJ
+    /// „Çπ„Éî„Éº„Ç´
     /// </summary>
     protected AudioSource _audioGO;
 
@@ -28,9 +28,9 @@ public class RandomBeamC : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        pos = transform.position;
+        _posOwn = transform.position;
 
-        if (0< pos.x && pos.x < GameData.WindowSize.x && 0< pos.y && pos.y < GameData.WindowSize.y)
+        if (0< _posOwn.x && _posOwn.x < GameData.WindowSize.x && 0< _posOwn.y && _posOwn.y < GameData.WindowSize.y)
         {
 
             if (shotdown != 0) shotdown -= Time.deltaTime;
@@ -38,9 +38,9 @@ public class RandomBeamC : MonoBehaviour
             {
                 float angle = Random.Range(0.0f, 360.0f);
                 Quaternion rot = transform.localRotation;
-                pos.y += 14;
+                _posOwn.y += 14;
 
-                EMissile1C shot = Instantiate(EMissile1Prefab, pos, rot);
+                EMissile1C shot = Instantiate(EMissile1Prefab, _posOwn, rot);
                 shot.EShot1(angle, 10, 0);
                 shot.transform.position += shot.transform.up * 64;
 

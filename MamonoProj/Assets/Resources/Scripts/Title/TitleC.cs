@@ -5,10 +5,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using EnumDic.System;
 
 public class TitleC : MenuSystemC
 {
-    private AudioSource audioSource;
+    private AudioSource _asOwn;
 
     private float _prologueTimer = 0;
 
@@ -22,7 +23,7 @@ public class TitleC : MenuSystemC
 
         GameData.ClearTime = 0;
 
-        GameData.Difficulty = 1;
+        GameData.Difficulty = MODE_DIFFICULTY.General;
     }
 
     // Update is called once per frame
@@ -80,7 +81,7 @@ public class TitleC : MenuSystemC
             yield return new WaitForSeconds(0.5f);
             GameData.Language++;
             if (GameData.Language > 2) GameData.Language = 0;
-            start = false;
+            _isStart = false;
         }
         else if (mode == 4)
         {
@@ -93,7 +94,7 @@ public class TitleC : MenuSystemC
 
     public void OnEnd(InputAction.CallbackContext context)
     {
-        if (context.performed && !start)
+        if (context.performed && !_isStart)
         {
             _titleMode = _optionMax;
             MoveFlash();

@@ -2,19 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ETypeEelC : MonoBehaviour
+public class ETypeEelC : ETypeCoreC
 {
-    protected Vector3 pos;
 
     [SerializeField]
     protected float _moveSpeed = 10, _moveDelta = 0;
 
     // Update is called once per frame
-    protected void Update()
+    protected new void Update()
     {
-        pos = transform.position;
+        base.Update();
 
-        if (pos.y >= 1200)
+        if (_posOwn.y >= 1200)
         {
             Destroy(gameObject);
         }

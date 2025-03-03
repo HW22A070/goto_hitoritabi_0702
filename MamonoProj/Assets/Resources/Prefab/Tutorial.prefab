@@ -72,9 +72,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: -2
+  m_SortingLayerID: 1921905521
+  m_SortingLayer: 8
+  m_SortingOrder: 999
   m_Sprite: {fileID: 21300000, guid: 812437470ca63b641a455be544727561, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -98,12 +98,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e13e992d1460f6c478dac0fc2c14d0f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spriteRenderer: {fileID: 0}
-  normal: {fileID: 0}
-  lightning: {fileID: 0}
-  dead: {fileID: 0}
   EMissile1Prefab: {fileID: 0}
-  ThunderP: {fileID: -922636215049314943, guid: d4a160f09944c594da007533535db755,
+  ThunderP: {fileID: -922636215049314943, guid: a2f73ccefb0ad8047ab0f98b3c4fff78,
     type: 3}
   damageS: {fileID: 0}
   deadS: {fileID: 0}
@@ -120,7 +116,7 @@ MonoBehaviour:
   MagicD: 3
   TT: {fileID: 6425992399457046718}
   _point: 13
-  playerGO: {fileID: 0}
+  _goPlayer: {fileID: 0}
   _flagP: {fileID: -1891583163209572856, guid: acaa64b4687731b428247d981eee8038, type: 3}
   _targetP: {fileID: -4028154940713476433, guid: ac402b26c983d444ab724c40210cd651,
     type: 3}

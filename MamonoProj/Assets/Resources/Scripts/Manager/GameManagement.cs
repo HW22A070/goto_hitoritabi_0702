@@ -4,9 +4,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using EnumDic.System;
 
 public class GameManagement : MonoBehaviour
 {
+    [SerializeField, Header("Player")]
+    private GameObject _playerGO;
+
     /// <summary>
     /// ラウンドごとの目標スコア
     /// </summary>
@@ -22,11 +26,6 @@ public class GameManagement : MonoBehaviour
     /// </summary>
     private Slider _scoreBar;
 
-    /// <summary>
-    /// 自機HP用バー
-    /// </summary>
-    private Slider _playerHpBar;
-
     [SerializeField, Header("ラウンド表示")]
     private Text _nowRoundText;
 
@@ -35,9 +34,6 @@ public class GameManagement : MonoBehaviour
     /// </summary>
     private string[] _roundLang = new string[3] { "ラウンド", "ラウンド", "Round" };
 
-    [SerializeField]
-    [Header("自機HP表示")]
-    private Text _hpText;
 
     [SerializeField]
     [Header("現在のスコア表示")]
@@ -50,9 +46,6 @@ public class GameManagement : MonoBehaviour
 
     [SerializeField, Header("スコアバー伸びるとこ")]
     private GameObject _scoreBarFill;
-
-    [SerializeField, Header("Player")]
-    private GameObject _playerGO;
 
     /// <summary>
     /// ボス襲来
@@ -76,11 +69,6 @@ public class GameManagement : MonoBehaviour
     /// for文用の汎用繰り返し変数
     /// </summary>
     private int _counter;
-
-    /// <summary>
-    /// 自機の最大HP
-    /// </summary>
-    public static float maxhp;
 
     /// <summary>
     /// ボスの現在HP
@@ -143,11 +131,15 @@ public class GameManagement : MonoBehaviour
     private int _debugRound = 1;
 
     [SerializeField, Header("難易度（デバッグON限定）")]
-    private int _debugDif = 2;
+    private MODE_DIFFICULTY _debugDif;
+
+    [SerializeField, Header("無限エネルギー（デバッグON限定）")]
+    private bool _isInfinityEnergyDenug;
 
 
     void Start()
     {
+
         //オーディオ系初期設定
         _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
         _bgmManager = GameObject.Find("BGMManager").GetComponent<AudioControlC>();
@@ -155,9 +147,7 @@ public class GameManagement : MonoBehaviour
         //画面サイズ設定
         Screen.SetResolution(GameData.FirstWidth, GameData.FirstWidth, true);
 
-        GameData.TimerMoving = true;
-
-        VirusC.VirusMode = 0;
+        GameData.IsTimerMoving = true;
 
         _nowRoundText.text = _roundLang[GameData.Language] + ": " + (GameData.Round - GameData.StartRound + 1).ToString();
 
@@ -165,34 +155,16 @@ public class GameManagement : MonoBehaviour
         _scoreBarFill.GetComponent<Image>().color = Color.yellow;
 
         _scoreBar = GameObject.Find("PointBar").GetComponent<Slider>();
-        _playerHpBar = GameObject.Find("HPBar").GetComponent<Slider>();
-        if (GameData.Difficulty == 0)
-        {
-            GameData.HP = 100;
-            maxhp = 100;
-        }
-        if (GameData.Difficulty == 1)
-        {
-            GameData.HP = 50;
-            maxhp = 50;
-        }
-        if (GameData.Difficulty == 2)
-        {
-            GameData.HP = 20;
-            maxhp = 20;
-        }
-        if (GameData.Difficulty == 3)
-        {
-            GameData.HP = 1;
-            maxhp = 1;
-        }
+
+        
+
         if (GameData.GameMode == 1)
         {
             GameData.Round = 101;
         }
-        GameData.Camera = 0;
+        GameData.RotationCamera = 0;
         GameData.WindSpeed = 0;
-        GameData.Star = false;
+        GameData.IsInvincible = false;
         GameData.VirusBugEffectLevel = 0;
 
         //チュートリアル補正
@@ -207,11 +179,7 @@ public class GameManagement : MonoBehaviour
                 if (GameData.GameMode == 0) GameData.Round = _debugRound;
                 else if (GameData.GameMode == 1) GameData.Round = _debugRound + 100;
             }
-            if (_debugDif >= 0 && _debugDif <= 3)
-            {
-                GameData.Difficulty = _debugDif;
-            }
-
+            GameData.Difficulty = _debugDif;
         }
 
         if (GameData.Round > 30 && GameData.GameMode == 0) GameData.EX = 1;
@@ -222,7 +190,7 @@ public class GameManagement : MonoBehaviour
     void Update()
     {
         //ラウンド目標設定
-        _roundGoal = (1 + GameData.Difficulty + GameData.Round);
+        _roundGoal = (1 + (int)GameData.Difficulty + GameData.Round);
         if (GameData.Round % 5 == 0)
         {
             _roundGoal = 10000;
@@ -303,25 +271,19 @@ public class GameManagement : MonoBehaviour
         }
         else _windSpeedText.text = " ";
 
-        //HPメーター処理
-        _playerHpBar.value = GameData.HP / maxhp;
 
         //Death
-        if (GameData.HP <= 0) StartCoroutine(RigorMortis());
-        //上限まもってね
-        if (GameData.HP > maxhp) GameData.HP = maxhp;
+        if (_playerGO.GetComponent<PlayerC>().GetHP() <= 0) StartCoroutine(RigorMortis());
 
         //時間
-        if (GameData.IsBossFight) GameData.TimerMoving = false;
-        if (GameData.GameMode == 0 && GameData.TimerMoving && GameData.Round >= 1) GameData.ClearTime += Time.deltaTime;
+        if (GameData.IsBossFight) GameData.IsTimerMoving = false;
+        if (GameData.GameMode == 0 && GameData.IsTimerMoving && GameData.Round >= 1) GameData.ClearTime += Time.deltaTime;
 
 
 
         //テキスト表示
-        if (GameData.VirusBugEffectLevel < 1)
+        if (GameData.VirusBugEffectLevel ==EnumDic.Enemy.Virus.MODE_VIRUS.None)
         {
-            _hpText.text = GameData.HP.ToString() + " / " + maxhp.ToString();
-
             if (GameData.IsBossFight) _scoreText.text = _bossAttackLang[GameData.Language];
             else _scoreText.text = _pointLang[GameData.Language] + " " + GameData.Point.ToString() + " / " + _roundGoal.ToString();
 
@@ -338,13 +300,14 @@ public class GameManagement : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.K))
             {
                 GameData.TP += 1;
-                GameData.HP = maxhp;
+                _playerGO.GetComponent<PlayerC>().SetHP(GameData.GetMaxHP());
             }
             if (Input.GetKeyDown(KeyCode.L))
             {
                 GameData.Point += 1000000000000;
-                GameData.HP = maxhp;
+                _playerGO.GetComponent<PlayerC>().SetHP(GameData.GetMaxHP());
             }
+            _playerGO.gameObject.GetComponent<PlayerAttackC>().SetAllEnergyHeal();
         }
 
     }
@@ -365,10 +328,10 @@ public class GameManagement : MonoBehaviour
         GameData.Round++;
 
         _audioGO.PlayOneShot(roundupS);
-        GameData.Camera = 0;
+        GameData.RotationCamera = 0;
         GameData.IsBossFight = false;
         GameData.Point = 0;
-        GameData.Star = false;
+        GameData.IsInvincible = false;
         
         GameData.VirusBugEffectLevel = 0;
         for (int k = 0; k < 1; k++)
@@ -379,7 +342,7 @@ public class GameManagement : MonoBehaviour
 
         _scoreBarFill.GetComponent<Image>().color = Color.yellow;
 
-        GetComponent<StageGimicSummonerC>().SpecialStageCreate();
+        GetComponent<StageGimicSummonerC>().DoSpecialStageCreate();
     }
 
     
@@ -397,11 +360,11 @@ public class GameManagement : MonoBehaviour
     /// </summary>
     private void LevelUpEffects()
     {
-        Vector3 ppos = _playerGO.transform.position;
-        Instantiate(_levUpArrowEf, ppos + (transform.right * 200), transform.localRotation).EShot1(90, 5, 1.5f);
-        Instantiate(_levUpArrowEf, ppos - (transform.right * 200), transform.localRotation).EShot1(90, 5, 1.5f);
-        Instantiate(_levUpArrowEf, new Vector3(ppos.x, GameData.GroundPutY((int)(ppos.y / 90) + 1, 48), 0), transform.localRotation).EShot1(90, 5, 1.5f);
-        Instantiate(_levUpArrowEf, new Vector3(ppos.x, GameData.GroundPutY((int)(ppos.y / 90) - 1, 48), 0), transform.localRotation).EShot1(90, 5, 1.5f);
+        Vector3 _posPlayer = _playerGO.transform.position;
+        Instantiate(_levUpArrowEf, _posPlayer + (transform.right * 200), transform.localRotation).EShot1(90, 5, 1.5f);
+        Instantiate(_levUpArrowEf, _posPlayer - (transform.right * 200), transform.localRotation).EShot1(90, 5, 1.5f);
+        Instantiate(_levUpArrowEf, new Vector3(_posPlayer.x, GameData.GetGroundPutY((int)(_posPlayer.y / 90) + 1, 48), 0), transform.localRotation).EShot1(90, 5, 1.5f);
+        Instantiate(_levUpArrowEf, new Vector3(_posPlayer.x, GameData.GetGroundPutY((int)(_posPlayer.y / 90) - 1, 48), 0), transform.localRotation).EShot1(90, 5, 1.5f);
     }
 
     /// <summary>

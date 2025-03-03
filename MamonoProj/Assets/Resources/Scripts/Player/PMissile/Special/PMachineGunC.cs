@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PMachineGunC : MonoBehaviour
 {
-    private Vector3 velocity, pos, fpos;
+    private Vector3 velocity, _posOwn, fpos;
 
     public PMissile PBulletP;
     public PExpC PExpC;
@@ -46,7 +46,7 @@ public class PMachineGunC : MonoBehaviour
                 for (int j = 0; j < 360; j+=10)
                 {
                     Quaternion rot = transform.localRotation;
-                    PExpC shot2 = Instantiate(PExpC, fpos + pos, rot);
+                    PExpC shot2 = Instantiate(PExpC, fpos + _posOwn, rot);
                     shot2.EShot1(j, 5*k, 3);
                 }
             }
@@ -65,7 +65,7 @@ public class PMachineGunC : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        pos = _playerGO.transform.position;
+        _posOwn = _playerGO.transform.position;
 
         Quaternion rot = transform.localRotation;
         angle = GetTagPosition();
@@ -85,12 +85,12 @@ public class PMachineGunC : MonoBehaviour
 
         for (int i = 0; i < 1; i++)
         {
-            PMissile shot = Instantiate(PBulletP, fpos+pos+(transform.right*64), rot);
+            PMissile shot = Instantiate(PBulletP, fpos+_posOwn+(transform.right*64), rot);
             shot.Shot(angle + Random.Range(-3, 3), Random.Range(70, 90), 0);
         }
 
         //発射エフェクト
-        ExpC bulletEf = Instantiate(_prhbBulletShot, fpos + pos + (transform.right * 32), rot);
+        ExpC bulletEf = Instantiate(_prhbBulletShot, fpos + _posOwn + (transform.right * 32), rot);
         bulletEf.transform.parent = transform;
         bulletEf.EShot1(angle, 0, 0.02f);
         //bulletEf.transform.position += bulletEf.transform.up * 24;
@@ -115,15 +115,15 @@ public class PMachineGunC : MonoBehaviour
     {
         GameObject[] myObjects;
         myObjects = GameObject.FindGameObjectsWithTag("Enemy");
-        if (myObjects.Length > 0) return GameData.GetAngle(pos, myObjects[Random.Range(0, myObjects.Length)].transform.position);
+        if (myObjects.Length > 0) return GameData.GetAngle(_posOwn, myObjects[Random.Range(0, myObjects.Length)].transform.position);
         else
         {
             if (GameData.Round == 0)
             {
                 myObjects = GameObject.FindGameObjectsWithTag("Target");
-                if (myObjects.Length > 0) return GameData.GetAngle(pos, myObjects[Random.Range(0, myObjects.Length)].transform.position);
+                if (myObjects.Length > 0) return GameData.GetAngle(_posOwn, myObjects[Random.Range(0, myObjects.Length)].transform.position);
             }
-            return 180 - (PlayerC.muki * 180);
+            return (_playerGO.GetComponent<PlayerC>().CheckPlayerAngleIsRight() ? 0 : 180);
         }
     }
 }

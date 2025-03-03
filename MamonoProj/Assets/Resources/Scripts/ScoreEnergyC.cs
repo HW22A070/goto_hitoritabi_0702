@@ -1,7 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
+/// <summary>
+/// ポイント上昇エネルギー弾
+/// </summary>
 public class PointEnergyC : MonoBehaviour
 {
     private Ray _rayEnegry;

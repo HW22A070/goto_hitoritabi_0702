@@ -8,7 +8,7 @@ public class PMCoreC : MonoBehaviour
     [Tooltip("敵弾と相殺するか")]
     private bool sosai, _right = true, _left = true, _up = true, _down = true;
 
-    private Vector3 pos;
+    private Vector3 _posOwn;
 
     private GameObject PlayerGO;
 
@@ -47,7 +47,7 @@ public class PMCoreC : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        pos = transform.position;
+        _posOwn = transform.position;
 
         if (!_isAttacked)
         {
@@ -68,8 +68,8 @@ public class PMCoreC : MonoBehaviour
                 else// if (_hitPmissileToEnemy.collider.tag == "Enemy"|| _hitPmissileToEnemy.collider.tag == "MechaUnit")
                 {
                     _isAttacked = true;
-                    float attackPower = (float)(_attackPower * _attackMagnif[GameData.Difficulty]);
-                    bool delete = _hitPmissileToEnemy.collider.GetComponent<ECoreC>().Damage(attackPower, _attackType, _hitPmissileToEnemy.collider.ClosestPoint(transform.position));
+                    float attackPower = (float)(_attackPower * _attackMagnif[(int)GameData.Difficulty]);
+                    bool delete = _hitPmissileToEnemy.collider.GetComponent<ECoreC>().DoGetDamage(attackPower, _attackType, _hitPmissileToEnemy.collider.ClosestPoint(transform.position));
                     if (delete)
                     {
                         _isDeleteTrigger = true;
@@ -87,28 +87,22 @@ public class PMCoreC : MonoBehaviour
         }
 
         //down_ex
-        if (pos.y <= 0 && _down) _isDeleteTrigger = true;
+        if (_posOwn.y <= 0 && _down) _isDeleteTrigger = true;
 
         //up_ex
-        if (pos.y >= 480 && _up) _isDeleteTrigger = true;
+        if (_posOwn.y >= 480 && _up) _isDeleteTrigger = true;
 
         //left_ex
-        if (pos.x <= 0 && _left) _isDeleteTrigger = true;
+        if (_posOwn.x <= 0 && _left) _isDeleteTrigger = true;
 
         //right_ex
-        if (pos.x >= 640 && _right) _isDeleteTrigger = true;
+        if (_posOwn.x >= 640 && _right) _isDeleteTrigger = true;
 
     }
 
-    public void SetDelete()
-    {
-        _isDeleteTrigger = true;
-    }
+    public void SetDelete() => _isDeleteTrigger = true;
 
-    public bool DeleteMissileCheck()
-    {
-        return _isDeleteTrigger;
-    }
+    public bool DeleteMissileCheck() => _isDeleteTrigger;
 
 
 }

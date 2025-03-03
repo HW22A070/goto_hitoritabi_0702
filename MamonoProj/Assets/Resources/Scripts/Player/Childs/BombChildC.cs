@@ -9,27 +9,21 @@ public class BombChildC : ChildsCoreC
     [SerializeField, Tooltip("弾アタッチ")]
     private PBombC _prfbBomb;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        playerGO = GameObject.Find("Player");
-        _scPlayer = playerGO.GetComponent<PlayerC>();
-    }
 
     // Update is called once per frame
     void Update()
     {
         _pos = transform.position;
-        _ppos = playerGO.transform.position + _posOfset;
-        _posDelta = GameData.GetSneaking(_pos, _ppos, 4);
+        _posPlayer = playerGO.transform.position + _posOfset;
+        _posDelta = GameData.GetSneaking(_pos, _posPlayer, 4);
     }
 
-    private void FixedUpdate()
+    protected override void FixedUpdate()
     {
+        base.FixedUpdate();
         transform.position += _posDelta;
 
-        if (PlayerC.muki==1)
+        if (_scPlayer.CheckPlayerAngleIsRight())
         {
             spriteRenderer.flipX = true;
         }

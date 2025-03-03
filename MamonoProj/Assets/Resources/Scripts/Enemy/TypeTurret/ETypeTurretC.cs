@@ -1,20 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using EnumDic.Floor;
 
-public class ETypeTurretC : MonoBehaviour
+public class ETypeTurretC : ETypeCoreC
 {
-    protected int judge;
-    protected float down = 0;
-    protected int pull, tate;
-    
-    protected Vector3 pos,ppos;
+    protected bool _isDownFloor;
+    protected int _pull, _vertical;
 
     protected bool _isDontDown = false;
 
-    protected GameObject playerGO;
-
-    protected SpriteRenderer spriteRenderer;
+    protected float _probabilityDown=100;
 
     /// <summary>
     /// 下降中なう
@@ -44,39 +38,18 @@ public class ETypeTurretC : MonoBehaviour
     /// <summary>
     /// 足の位置と足の広さ
     /// </summary>
-    //[SerializeField,Header("足の位置と足の広さ")]
     private Vector2 _posFoot = new Vector3(32, 32);
 
     /// <summary>
     /// プレイヤーと床の判定
     /// </summary>
-    private RaycastHit2D _hitEnemyToFloor;
-
-    /// <summary>
-    /// スピーカ
-    /// </summary>
-    protected AudioSource _audioGO;
-
-
-    // Start is called before the first frame update
-    protected void Start()
-    {
-        playerGO = GameObject.Find("Player");
-        _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
-    }
-
-    // Update is called once per frame
-    protected void Update()
-    {
-        pos = transform.position;
-        ppos = playerGO.transform.position;
-    }
+    protected RaycastHit2D _hitEnemyToFloor;
 
     protected void FixedUpdate()
     {
         //重力
         Ray2D playerFootRay = new Ray2D(transform.position - new Vector3(_posFoot.x/2, _posFoot.y*1.2f + 1.0f, 0), new Vector2(_posFoot.x, 0));
+        
         //Debug.DrawRay(playerFootRay.origin, playerFootRay.direction, Color.gray);
         if (_isDowning)
         {
@@ -97,9 +70,9 @@ public class ETypeTurretC : MonoBehaviour
         if (_isGround)
         {
             GameObject floor = _hitEnemyToFloor.collider.gameObject;
-            pos = transform.position;
+            _posOwn = transform.position;
 
-            transform.position = new Vector3(pos.x
+            transform.position = new Vector3(_posOwn.x
                 , floor.transform.position.y + (floor.GetComponent<BoxCollider2D>().size.y / 2) + ((GetComponent<BoxCollider2D>().size.y - GetComponent<BoxCollider2D>().offset.y) / 2), 0);
 
             //重力ゼロ
@@ -110,10 +83,10 @@ public class ETypeTurretC : MonoBehaviour
             if (_hitEnemyToFloor)
             {
                 ECoreC eCore = GetComponent<ECoreC>();
-                if (_hitEnemyToFloor.collider.gameObject.GetComponent<FloorC>()._floorMode == 3)
+                if (_hitEnemyToFloor.collider.gameObject.GetComponent<FloorC>().GetFloorMode()==MODE_FLOOR.Burning)
                 {
                     //もし炎弱点であればダメージくらう
-                    if(eCore.GetIsCritical(3)&&eCore.TotalHp>1)eCore.Damage(1, 3, _hitEnemyToFloor.collider.gameObject.transform.position);
+                    if(eCore.CheckIsCritical(3)&&eCore.TotalHp>1)eCore.DoGetDamage(1, 3, _hitEnemyToFloor.collider.gameObject.transform.position);
                 }
             }
         }
@@ -127,19 +100,19 @@ public class ETypeTurretC : MonoBehaviour
         transform.position -= new Vector3(0, _gravityNow, 0);
 
         //降下
-        if (down == 0)
+        if (_isDownFloor)
         {
             if (_isGround)
             {
                 _isDowning = true;
             }
         }
-        if (pos.y <= -(_posFoot.y-1))
+        if (_posOwn.y <= -(_posFoot.y-1))
         {
             Destroy(gameObject);
         }
 
-        if (!_isDontDown) down = Random.Range(0, 100);
-        else down = 1;
+        if (!_isDontDown) _isDownFloor = Random.Range(0, _probabilityDown) ==0;
+        else _isDownFloor = false;
     }
 }

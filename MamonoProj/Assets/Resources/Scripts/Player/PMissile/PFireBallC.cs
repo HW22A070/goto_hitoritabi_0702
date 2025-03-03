@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PFireBallC : MonoBehaviour
 {
-    private Vector3 _pos, _ppos, _firstPos, _posDelta;
+    private Vector3 _pos, _posPlayer, _firstPos, _posDelta;
 
     private float _waitSecond = 2;
 
@@ -85,11 +85,7 @@ public class PFireBallC : MonoBehaviour
         }
     }
 
-    void FixedUpdate()
-    {
-        transform.position += _posDelta;
-        
-    }
+    void FixedUpdate() => transform.position += _posDelta;
 
     private void EXPEffect()
     {
@@ -104,7 +100,7 @@ public class PFireBallC : MonoBehaviour
     {
         _pos = transform.position;
         _audioGO.PlayOneShot(expS);
-        _goCamera.GetComponent<CameraC>().StartShakeVertical(3, 6);
+        _goCamera.GetComponent<CameraShakeC>().StartShakeVertical(3, 6);
         for (int j = 0; j < 10; j++)
         {
             for (int k = 0; k < 2; k++)

@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 
 public class BeamMC : MonoBehaviour
 {
-    private Vector3 pos, fpos;
+    private Vector3 _posOwn, fpos;
 
     private float of,shotdown,sddelta=0.35f;
     private float sp = 0;
@@ -38,7 +38,7 @@ public class BeamMC : MonoBehaviour
     void Update()
     {
         fpos = new Vector3(Mathf.Sin((sp + of) * Mathf.Deg2Rad) * 32, Mathf.Cos((sp + of) * Mathf.Deg2Rad) * 32, 0);
-        pos = transform.position;
+        _posOwn = transform.position;
 
         if (shotdown != 0) shotdown -= Time.deltaTime;
         if (Fireing && shotdown <= 0) Shot_Beam();
@@ -76,20 +76,20 @@ public class BeamMC : MonoBehaviour
         sddelta -= 0.01f;
         if (sddelta < 0.09f)
         {
-            Instantiate(_prfbBeamBoll, pos, transform.rotation).SetFirstPos(pos + GameData.GetDirection(-(sp + of) % 360) * 64);
+            Instantiate(_prfbBeamBoll, _posOwn, transform.rotation).SetFirstPos(_posOwn + GameData.GetDirection(-(sp + of) % 360) * 64);
             /*
             Quaternion rot = transform.localRotation;
-            PMissile shot = Instantiate(PRaserP, pos, rot);
+            PMissile shot = Instantiate(PRaserP, _posOwn, rot);
             shot.Shot(sddelta, 10, 1);
             */
             sddelta = 0.06f;
         }
         else
         {
-            Instantiate(_prfbBeamBoll, pos, transform.rotation).SetFirstPos(pos+GameData.GetDirection(-(sp +of) % 360) * 64);
+            Instantiate(_prfbBeamBoll, _posOwn, transform.rotation).SetFirstPos(_posOwn+GameData.GetDirection(-(sp +of) % 360) * 64);
             /*
             Quaternion rot = transform.localRotation;
-            PMissile shot = Instantiate(PRaserP, pos, rot);
+            PMissile shot = Instantiate(PRaserP, _posOwn, rot);
             shot.Shot(sddelta, 20, 1);
             */
         }

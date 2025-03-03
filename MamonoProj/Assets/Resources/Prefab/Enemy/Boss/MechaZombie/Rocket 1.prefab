@@ -74,9 +74,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingLayerID: 1191421425
+  m_SortingLayer: 4
+  m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 88349a58e16c8014f97674eb11198402, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -142,10 +142,10 @@ MonoBehaviour:
   ExpPrefab: {fileID: -3985870090297418402, guid: 2b3d895949ed5934693255a778148189,
     type: 3}
   _isKaitenLock: 0
-  sizex: 12
-  sizey: 18
-  speed: 5
-  delete: 0.2
+  _sizeX: 16
+  _sizeY: 16
+  _speed: 3
+  _delete: 0.2
   _loop: 1
 --- !u!61 &8370201371505247702
 BoxCollider2D:

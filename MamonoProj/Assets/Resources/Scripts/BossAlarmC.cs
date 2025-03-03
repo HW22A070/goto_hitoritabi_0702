@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EnumDic.Enemy;
 
 public class BossAlarmC : MonoBehaviour
 {
@@ -11,19 +12,7 @@ public class BossAlarmC : MonoBehaviour
     private Sprite _alarmSp;
 
     [SerializeField]
-    private InsectBossC InsectBossPrefab;
-    [SerializeField]
-    private UfoC UfoPrefab;
-    [SerializeField]
-    private VaneC VanePrefab;
-    [SerializeField]
-    private IcequeenC IcequeenPrefab;
-    [SerializeField]
-    private IfritC IfritPrefab;
-    [SerializeField]
-    private MechaZombieC MechaZombiePrefab;
-    [SerializeField]
-    private MailC MailPrefab;
+    private GameObject _prfbInsectBoss,_prfbUFO,_prfbVane,_prfbIceClione,_prfbIfrit,_prfbMecgaZombie,_prfbMail;
 
     private string _bossName;
 
@@ -37,34 +26,20 @@ public class BossAlarmC : MonoBehaviour
 
     private AudioControlC _bgmManager;
 
-
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     /// <summary>
     /// insect,ufo,vane,icequeen,ifrit,zombie,virus
     /// </summary>
-    public void BossAlarmSummon(string bossName)
+    public void BossAlarmSummon(KIND_BOSS kind)
     {
         _bgmManager = GameObject.Find("BGMManager").GetComponent<AudioControlC>();
         _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
-        _bossName = bossName;
-        GameData.TimerMoving = false;
-        StartCoroutine(Alarm());
+        GameData.IsTimerMoving = false;
+        StartCoroutine(Alarm(kind));
     }
 
-    private IEnumerator Alarm()
+    private IEnumerator Alarm(KIND_BOSS kind)
     {
+        //アラート演出
         _bgmManager.VolumefeedInOut(3.0f, 0.0f);
         for(int hoge = 0; hoge < 3; hoge++)
         {
@@ -77,48 +52,50 @@ public class BossAlarmC : MonoBehaviour
         }
         _alarmSR.sprite = _alarmSp;
         _audioGO.PlayOneShot(_alarmS);
+
         yield return new WaitForSeconds(1.0f);
         _bgmManager.ChangeAudio(GameData.GetRoundNumber(), true, 1.0f);
-        SummonAndDestroy();
 
+        SummonAndDestroy(kind);
     }
 
 
-    private void SummonAndDestroy()
+    private void SummonAndDestroy(KIND_BOSS kind)
     {
         GameData.IsBossFight = true;
         Quaternion rot = Quaternion.Euler(0, 0, 0);
-        switch (_bossName)
+
+        switch (kind)
         {
-            case "insect":
-                Instantiate(InsectBossPrefab, new Vector3(64, Random.Range(2, 5) * 90, 0), rot);
+            case KIND_BOSS.InsectBoss:
+                Instantiate(_prfbInsectBoss, new Vector3(64, Random.Range(2, 5) * 90, 0), rot);
                 break;
 
-            case "ufo":
-                Instantiate(UfoPrefab, new Vector3(Random.Range(100, 540), 470, 0), rot);
+            case KIND_BOSS.UFO:
+                Instantiate(_prfbUFO, new Vector3(Random.Range(100, 540), 470, 0), rot);
                 break;
 
-            case "vane":
-                Instantiate(VanePrefab, new Vector3(100, (Random.Range(0, 3) * 90) + 110, 0), rot);
+            case KIND_BOSS.Vane:
+                Instantiate(_prfbVane, new Vector3(100, (Random.Range(0, 3) * 90) + 110, 0), rot);
                 break;
 
-            case "icequeen":
-                Instantiate(IcequeenPrefab, new Vector3(100, (Random.Range(0, 3) * 90) + 110, 0), rot);
+            case KIND_BOSS.IceClione:
+                Instantiate(_prfbIceClione, new Vector3(100, (Random.Range(0, 3) * 90) + 110, 0), rot);
                 break;
 
-            case "ifrit":
-                Instantiate(IfritPrefab, new Vector3(Random.Range(100, 540), Random.Range(50, 430), 0), rot);
+            case KIND_BOSS.Ifrit:
+                Instantiate(_prfbIfrit, new Vector3(Random.Range(100, 540), Random.Range(50, 430), 0), rot);
                 break;
 
-            case "zombie":
-                Instantiate(MechaZombiePrefab, new Vector3(640, 165, 0), rot);
+            case KIND_BOSS.MechaZombie:
+                Instantiate(_prfbMecgaZombie, new Vector3(640, 165, 0), rot);
                 break;
 
-            case "virus":
-                Instantiate(MailPrefab, new Vector3(320, 550, 0), rot);
+            case KIND_BOSS.MailVirus:
+                Instantiate(_prfbMail, new Vector3(320, 550, 0), rot);
                 break;
         }
-        GameData.TimerMoving = true;
+        GameData.IsTimerMoving = true;
         Destroy(gameObject);
     }
 }

@@ -1,10 +1,14 @@
-﻿using System.Collections;
+﻿using EnumDic.System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// BGMのボリュームなど
+/// </summary>
 public class AudioControlC : MonoBehaviour
 {
-    private AudioSource BGM;
+    private AudioSource _asBGM;
 
     [SerializeField, Tooltip("つうじょうBGM")]
     private AudioClip _bgmRazer, _bgmRuin, _bgmHurricane, _bgmSnow, _bgmVolcano, _bgmMetal,_bgmBug;
@@ -21,13 +25,13 @@ public class AudioControlC : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        BGM = GetComponent<AudioSource>();
+        _asBGM = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        BGM.pitch = Time.timeScale;
+        _asBGM.pitch = Time.timeScale;
         if (!_isStarted)
         {
             ChangeAudio(GameData.GetRoundNumber(), false, -1);
@@ -45,90 +49,90 @@ public class AudioControlC : MonoBehaviour
     {
         if (bgmValue != 0)
         {
-            if (GameData.Difficulty == 3) bgmValue = 201;
+            if (GameData.Difficulty == MODE_DIFFICULTY.Berserker) bgmValue = 201;
             if (isBoss) bgmValue += 10;
 
             switch (bgmValue)
             {
                 case -1:
-                    BGM.clip = _tuto;
+                    _asBGM.clip = _tuto;
                     break;
 
                 case 1:
-                    BGM.clip = _bgmRazer;
+                    _asBGM.clip = _bgmRazer;
                     break;
                 case 2:
-                    BGM.clip = _bgmRuin;
+                    _asBGM.clip = _bgmRuin;
                     break;
                 case 3:
-                    BGM.clip = _bgmHurricane;
+                    _asBGM.clip = _bgmHurricane;
                     break;
                 case 4:
-                    BGM.clip = _bgmSnow;
+                    _asBGM.clip = _bgmSnow;
                     break;
                 case 5:
-                    BGM.clip = _bgmVolcano;
+                    _asBGM.clip = _bgmVolcano;
                     break;
                 case 6:
-                    BGM.clip = _bgmMetal;
+                    _asBGM.clip = _bgmMetal;
                     break;
                 case 7:
-                    BGM.clip = _bgmBug;
+                    _asBGM.clip = _bgmBug;
                     break;
 
                 case 11:
-                    BGM.clip = _bgmBossRazer;
+                    _asBGM.clip = _bgmBossRazer;
                     break;
                 case 12:
-                    BGM.clip = _bgmBossRuin;
+                    _asBGM.clip = _bgmBossRuin;
                     break;
                 case 13:
-                    BGM.clip = _bgmBossHurricane;
+                    _asBGM.clip = _bgmBossHurricane;
                     break;
                 case 14:
-                    BGM.clip = _bgmBossSnow;
+                    _asBGM.clip = _bgmBossSnow;
                     break;
                 case 15:
-                    BGM.clip = _bgmBossVolcano;
+                    _asBGM.clip = _bgmBossVolcano;
                     break;
                 case 16:
-                    BGM.clip = _bgmBossMetal;
+                    _asBGM.clip = _bgmBossMetal;
                     break;
 
                 case 101:
-                    BGM.clip = V1;
+                    _asBGM.clip = V1;
                     break;
                 case 102:
-                    BGM.clip = V2;
+                    _asBGM.clip = V2;
                     break;
                 case 103:
-                    BGM.clip = V3;
+                    _asBGM.clip = V3;
                     break;
 
                 case 200:
-                    BGM.clip = V1;
+                    _asBGM.clip = V1;
                     break;
                 case 210:
-                    BGM.clip = V2;
+                    _asBGM.clip = V2;
                     break;
 
 
                 case 201:
-                    BGM.clip = _satsuriku;
+                    _asBGM.clip = _satsuriku;
                     break;
                 case 211:
-                    BGM.clip = _satsurikuBoss;
+                    _asBGM.clip = _satsurikuBoss;
                     break;
 
                 default:
-                    BGM.clip = null;
+                    _asBGM.clip = null;
                     break;
             }
-            BGM.Play();
+            _asBGM.Play();
         }
         if (volume >= 0)
         {
-            BGM.volume = volume;
+            _asBGM.volume = volume;
         }
     }
 
@@ -146,11 +150,11 @@ public class AudioControlC : MonoBehaviour
 
     private IEnumerator BGMFeedInOut(float second, float goal)
     {
-        float volmeValue = goal - BGM.volume;
+        float volmeValue = goal - _asBGM.volume;
         int volmeDelta = (int)(second / 0.1f);
         for (int hoge=0;hoge< volmeDelta; hoge++)
         {
-            BGM.volume += volmeValue / volmeDelta;
+            _asBGM.volume += volmeValue / volmeDelta;
             yield return new WaitForSeconds(0.1f);
         }
     }

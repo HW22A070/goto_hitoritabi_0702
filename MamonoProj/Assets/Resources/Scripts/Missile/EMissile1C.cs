@@ -1,42 +1,33 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class EMissile1C : MonoBehaviour
 {
-    Vector3 velocity, pos;
-    float sspeed, kkaso, aang;
+    private Vector3 _velocity, _posOwn;
+    private float _speed, _speedDelta, _angle;
 
-
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
 
     public void EShot1(float angle, float speed, float kasoku)
     {
         var direction = GameData.GetDirection(angle);
-        velocity = direction * speed;
+        _velocity = direction * speed;
         var angles = transform.localEulerAngles;
         angles.z = angle - 90;
         transform.localEulerAngles = angles;
 
-        sspeed = speed;
-        kkaso = kasoku;
-        aang = angle;
+        _speed = speed;
+        _speedDelta = kasoku;
+        _angle = angle;
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        pos = transform.position;
+        _posOwn = transform.position;
 
-        transform.localPosition += velocity;
-        sspeed += kkaso;
-        var direction = GameData.GetDirection(aang);
-        velocity = direction * sspeed;
+        transform.localPosition += _velocity;
+        _speed += _speedDelta;
+        var direction = GameData.GetDirection(_angle);
+        _velocity = direction * _speed;
 
         if (GetComponent<EMCoreC>().DeleteMissileCheck())
         {

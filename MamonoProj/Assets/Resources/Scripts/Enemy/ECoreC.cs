@@ -1,16 +1,28 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Random = UnityEngine.Random;
+using EnumDic.System;
+using EnumDic.Enemy;
 
+/// <summary>
+/// 敵キャラのステータス制御
+/// </summary>
 [DefaultExecutionOrder(-1)]
 public class ECoreC : MonoBehaviour
 {
+    /// <summary>
+    /// 敵CSVからデータを持ってくるスクリプト
+    /// </summary>
     private EnemyDataBookC _csEnemyDataBook;
+
     [SerializeField]
     private string _nameEnemy;
+
+    /// <summary>
+    /// 初期ステータス
+    /// </summary>
     private EnemyDataC _enemyData;
 
     [NonSerialized]
@@ -25,18 +37,12 @@ public class ECoreC : MonoBehaviour
 
 
     [NonSerialized]
-    /// <summary>
-    /// 状態
-    /// 0=登場
-    /// 1=戦闘
-    /// 2=死
-    /// </summary>
-    public int BossLifeMode = 0;
+    public MODE_LIFE BossLifeMode;
 
-    [NonSerialized]
     /// <summary>
     /// 形態
     /// </summary>
+    [NonSerialized]
     public short EvoltionMode = 0;
 
     [SerializeField]
@@ -60,7 +66,7 @@ public class ECoreC : MonoBehaviour
     [Tooltip("撃破時の獲得スコア")]
     private int score;
 
-    private Vector3 pos;
+    private Vector3 _posOwn;
 
     private Quaternion rot;
 
@@ -133,7 +139,7 @@ public class ECoreC : MonoBehaviour
     void Update()
     {
         TotalHp = hp.Sum();
-        pos = transform.position;
+        _posOwn = transform.position;
         rot = transform.localRotation;
 
         if (death && !deathStarted)
@@ -144,14 +150,14 @@ public class ECoreC : MonoBehaviour
             if (IsBoss)
             {
 
-                StartCoroutine(DeathStop(0.3f));
+                StartCoroutine(DoDeathStop(0.3f));
 
             }
             else
             {
                 for (int hoge = 0; hoge < score; hoge++)
                 {
-                    Instantiate(_scoreEnegyPrhb, pos, rot);
+                    Instantiate(_scoreEnegyPrhb, _posOwn, rot);
                 }
                 Destroy(gameObject);
             }
@@ -184,16 +190,22 @@ public class ECoreC : MonoBehaviour
         _hitEnemyToPlayer = Physics2D.BoxCast(v2pos + box.offset, box.size, transform.localEulerAngles.z, Vector2.zero, 0, 64);
         if (_hitEnemyToPlayer)
         {
-            _hitEnemyToPlayer.collider.GetComponent<PlayerC>().Damage(_melleAttack[EvoltionMode], _melleHitInvincible[EvoltionMode]);
+            _hitEnemyToPlayer.collider.GetComponent<PlayerC>().SetDamage(_melleAttack[EvoltionMode], _melleHitInvincible[EvoltionMode]);
 
         }
     }
 
-    public bool Damage(float hitf, int type, Vector3 attackPos)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="hitf"></param>
+    /// <param name="type"></param>
+    /// <param name="attackPos"></param>
+    /// <returns></returns>
+    public bool DoGetDamage(float hitf, int type, Vector3 attackPos)
     {
         if (_isSetUpped)
         {
-            //Debug.Log("ダメージ喰らった！");
             //ダメージ喰らう
             switch (type)
             {
@@ -214,19 +226,16 @@ public class ECoreC : MonoBehaviour
             int hit = (int)hitf;
             hp[EvoltionMode] -= hit;
 
-
-            Debug.Log("攻撃力：" + hit.ToString());
-
             //エフェクト発生
             if (hit <= 0)
             {
-                InvalidEffect(attackPos);
+                RunInvalidEffect(attackPos);
             }
             else
             {
                 bool critical = (type == 0 && _isBeamCritical[EvoltionMode]) || (type == 1 && _isBulletCritical[EvoltionMode]) ||
                 (type == 2 && _isBombCritical[EvoltionMode]) || (type == 3 && _isFireCritical[EvoltionMode]);
-                DamageEffect(critical, attackPos);
+                RunDamageEffect(critical, attackPos);
             }
 
             if (hit > 0)
@@ -252,9 +261,14 @@ public class ECoreC : MonoBehaviour
         else return false;
     }
 
-    private void DamageEffect(bool isCritical, Vector3 effectPos)
+    /// <summary>
+    /// ダメージエフェクト発生
+    /// </summary>
+    /// <param name="isCritical"></param>
+    /// <param name="effectPos"></param>
+    private void RunDamageEffect(bool isCritical, Vector3 effectPos)
     {
-        //Debug.Log("エフェクトスタート");
+        //クリティカル
         if (isCritical)
         {
             for (int ddd = 20; ddd <= 60; ddd += 20)
@@ -262,24 +276,26 @@ public class ECoreC : MonoBehaviour
                 ExpC shot2 = Instantiate(_criticalEP2, effectPos + new Vector3(Random.Range(-ddd, ddd), Random.Range(-ddd, ddd), 0), transform.localRotation);
                 shot2.EShot1(Random.Range(0, 360), 0.2f, 0.4f);
             }
-            //Debug.Log("キラキラ");
             _audioGO.PlayOneShot(criticalS);
-            EffectSummon(_criticalEP, effectPos);
-            _goCamera.GetComponent<CameraC>().StartShakeVertical(5, 10);
-            playerGO.GetComponent<PlayerC>().CriticalVibration();
+            RunEffectSummon(_criticalEP, effectPos);
+            _goCamera.GetComponent<CameraShakeC>().StartShakeVertical(5, 10);
+            playerGO.GetComponent<PlayerC>().VibrationCritical();
         }
         else
         {
             _audioGO.PlayOneShot(damageS);
-            EffectSummon(_damageEP, effectPos);
+            RunEffectSummon(_damageEP, effectPos);
         }
-        //Debug.Log("エフェクトエンド");
     }
 
-    public void InvalidEffect(Vector3 effectPos)
+    /// <summary>
+    /// ガードエフェクト発生
+    /// </summary>
+    /// <param name="effectPos"></param>
+    public void RunInvalidEffect(Vector3 effectPos)
     {
         _audioGO.PlayOneShot(invalidS);
-        Vector3 direction2 = new Vector3(pos.x, pos.y, 0);
+        Vector3 direction2 = new Vector3(_posOwn.x, _posOwn.y, 0);
         for (int ddd = 0; ddd < 4; ddd++)
         {
             Quaternion rot2 = transform.localRotation;
@@ -294,10 +310,10 @@ public class ECoreC : MonoBehaviour
     /// </summary>
     /// <param name="damageE"></param>
     /// <param name="effectGenten"></param>
-    private void EffectSummon(ExpC damageE, Vector3 effectGenten)
+    private void RunEffectSummon(ExpC damageE, Vector3 effectGenten)
     {
         float angle2 = 0;
-        Vector3 direction2 = new Vector3(pos.x, pos.y, 0);
+        Vector3 direction2 = new Vector3(_posOwn.x, _posOwn.y, 0);
         for (int ddd = 0; ddd < 10; ddd++)
         {
             angle2 += 36;
@@ -312,35 +328,28 @@ public class ECoreC : MonoBehaviour
     /// </summary>
     public void SummonItems()
     {
-        Vector3 direction = new Vector3(pos.x, GameData.GroundPutY((int)pos.y / 90, 30), 0);
-        if (GameData.Difficulty != 3)
+        Vector3 direction = new Vector3(_posOwn.x, GameData.GetGroundPutY((int)_posOwn.y / 90, 30), 0);
+        if (GameData.Difficulty != MODE_DIFFICULTY.Berserker)
         {
             //HealItemSummon
             if (IsBoss)
             {
                 switch (GameData.Difficulty)
                 {
-                    case 0:
-                        for (int j = -20; j <= 20; j += 2) Instantiate(HealPrefab, direction + (transform.right * j), rot).EShot1();
+                    case MODE_DIFFICULTY.Safety:
+                        for (int j = -20; j <= 20; j += 2) Instantiate(HealPrefab, direction + (transform.right * j), rot);
                         break;
-                    case 1:
-                        for (int j = -20; j <= 20; j += 5) Instantiate(HealPrefab, direction + (transform.right * j), rot).EShot1();
+                    case MODE_DIFFICULTY.General:
+                        for (int j = -20; j <= 20; j += 5) Instantiate(HealPrefab, direction + (transform.right * j), rot);
                         break;
-                    case 2:
-                        for (int j = -20; j <= 20; j += 20) Instantiate(HealPrefab, direction + (transform.right * j), rot).EShot1();
+                    case MODE_DIFFICULTY.Assault:
+                        for (int j = -20; j <= 20; j += 20) Instantiate(HealPrefab, direction + (transform.right * j), rot);
                         break;
                 }
             }
-            else if (Random.Range(0, 3) == 0) Instantiate(HealPrefab, direction, rot).EShot1();
+            else if (Random.Range(0, 3) == 0) Instantiate(HealPrefab, direction, rot);
         }
-        if (Random.Range(0, 80) == 0) Instantiate(MagicPrefab, direction, rot).EShot1();
-    }
-
-    public struct EnemyStates
-    {
-        public int HP;
-        public int Point;
-        public int MellePower;
+        if (Random.Range(0, 80) == 0) Instantiate(MagicPrefab, direction, rot);
     }
 
     /// <summary>
@@ -348,7 +357,7 @@ public class ECoreC : MonoBehaviour
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    public bool GetIsCritical(int value)
+    public bool CheckIsCritical(int value)
     {
         switch (value)
         {
@@ -364,25 +373,28 @@ public class ECoreC : MonoBehaviour
         return false;
     }
 
-
-    public void SetMuteki(bool isSet)
+    /// <summary>
+    /// ダメージを受けなくする
+    /// </summary>
+    /// <param name="isSet"></param>
+    public void SetInvisible(bool isSet)
     {
         _isSetUpped = !isSet;
     }
 
     /// <summary>
-    /// 死亡ヒットストップ
+    /// 致命傷ヒットストップ
     /// </summary>
     /// <returns></returns>
-    private IEnumerator DeathStop(float stopTime)
+    private IEnumerator DoDeathStop(float stopTime)
     {
-        CrearC.BossBonus += 1;
+        ClearC.BossBonus += 1;
         Instantiate(_prfbFlashEffect, GameData.WindowSize / 2, rot).EShot1(0, 0, 0.3f);
         float timespeed = Time.timeScale;
         TimeManager.ChangeTimeValue(0.1f);
         yield return new WaitForSeconds(stopTime/10);
         TimeManager.ChangeTimeValue(timespeed);
-        _goCamera.GetComponent<CameraC>().StartShakeVertical(10, 30);
-        BossLifeMode = 2;
+        _goCamera.GetComponent<CameraShakeC>().StartShakeVertical(10, 30);
+        BossLifeMode = MODE_LIFE.Dead;
     }
 }

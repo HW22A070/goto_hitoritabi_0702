@@ -1,14 +1,15 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EnumDic.Floor;
 
 public class StageGimicSummonerC : MonoBehaviour
 {
-    //ÉXÉeÅ[ÉWÉåÉxÉãÉAÉbÉvéûÇ…ì¡ï Ç»èàíuÇçsÇ§
-    public void SpecialStageCreate()
+    //„Çπ„ÉÜ„Éº„Ç∏„É¨„Éô„É´„Ç¢„ÉÉ„ÉóÊôÇ„Å´ÁâπÂà•„Å™Âá¶ÁΩÆ„ÇíË°å„ÅÜ
+    public void DoSpecialStageCreate()
     {
         GameData.WindSpeed = 0;
-        FloorManagerC.StageGimic(100, 0);
+        FloorManagerC.SetStageGimic(100, 0);
 
         switch (GameData.Round)
         {
@@ -17,32 +18,32 @@ public class StageGimicSummonerC : MonoBehaviour
                 break;
 
             case 17:
-                FloorManagerC.StageGimic(30, 1);
+                FloorManagerC.SetStageGimic(30, MODE_FLOOR.IceFloor);
                 break;
             case 18:
-                FloorManagerC.StageGimic(60, 1);
+                FloorManagerC.SetStageGimic(60, MODE_FLOOR.IceFloor);
                 break;
             case 19:
-                FloorManagerC.StageGimic(100, 1);
+                FloorManagerC.SetStageGimic(100, MODE_FLOOR.IceFloor);
                 break;
             case 22:
-                FloorManagerC.StageGimic(10, 2);
+                FloorManagerC.SetStageGimic(10, MODE_FLOOR.PreBurning);
                 break;
             case 23:
-                FloorManagerC.StageGimic(7, 2);
+                FloorManagerC.SetStageGimic(7, MODE_FLOOR.PreBurning);
                 break;
             case 24:
-                FloorManagerC.StageGimic(100, 0);
-                FloorManagerC.SetGimicBedRock(2);
+                FloorManagerC.SetStageGimic(100, 0);
+                FloorManagerC.SetGimicBedRock(MODE_FLOOR.PreBurning);
                 break;
 
             case 28:
-                FloorManagerC.StageGimic(80, 1);
+                FloorManagerC.SetStageGimic(80, MODE_FLOOR.IceFloor);
                 break;
 
             case 34:
-                FloorManagerC.StageGimic(3, 4);
-                FloorManagerC.StageGimic(10, 2);
+                FloorManagerC.SetStageGimic(3, MODE_FLOOR.PreNeedle);
+                FloorManagerC.SetStageGimic(10, MODE_FLOOR.PreBurning);
                 break;
         }
     }

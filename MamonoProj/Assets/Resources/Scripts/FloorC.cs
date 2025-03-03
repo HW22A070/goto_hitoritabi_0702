@@ -1,27 +1,26 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EnumDic.Floor;
+using EnumDic.Enemy.Virus;
 
+/// <summary>
+/// 床ギミック管理
+/// </summary>
 public class FloorC : MonoBehaviour
 {
-    
-    public SpriteRenderer spriteRenderer;
+
+    [SerializeField]
+    private SpriteRenderer spriteRenderer;
 
     [SerializeField, Tooltip("A=Insect,B=UFO,C=Vane,D=Ice,E=Ifrirt,F=Zombie,G=Virus")]
     private Sprite[] normalTexture;
+
     [SerializeField]
     private Sprite ice,blue,red,bug1,_fire,_spike,_spike2;
-    private int floorran;
 
-    /// <summary>
-    /// 0=通常
-    /// 1=氷
-    /// 2=可燃
-    /// 3=炎上
-    /// 4=ひょっこり
-    /// 5=激やば理不尽棘
-    /// </summary>
-    public int _floorMode = 0;
+
+    private MODE_FLOOR _floorMode = MODE_FLOOR.Normal;
 
     /// <summary>
     /// 最下層判定
@@ -30,138 +29,139 @@ public class FloorC : MonoBehaviour
 
     [SerializeField]
     private GameObject _goFire;
-    
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 
     void FixedUpdate()
     {
         _isBedRock = !Physics2D.Raycast(transform.position- new Vector3(0, 24, 0), new Vector3(0, -1, 0), GameData.WindowSize.y, 8);
 
-        if (GameData.VirusBugEffectLevel == 0)
+        switch (GameData.VirusBugEffectLevel)
         {
-            if (_floorMode ==1) spriteRenderer.sprite = ice;
-            else spriteRenderer.sprite = normalTexture[(GameData.Round-1)/5];
-        }
-        else if (GameData.VirusBugEffectLevel == 1)
-        {
-            floorran = Random.Range(0, 20);
-            if (floorran == 1)
-            {
-                spriteRenderer.sprite = bug1;
-            }
-            else
-            {
-                spriteRenderer.sprite = normalTexture[(GameData.Round - 1) / 5];
-            }
+            case MODE_VIRUS.None:
+                if (_floorMode == MODE_FLOOR.IceFloor) spriteRenderer.sprite = ice;
+                else spriteRenderer.sprite = normalTexture[(GameData.Round - 1) / 5];
+                break;
 
-        }
-        else if (GameData.VirusBugEffectLevel == 2)
-        {
-            floorran = Random.Range(0, 10);
-            if (floorran == 0)
-            {
-                spriteRenderer.sprite = normalTexture[(GameData.Round - 1) / 5];
-            }
-            else if (floorran == 1)
-            {
-                spriteRenderer.sprite = bug1;
-            }
-            else if (floorran == 2)
-            {
-                spriteRenderer.sprite = red;
-            }
+            case MODE_VIRUS.Little:
+                switch(Random.Range(0, 20))
+                {
+                    case 1:
+                        spriteRenderer.sprite = bug1;
+                        break;
 
-        }
-        else if (GameData.VirusBugEffectLevel == 3)
-        {
-            floorran = Random.Range(0, 10);
-            if (floorran == 0)
-            {
-                spriteRenderer.sprite = normalTexture[(GameData.Round - 1) / 5];
-            }
-            else if (floorran == 1)
-            {
-                spriteRenderer.sprite = bug1;
-            }
-            else if (floorran == 2)
-            {
-                spriteRenderer.sprite = red;
-            }
-            else if (floorran == 3)
-            {
+                    default:
+                        spriteRenderer.sprite = normalTexture[(GameData.Round - 1) / 5];
+                        break;
+                }
+                break;
+
+            case MODE_VIRUS.Medium:
+                switch(Random.Range(0, 10))
+                {
+                    case 0:
+                        spriteRenderer.sprite = normalTexture[(GameData.Round - 1) / 5];
+                        break;
+
+                    case 1:
+                        spriteRenderer.sprite = bug1;
+                        break;
+
+                    case 2:
+                        spriteRenderer.sprite = red;
+                        break;
+                }
+                break;
+
+            case MODE_VIRUS.Large:
+                switch (Random.Range(0, 10))
+                {
+                    case 0:
+                        spriteRenderer.sprite = normalTexture[(GameData.Round - 1) / 5];
+                        break;
+
+                    case 1:
+                        spriteRenderer.sprite = bug1;
+                        break;
+
+                    case 2:
+                        spriteRenderer.sprite = red;
+                        break;
+
+                    case 3:
+                        spriteRenderer.sprite = blue;
+                        break;
+                }
+                break;
+
+            case MODE_VIRUS.FullThrottle1:
                 spriteRenderer.sprite = blue;
-            }
+                break;
+
+            case MODE_VIRUS.FullThrottle2:
+                switch (Random.Range(0, 20))
+                {
+                    case 0:
+                        spriteRenderer.sprite = bug1;
+                        break;
+
+                    default:
+                        spriteRenderer.sprite = normalTexture[(GameData.Round - 1) / 5];
+                        break;
+                }
+                break;
 
         }
-        else if (GameData.VirusBugEffectLevel == 100)
+
+        switch (_floorMode)
         {
-            spriteRenderer.sprite = blue;
+            case MODE_FLOOR.PreBurning:
+                StartCoroutine(OnFire());
+                spriteRenderer.sprite = _fire;
+                break;
 
-        }
-
-        else if (GameData.VirusBugEffectLevel == 200)
-        {
-            floorran = Random.Range(0, 20);
-            if (floorran == 1)
-            {
-                spriteRenderer.sprite = bug1;
-            }
-            else
-            {
-                spriteRenderer.sprite = normalTexture[(GameData.Round - 1) / 5];
-            }
-        }
-
-        if (_floorMode >= 2&& _floorMode <= 3)
-        {
-            StartCoroutine(OnFire());
-            spriteRenderer.sprite = _fire;
-            if (_floorMode == 3)
-            {
-
+            case MODE_FLOOR.Burning:
+                StartCoroutine(OnFire());
+                spriteRenderer.sprite = _fire;
                 _goFire.SetActive(true);
-            }
-        }
-        else _goFire.SetActive(false);
+                break;
 
-        if (_floorMode >= 4 && _floorMode <= 5)
-        {
-            StartCoroutine(OnSpike());
-            spriteRenderer.sprite = _spike;
-            if (_floorMode == 5)
-            {
+            case MODE_FLOOR.PreNeedle:
+                StartCoroutine(OnSpike());
+                spriteRenderer.sprite = _spike;
+                _goFire.SetActive(false);
+                break;
 
+            case MODE_FLOOR.Needle:
+                StartCoroutine(OnSpike());
                 spriteRenderer.sprite = _spike2;
-            }
+                _goFire.SetActive(false);
+                break;
+
+            default:
+                _goFire.SetActive(false);
+                break;
+
         }
     }
 
     private IEnumerator OnFire()
     {
         yield return new WaitForSeconds(1.0f);
-        if(_floorMode >= 2)
+        if(_floorMode==MODE_FLOOR.PreBurning)
         {
-            _floorMode = 3;
+            _floorMode = MODE_FLOOR.Burning;
         }
     }
 
     private IEnumerator OnSpike()
     {
         yield return new WaitForSeconds(2.0f);
-        if (_floorMode >= 4)
+        if (_floorMode == MODE_FLOOR.PreNeedle)
         {
-            _floorMode = 5;
+            _floorMode = MODE_FLOOR.Needle;
         }
     }
+
+    public MODE_FLOOR GetFloorMode() => _floorMode;
+
+    public void SetFloorMode(MODE_FLOOR mode) => _floorMode = mode;
 }

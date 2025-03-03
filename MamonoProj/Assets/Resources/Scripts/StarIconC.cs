@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 必殺技ゲージ
+/// </summary>
 public class StarIconC : MonoBehaviour
 {
     private Vector3 _firstPosition;
@@ -19,8 +22,7 @@ public class StarIconC : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if(GameData.TP>=_starPoint)transform.position = _firstPosition;
-        else transform.position = new Vector3(0, 10000, 0);
+        transform.position = GameData.TP >= _starPoint ? _firstPosition : new Vector3(0, 10000, 0);
 
     }
 }

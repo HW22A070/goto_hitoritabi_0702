@@ -16,11 +16,11 @@ public class CannonC : ETypeDevilC
         base.Update();
 
         if (shotdown != 0) shotdown -= Time.deltaTime;
-        if (shotdown <= 0 && tate == 0)
+        if (shotdown <= 0 && _vertical == 0)
         {
 
             Quaternion rot = transform.localRotation;
-            HomingC shot = Instantiate(RocketPrefab, pos, rot);
+            HomingC shot = Instantiate(RocketPrefab, _posOwn, rot);
             _audioGO.PlayOneShot(shotS);
             shot.EShot1(90, 15, 300, 5, 0.5f, Random.Range(20, 30));
             shotdown = Random.Range(3, 7)*0.5f;

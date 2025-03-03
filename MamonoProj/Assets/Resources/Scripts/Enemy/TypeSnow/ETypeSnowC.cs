@@ -5,12 +5,12 @@ using UnityEngine;
 public class ETypeSnowC : MonoBehaviour
 {
 
-    protected Vector3 pos, ppos;
-    protected Vector3 muki, velocity;
+    protected Vector3 _posOwn, _posPlayer;
+    protected Vector3 _muki, _velocity;
 
-    protected GameObject playerGO;
+    protected GameObject _goPlayer;
 
-    protected SpriteRenderer spriteRenderer;
+    protected SpriteRenderer _spOwn;
     
     [SerializeField]
     protected float _fixTargetPosTime = 1.0f,_speed=1.0f;
@@ -18,29 +18,26 @@ public class ETypeSnowC : MonoBehaviour
     
     protected void Start()
     {
-        pos = transform.position;
-        playerGO = GameObject.Find("Player");
+        _posOwn = transform.position;
+        _goPlayer = GameObject.Find("Player");
     }
 
     // Update is called once per frame
     protected void Update()
     {
-        pos = transform.position;
-        ppos = playerGO.transform.position;
+        _posOwn = transform.position;
+        _posPlayer = _goPlayer.transform.position;
 
         if (_time >= 0) _time -= Time.deltaTime;
         else
         {
-            float angle = GameData.GetAngle(pos, ppos);
+            float angle = GameData.GetAngle(_posOwn, _posPlayer);
             var direction = GameData.GetDirection(angle);
-            velocity = direction * 2;
+            _velocity = direction * 2;
 
             _time = _fixTargetPosTime;
         }
     }
 
-    protected void FixedUpdate()
-    {
-        transform.position += velocity*_speed;
-    }
+    protected void FixedUpdate() => transform.position += _velocity * _speed;
 }

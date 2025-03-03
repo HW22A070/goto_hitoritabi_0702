@@ -4,20 +4,23 @@ using UnityEngine;
 
 public class FireworkC : MonoBehaviour
 {
-    Vector3 velocity, pos;
-    float sspeed, kkaso, aang, eexp, eexptim;
-    int i,j, hunj;
+    private Vector3 _velocity, _posOwn;
+    private float _speed, _speedDelta, _angle, _expCount, _expCountTime;
+    private int i,j, hunj;
 
-    public bool up, down, right, left;
+    [SerializeField]
+    private bool up, down, right, left;
 
-    public ExpC ExpPrefab;
+    [SerializeField]
+    private ExpC ExpPrefab;
 
     /// <summary>
     /// スピーカ
     /// </summary>
     private AudioSource _audioGO;
 
-    public AudioClip expS;
+    [SerializeField]
+    private AudioClip expS;
 
     // Start is called before the first frame update
     void Start()
@@ -28,32 +31,32 @@ public class FireworkC : MonoBehaviour
     public void EShot1(float angle, float speed, float kasoku, float exp, int hunjin, float exptime)
     {
         var direction = GameData.GetDirection(angle);
-        velocity = direction * speed;
+        _velocity = direction * speed;
         var angles = transform.localEulerAngles;
         angles.z = angle - 90;
         transform.localEulerAngles = angles;
 
-        sspeed = speed;
-        kkaso = kasoku;
-        aang = angle;
-        eexp = exp;
-        eexptim = exptime;
+        _speed = speed;
+        _speedDelta = kasoku;
+        _angle = angle;
+        _expCount = exp;
+        _expCountTime = exptime;
         hunj = hunjin;
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        pos = transform.position;
+        _posOwn = transform.position;
 
-        transform.localPosition += velocity;
-        sspeed += kkaso;
-        var direction = GameData.GetDirection(aang);
-        velocity = direction * sspeed;
+        transform.localPosition += _velocity;
+        _speed += _speedDelta;
+        var direction = GameData.GetDirection(_angle);
+        _velocity = direction * _speed;
 
         //time_ex
-        eexp--;
-        if (eexp <= 0) Explosion();
+        _expCount--;
+        if (_expCount <= 0) Explosion();
 
         if (GetComponent<EMCoreC>().DeleteMissileCheck()) Explosion();
     }
@@ -67,8 +70,8 @@ public class FireworkC : MonoBehaviour
                 for (i = 0; i < 20; i++)
                 {
                     Quaternion rot2 = transform.localRotation;
-                    ExpC shot2 = Instantiate(ExpPrefab, pos, rot2);
-                    shot2.EShot1(i * 18, j * 3, eexptim);
+                    ExpC shot2 = Instantiate(ExpPrefab, _posOwn, rot2);
+                    shot2.EShot1(i * 18, j * 3, _expCountTime);
                 }
             }
         }
@@ -77,8 +80,8 @@ public class FireworkC : MonoBehaviour
             for (i = 0; i < 36; i++)
             {
                 Quaternion rot2 = transform.localRotation;
-                ExpC shot2 = Instantiate(ExpPrefab, pos, rot2);
-                shot2.EShot1((i * 10) + Random.Range(-1, 2), 13, eexptim);
+                ExpC shot2 = Instantiate(ExpPrefab, _posOwn, rot2);
+                shot2.EShot1((i * 10) + Random.Range(-1, 2), 13, _expCountTime);
             }
         }
         _audioGO.PlayOneShot(expS);

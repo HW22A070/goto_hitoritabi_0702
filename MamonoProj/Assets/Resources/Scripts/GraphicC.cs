@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// アニメーションシステム
+/// </summary>
 public class GraphicC : MonoBehaviour
 {
-    private float timecount = 0;
+    private float _countTime = 0;
 
     [SerializeField]
-    private float changecount;
+    private float _countChange;
 
-    private int spritenumber = 0;
+    private int _spritenumber = 0;
 
     [SerializeField]
     private SpriteRenderer spriteRenderer;
@@ -17,40 +20,31 @@ public class GraphicC : MonoBehaviour
     [SerializeField]
     private Sprite[] sprites;
 
-
-
     [SerializeField]
     private bool _random;
-
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     // Update is called once per frame
     void Update()
     {
-        timecount += Time.deltaTime;
+        _countTime += Time.deltaTime;
         if (_random)
         {
-            if (timecount >= changecount)
+            if (_countTime >= _countChange)
             {
                 spriteRenderer.sprite = sprites[Random.Range(0, sprites.Length)];
-                timecount = 0;
+                _countTime = 0;
             }
         }
         else
         {
-            if (timecount >= changecount)
+            if (_countTime >= _countChange)
             {
-                spriteRenderer.sprite = sprites[spritenumber];
-                timecount = 0;
-                spritenumber++;
-                if (spritenumber >= sprites.Length)
+                spriteRenderer.sprite = sprites[_spritenumber];
+                _countTime = 0;
+                _spritenumber++;
+                if (_spritenumber >= sprites.Length)
                 {
-                    spritenumber = 0;
+                    _spritenumber = 0;
                 }
             }
         }

@@ -76,8 +76,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1191421425
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 04bfeeb919a6fb24b9ac942912674d49, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -216,8 +216,8 @@ MonoBehaviour:
   ExpPrefab: {fileID: -946376290874723850, guid: c28ddf3c077f39e4bb98e28f293bfb7f,
     type: 3}
   _isKaitenLock: 1
-  sizex: 16
-  sizey: 8
-  speed: 0.3
-  delete: 0.4
+  _sizeX: 32
+  _sizeY: 0
+  _speed: 0
+  _delete: 0.4
   _loop: 1

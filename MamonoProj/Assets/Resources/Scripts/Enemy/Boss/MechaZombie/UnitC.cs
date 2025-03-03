@@ -1,31 +1,31 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class UnitC : MonoBehaviour
 {
     /// <summary>
-    /// é©êMÇÃç¿ïW
+    /// Ëá™‰ø°„ÅÆÂ∫ßÊ®ô
     /// </summary>
     private Vector3 _pos;
 
     /// <summary>
-    /// ÉvÉåÉCÉÑÅ[ÇÃç¿ïW
+    /// „Éó„É¨„Ç§„É§„Éº„ÅÆÂ∫ßÊ®ô
     /// </summary>
-    private Vector3 _ppos;
+    private Vector3 _posPlayer;
 
     /// <summary>
-    /// ÇﬂÇ©ÇºÇÒÇ—ç¿ïW
+    /// „ÇÅ„Åã„Åû„Çì„Å≥Â∫ßÊ®ô
     /// </summary>
     private Vector3 _mpos;
 
     /// <summary>
-    /// èeå˚ç¿ïW
+    /// ÈäÉÂè£Â∫ßÊ®ô
     /// </summary>
     private Vector3 _shotPos;
 
     /// <summary>
-    /// é˚î[ç¿ïW
+    /// ÂèéÁ¥çÂ∫ßÊ®ô
     /// </summary>
     private Vector3 _posDefault;
 
@@ -49,7 +49,7 @@ public class UnitC : MonoBehaviour
     private Sprite _spNormal, _spMachineGun,_spRocket, _spBeam,_spShotGun,_spRailGun, _spFirePlace,_spRocketCannon2,_spFireSummoner;
 
     /// <summary>
-    /// ÉXÉsÅ[ÉJ
+    /// „Çπ„Éî„Éº„Ç´
     /// </summary>
     private AudioSource _audioGO;
 
@@ -85,7 +85,7 @@ public class UnitC : MonoBehaviour
     private void Update()
     {
         _pos = transform.position;
-        _ppos = playerGO.transform.position;
+        _posPlayer = playerGO.transform.position;
         _mpos = _goMechaZombie.transform.position;
         switch (_modeAttack)
         {
@@ -119,7 +119,7 @@ public class UnitC : MonoBehaviour
     void FixedUpdate()
     {
 
-        //_angle = GameData.GetAngle(_shotPos, _ppos);
+        //_angle = GameData.GetAngle(_shotPos, _posPlayer);
 
         _posDefault = _mpos + new Vector3(Mathf.Sin(_ofset * Mathf.Deg2Rad) * 96, Mathf.Cos(_ofset * Mathf.Deg2Rad) * 96, 0);
 
@@ -127,10 +127,10 @@ public class UnitC : MonoBehaviour
         {
             _srOwn.sprite = _spNormal;
             transform.position = _posDefault;
-            GetComponent<ECoreC>().SetMuteki(false);
+            GetComponent<ECoreC>().SetInvisible(false);
         }
         else {
-            GetComponent<ECoreC>().SetMuteki(true);
+            GetComponent<ECoreC>().SetInvisible(true);
         }
 
         if (90 < transform.eulerAngles.z && transform.eulerAngles.z < 270)
@@ -162,7 +162,7 @@ public class UnitC : MonoBehaviour
 
 
     /// <summary>
-    /// ÉåÅ[ÉUÅ[
+    /// „É¨„Éº„Ç∂„Éº
     /// </summary>
     public void AttackRaser(Vector3 movePos, float delay, float delay2)
     {
@@ -173,15 +173,15 @@ public class UnitC : MonoBehaviour
     }
     private IEnumerator DoAttackRaser(Vector3 movePos, float delay, float delay2)
     {
-        Instantiate(_prhbTargetEffect, _ppos, Quaternion.Euler(0, 0, 0)).EShot1(0, 0, 1.3f);
-        Vector3 ppos = _ppos;
+        Instantiate(_prhbTargetEffect, _posPlayer, Quaternion.Euler(0, 0, 0)).EShot1(0, 0, 1.3f);
+        Vector3 posPlayer = _posPlayer;
         float angle = 0;
         yield return new WaitForSeconds(delay);
 
         _audioGO.PlayOneShot(_moveS);
         for (int i = 0; i < 10; i++)
         {
-            angle = GameData.GetAngle(_shotPos, ppos);
+            angle = GameData.GetAngle(_shotPos, _posPlayer);
             transform.eulerAngles = transform.forward * angle;
             transform.position += GameData.GetSneaking(_pos, movePos, 2);
             yield return new WaitForSeconds(0.03f);
@@ -205,7 +205,7 @@ public class UnitC : MonoBehaviour
     }
 
     /// <summary>
-    /// ÉAÉCÉXÉåÅ[ÉUÅ[
+    /// „Ç¢„Ç§„Çπ„É¨„Éº„Ç∂„Éº
     /// </summary>
     public void AttackIceBeam(float deray)
     {
@@ -226,7 +226,7 @@ public class UnitC : MonoBehaviour
 
             Vector3 movePos = new Vector3(Random.Range(20, GameData.WindowSize.x - 20), 440, 0);
 
-            Instantiate(_prhbTargetEffect, new Vector3(movePos.x, _ppos.y, 0), Quaternion.Euler(0, 0, 0)).EShot1(0, 0, deray + 0.3f);
+            Instantiate(_prhbTargetEffect, new Vector3(movePos.x, _posPlayer.y, 0), Quaternion.Euler(0, 0, 0)).EShot1(0, 0, deray + 0.3f);
             for (int i = 0; i < 10; i++)
             {
                 transform.eulerAngles = transform.forward * 270;
@@ -254,7 +254,7 @@ public class UnitC : MonoBehaviour
     }
 
     /// <summary>
-    /// òAéÀçUåÇ
+    /// ÈÄ£Â∞ÑÊîªÊíÉ
     /// </summary>
     public void AttackMachineGun(Vector3 movePos, float delay)
     {
@@ -268,12 +268,12 @@ public class UnitC : MonoBehaviour
         yield return new WaitForSeconds(delay);
 
         _audioGO.PlayOneShot(_moveS);
-        Instantiate(_prhbTargetEffect, _ppos, Quaternion.Euler(0, 0, 0)).EShot1(0, 0, 1.3f);
-        Vector3 ppos = _ppos;
+        Instantiate(_prhbTargetEffect, _posPlayer, Quaternion.Euler(0, 0, 0)).EShot1(0, 0, 1.3f);
+        Vector3 posPlayer = _posPlayer;
         float angle = 0;
         for (int i = 0; i < 30; i++)
         {
-            angle = GameData.GetAngle(_shotPos, ppos);
+            angle = GameData.GetAngle(_shotPos, _posPlayer);
             transform.eulerAngles = transform.forward * angle;
             transform.position += GameData.GetSneaking(_pos, movePos, 5);
             yield return new WaitForSeconds(0.03f);
@@ -296,7 +296,7 @@ public class UnitC : MonoBehaviour
     }
 
     /// <summary>
-    /// éUíe
+    /// Êï£Âºæ
     /// </summary>
     public void AttackShotGun(float delay, bool isRight)
     {
@@ -342,7 +342,7 @@ public class UnitC : MonoBehaviour
     }
 
     /// <summary>
-    /// ÉåÅ[ÉãÉKÉì
+    /// „É¨„Éº„É´„Ç¨„É≥
     /// </summary>
     public void AttackRailGun(Vector3 movePos, float delay, bool isRight)
     {
@@ -353,7 +353,7 @@ public class UnitC : MonoBehaviour
     }
     private IEnumerator DoAttackRailGun(Vector3 movePos, float delay, bool isRight)
     {
-        float angle = GameData.GetAngle(movePos, _ppos);
+        float angle = GameData.GetAngle(movePos, _posPlayer);
         _audioGO.PlayOneShot(_moveS);
         for (int i = 0; i < 10; i++)
         {
@@ -386,7 +386,7 @@ public class UnitC : MonoBehaviour
     }
 
     /// <summary>
-    /// ÉtÉçÉAâäè„
+    /// „Éï„É≠„Ç¢ÁÇé‰∏ä
     /// </summary>
     public void AttackDropFire(Vector3 movePos, float delay)
     {
@@ -421,7 +421,7 @@ public class UnitC : MonoBehaviour
     }
 
     /// <summary>
-    /// ÉçÅ[ÉäÉìÉO
+    /// „É≠„Éº„É™„É≥„Ç∞
     /// </summary>
     public void AttackRolling(float delay)
     {
@@ -466,15 +466,15 @@ public class UnitC : MonoBehaviour
     }
 
     /// <summary>
-    /// ÉçÉPÉbÉg
+    /// „É≠„Ç±„ÉÉ„Éà
     /// </summary>
-    public void AttackRocket(float ofset, float delay)
+    public void AttackRocket(float ofsetPosY, float delayTime)
     {
         if (_isLeader) _audioGO.PlayOneShot(_moveS2);
         _srOwn.sprite = _spRocket;
         _modeAttack = 2;
-        Vector3 posOfset = new Vector3(40 + ofset, _mpos.y, 0);
-        StartCoroutine(DoAttackRocket(posOfset, delay));
+        Vector3 posOfset = new Vector3(40 + ofsetPosY, _mpos.y, 0);
+        StartCoroutine(DoAttackRocket(posOfset, delayTime));
     }
     private IEnumerator DoAttackRocket(Vector3 movePos, float delay)
     {
@@ -509,7 +509,7 @@ public class UnitC : MonoBehaviour
     }
 
     /// <summary>
-    /// ÉçÉPÉbÉgë_åÇ
+    /// „É≠„Ç±„ÉÉ„ÉàÁãôÊíÉ
     /// </summary>
     public void AttackRockerSniper(float delay, bool isRight, float angle)
     {

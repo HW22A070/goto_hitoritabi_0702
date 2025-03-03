@@ -75,9 +75,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 201
+  m_SortingLayerID: 81378227
+  m_SortingLayer: 10
+  m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: cfd491220a6add949b33c643bc55159b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -189,7 +189,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40f22ffe2ac4bca49b244d1d1cd1933a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Fire: {fileID: -4592046808661679008, guid: ed6a3b8dab0043f4d920e5e7a9673bcd, type: 3}
   VirusPrefab: {fileID: 3576757614217199810, guid: de4c6b4924e1817418dde1b208b4ecdd,
     type: 3}
   spriteRenderer: {fileID: 962461393981535348}
@@ -211,10 +210,10 @@ MonoBehaviour:
   ExpPrefab: {fileID: -4592046808661679008, guid: 3d64a951de8115d4b844c26849c43a24,
     type: 3}
   _isKaitenLock: 0
-  sizex: 60
-  sizey: 50
-  speed: 0.2
-  delete: 0.4
+  _sizeX: 64
+  _sizeY: 64
+  _speed: 3
+  _delete: 0.3
   _loop: 1
 --- !u!1001 &7276095615387698517
 PrefabInstance:

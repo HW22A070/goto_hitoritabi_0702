@@ -12,7 +12,7 @@ public class MenuSystemC : MonoBehaviour
 
     protected AudioSource _audioSource;
 
-    protected bool start = false;
+    protected bool _isStart = false;
 
     [SerializeField]
     protected short _defaltMode = 0;
@@ -37,6 +37,8 @@ public class MenuSystemC : MonoBehaviour
 
     protected void Start()
     {
+        _audioSource = GetComponent<AudioSource>();
+
         _titleMode = _defaltMode;
 
         for (int i = 0; i < _iconSprites.Length; i++)
@@ -47,8 +49,6 @@ public class MenuSystemC : MonoBehaviour
 
         var gamepad = Gamepad.current;
         if (gamepad != null) gamepad.SetMotorSpeeds(0.0f, 0.0f);
-
-        _audioSource = GetComponent<AudioSource>();
     }
 
     protected void Load()
@@ -90,9 +90,9 @@ public class MenuSystemC : MonoBehaviour
     //Imput
     public virtual void OnStart(InputAction.CallbackContext context)
     {
-        if (context.started && !start)
+        if (context.started && !_isStart)
         {
-            start = true;
+            _isStart = true;
             Load();
             _audioSource.PlayOneShot(startS);
         }
@@ -100,7 +100,7 @@ public class MenuSystemC : MonoBehaviour
 
     public virtual void OnUp(InputAction.CallbackContext context)
     {
-        if (context.started && !start)
+        if (context.started && !_isStart)
         {
             _titleMode--;
             if (_titleMode < 0) _titleMode = _optionMax;
@@ -110,7 +110,7 @@ public class MenuSystemC : MonoBehaviour
     }
     public virtual void OnDown(InputAction.CallbackContext context)
     {
-        if (context.started && !start)
+        if (context.started && !_isStart)
         {
             _titleMode++;
             if (_titleMode > _optionMax) _titleMode = 0;

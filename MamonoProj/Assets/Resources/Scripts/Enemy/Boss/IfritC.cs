@@ -1,32 +1,43 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EnumDic.Floor;
+using EnumDic.Enemy;
 
 public class IfritC : MonoBehaviour
 {
-    private int firstHP;
-    private float damagePar = 100;
+    private int _hpDefault;
+    private float _ratioHP = 100;
 
     private int i, j;
-    private int _attackVariation = 0;
-    private int mae = 0;
-    private int look = 0;
+    private MODE_ATTACK _attackVariation = 0;
+    private MODE_ATTACK _attackBefore;
+    private int _lookAngle = 0;
 
-    private float angle;
+    private float _angle;
 
-    private float movex = 0, _modeDelta = 0;
-    private float movey = 0;
+    private float _moveX = 0, _modeDelta = 0,_moveY = 0;
 
-    private Vector3 pos, ppos, target, face, fireworklockon;
+    private Vector3 _posOwn, _posPlayer, target, face, fireworklockon;
 
-    public SpriteRenderer spriteRenderer;
-    private bool _lookLock = false;
+    [SerializeField]
+    private SpriteRenderer spriteRenderer;
+
+    /// <summary>
+    /// 軸固定
+    /// </summary>
+    private bool _isLockLookAngle = false;
 
     private Quaternion rot;
 
-    public BombC BombPrefab;
-    public ExpC ExpPrefab, PowderPrefab;
-    public StaffRollC StaffPrefab;
+    [SerializeField]
+    private BombC BombPrefab;
+
+    [SerializeField]
+    private ExpC ExpPrefab, PowderPrefab;
+
+    [SerializeField]
+    private ClearEffectC StaffPrefab;
 
     private GameObject GM;
 
@@ -35,7 +46,8 @@ public class IfritC : MonoBehaviour
     /// </summary>
     private AudioSource _audioGO;
 
-    public AudioClip fireS, volS, wingS;
+    [SerializeField]
+    private AudioClip fireS, volS, wingS;
 
     private bool _isDeathActionStarted;
 
@@ -51,33 +63,43 @@ public class IfritC : MonoBehaviour
     /// </summary>
     private ECoreC _eCoreC;
 
+
+
     // Start is called before the first frame update
     void Start()
     {
-        FloorManagerC.StageGimic(100, 0);
-        _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
-        _eCoreC = GetComponent<ECoreC>();
-        _eCoreC.IsBoss = true;
-        firstHP = _eCoreC.hp[0];
-        GM = GameObject.Find("GameManager");
+        GetComponents();
+
         GM.GetComponent<GameManagement>()._bossNowHp = _eCoreC.hp[0];
         GM.GetComponent<GameManagement>()._bossMaxHp = _eCoreC.hp[0];
+
+        FloorManagerC.SetStageGimic(100, MODE_FLOOR.Normal);
+        _eCoreC.IsBoss = true;
+        _hpDefault = _eCoreC.hp[0];
+
+    }
+
+    private void GetComponents()
+    {
+        _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
+        _eCoreC = GetComponent<ECoreC>();
+        GM = GameObject.Find("GameManager");
         playerGO = GameObject.Find("Player");
     }
 
     // Update is called once per frame
     void Update()
     {
-        damagePar = _eCoreC.hp[0] * 100 / firstHP;
+        _ratioHP = _eCoreC.hp[0] * 100 / _hpDefault;
         rot = transform.localRotation;
-        pos = transform.position;
-        ppos = playerGO.transform.position;
+        _posOwn = transform.position;
+        _posPlayer = playerGO.transform.position;
 
         GM.GetComponent<GameManagement>()._bossNowHp = _eCoreC.hp[0];
 
-        if (!_lookLock)
+        if (!_isLockLookAngle)
         {
-            if (pos.x > ppos.x)
+            if (_posOwn.x > _posPlayer.x)
             {
                 spriteRenderer.flipX = false;
             }
@@ -93,22 +115,22 @@ public class IfritC : MonoBehaviour
 
     void FixedUpdate()
     {
-        pos = transform.position;
-        if (_modeDelta != 0) transform.localPosition += GameData.GetSneaking(pos, ppos, _modeDelta);
+        _posOwn = transform.position;
+        if (_modeDelta != 0) transform.localPosition += GameData.GetSneaking(_posOwn, _posPlayer, _modeDelta);
 
         //登場
         if (_eCoreC.BossLifeMode == 0)
         {
             _movingCoroutine = StartCoroutine(ActionBranch());
-            _eCoreC.BossLifeMode = 1;
+            _eCoreC.BossLifeMode = MODE_LIFE.Fight;
         }
 
         //死
-        if (_eCoreC.BossLifeMode == 2)
+        if (_eCoreC.BossLifeMode == MODE_LIFE.Dead)
         {
-            FloorManagerC.StageGimic(100, 0);
-            GameData.Star = true;
-            GameData.TimerMoving = false;
+            FloorManagerC.SetStageGimic(100, 0);
+            GameData.IsInvincible = true;
+            GameData.IsTimerMoving = false;
             if (!_isDeathActionStarted)
             {
                 AllCoroutineStop();
@@ -119,7 +141,12 @@ public class IfritC : MonoBehaviour
         }
     }
 
-
+    private enum MODE_ATTACK
+    {
+        Firework,
+        Volcano,
+        FireAttack
+    }
 
     /// <summary>
     /// 行動分岐
@@ -130,14 +157,25 @@ public class IfritC : MonoBehaviour
         yield return new WaitForSeconds(0.15f);
         do
         {
-            _attackVariation = Random.Range(0, 3);
-        } while (_attackVariation == mae);
-        mae = _attackVariation;
-        FloorManagerC.StageGimic(100, 0);
-        FloorManagerC.StageGimic((int)(100 - damagePar) / 2, 2);
-        if (_attackVariation == 0) _movingCoroutine = StartCoroutine(FireWork());
-        else if (_attackVariation == 1) Volcano();
-        else if (_attackVariation == 2) _movingCoroutine = StartCoroutine(FireAttack());
+            _attackVariation = (MODE_ATTACK)Random.Range(0, 3);
+        } while (_attackVariation == _attackBefore);
+        _attackBefore = _attackVariation;
+        FloorManagerC.SetStageGimic(100, 0);
+        FloorManagerC.SetStageGimic((int)(100 - _ratioHP) / 2, MODE_FLOOR.PreBurning);
+        switch (_attackVariation)
+        {
+            case MODE_ATTACK.Firework:
+                _movingCoroutine = StartCoroutine(FireWork());
+                break;
+
+            case MODE_ATTACK.Volcano:
+                Volcano();
+                break;
+
+            case MODE_ATTACK.FireAttack:
+                _movingCoroutine = StartCoroutine(FireAttack());
+                break;
+        }
     }
 
     /// <summary>
@@ -147,14 +185,14 @@ public class IfritC : MonoBehaviour
     private IEnumerator FireWork()
     {
         _modeDelta = 100;
-        float targetAngle = GameData.GetAngle(pos, ppos);
+        float targetAngle = GameData.GetAngle(_posOwn, _posPlayer);
         for (int j = 0; j < 50; j++)
         {
             for (i = 0; i < 3; i++)
             {
-                Vector3 tar = pos + new Vector3(Random.Range(-100, 100), Random.Range(-100, 100), 0);
-                Vector3 direction2 = pos - tar + new Vector3(0, 30, 0);
-                Instantiate(ExpPrefab, tar, rot).EShot1(GameData.GetAngle(tar + new Vector3(0, 30, 0), pos), 10, 0.1f);
+                Vector3 tar = _posOwn + new Vector3(Random.Range(-100, 100), Random.Range(-100, 100), 0);
+                Vector3 direction2 = _posOwn - tar + new Vector3(0, 30, 0);
+                Instantiate(ExpPrefab, tar, rot).EShot1(GameData.GetAngle(tar + new Vector3(0, 30, 0), _posOwn), 10, 0.1f);
             }
             yield return new WaitForSeconds(0.03f);
         }
@@ -172,12 +210,12 @@ public class IfritC : MonoBehaviour
     private void Volcano()
     {
         _modeDelta = 0;
-        if (100 >= damagePar && damagePar > 60)
+        if (100 >= _ratioHP && _ratioHP > 60)
         {
             _movingCoroutine = StartCoroutine(VolcanoBreath());
         }
 
-        else if (60 >= damagePar && damagePar > 30)
+        else if (60 >= _ratioHP && _ratioHP > 30)
         {
             _movingCoroutine = StartCoroutine(VolcanoHorming());
         }
@@ -200,10 +238,10 @@ public class IfritC : MonoBehaviour
         {
             for (i = 0; i < 3; i++)
             {
-                angle = Random.Range(0, 360);
+                _angle = Random.Range(0, 360);
                 Quaternion rot3 = transform.localRotation;
-                ExpC shot3 = Instantiate(ExpPrefab, pos, rot3);
-                shot3.EShot1(angle, 1 + ((100 - damagePar) / 30), 0.8f);
+                ExpC shot3 = Instantiate(ExpPrefab, _posOwn, rot3);
+                shot3.EShot1(_angle, 1 + ((100 - _ratioHP) / 30), 0.8f);
                 yield return new WaitForSeconds(0.03f);
             }
         }
@@ -213,9 +251,9 @@ public class IfritC : MonoBehaviour
         {
             for (i = 0; i < 3; i++)
             {
-                angle = Random.Range(0, 360);
-                ExpC shot3 = Instantiate(ExpPrefab, pos, rot);
-                shot3.EShot1(angle, 4 + ((100 - damagePar) / 30), 0.8f);
+                _angle = Random.Range(0, 360);
+                ExpC shot3 = Instantiate(ExpPrefab, _posOwn, rot);
+                shot3.EShot1(_angle, 4 + ((100 - _ratioHP) / 30), 0.8f);
                 yield return new WaitForSeconds(0.03f);
             }
         }
@@ -233,7 +271,7 @@ public class IfritC : MonoBehaviour
         {
             for (j = 0; j < 3; j++)
             {
-                BombC shot = Instantiate(BombPrefab, pos, rot);
+                BombC shot = Instantiate(BombPrefab, _posOwn, rot);
                 shot.EShot1(targetAngle + Random.Range(-30, 30), 12 + (i * 1.2f), -0.6f, 20 + (i * 2), 5, 0.5f);
             }
             yield return new WaitForSeconds(0.03f);
@@ -250,35 +288,35 @@ public class IfritC : MonoBehaviour
         {
             if (j < 20)
             {
-                if (pos.x > ppos.x)
+                if (_posOwn.x > _posPlayer.x)
                 {
-                    look = 0;//L
-                    face = pos + new Vector3(-12, 9, 0);
+                    _lookAngle = 0;//L
+                    face = _posOwn + new Vector3(-12, 9, 0);
                 }
                 else
                 {
-                    look = 1;//R
-                    face = pos + new Vector3(12, 9, 0);
+                    _lookAngle = 1;//R
+                    face = _posOwn + new Vector3(12, 9, 0);
                 }
             }
-            else _lookLock = true;
+            else _isLockLookAngle = true;
 
             for (i = 0; i < 10; i++)
             {
-                if (look == 0)
+                if (_lookAngle == 0)
                 {
                     transform.localPosition += new Vector3(0.05f, 0, 0);
-                    angle = Random.Range(180 - (60 - damagePar / 2), 180 + (60 - damagePar / 2));
-                    face = pos + new Vector3(-12, 9, 0);
+                    _angle = Random.Range(180 - (60 - _ratioHP / 2), 180 + (60 - _ratioHP / 2));
+                    face = _posOwn + new Vector3(-12, 9, 0);
                 }
                 else
                 {
                     transform.localPosition += new Vector3(-0.05f, 0, 0);
-                    angle = Random.Range(-60 + damagePar / 2, 61 - damagePar / 2);
-                    face = pos + new Vector3(12, 9, 0);
+                    _angle = Random.Range(-60 + _ratioHP / 2, 61 - _ratioHP / 2);
+                    face = _posOwn + new Vector3(12, 9, 0);
                 }
                 ExpC shot2 = Instantiate(PowderPrefab, face, rot);
-                shot2.EShot1(angle, Random.Range(15, 135), 0.4f);
+                shot2.EShot1(_angle, Random.Range(15, 135), 0.4f);
             }
             yield return new WaitForSeconds(0.03f);
 
@@ -290,27 +328,27 @@ public class IfritC : MonoBehaviour
 
             for (i = 0; i < 10; i++)
             {
-                if (look == 0)
+                if (_lookAngle == 0)
                 {
                     transform.localPosition += new Vector3(0.05f, 0, 0);
-                    angle = Random.Range(180 - (60 - damagePar / 2), 180 + (60 - damagePar / 2));
-                    face = pos + new Vector3(-12, 9, 0);
+                    _angle = Random.Range(180 - (60 - _ratioHP / 2), 180 + (60 - _ratioHP / 2));
+                    face = _posOwn + new Vector3(-12, 9, 0);
                 }
                 else
                 {
                     transform.localPosition += new Vector3(-0.05f, 0, 0);
-                    angle = Random.Range(-60 + damagePar / 2, 61 - damagePar / 2);
-                    face = pos + new Vector3(12, 9, 0);
+                    _angle = Random.Range(-60 + _ratioHP / 2, 61 - _ratioHP / 2);
+                    face = _posOwn + new Vector3(12, 9, 0);
                 }
                 ExpC shot2 = Instantiate(ExpPrefab, face, rot);
-                shot2.EShot1(angle, Random.Range(15, 135), 0.4f);
+                shot2.EShot1(_angle, Random.Range(15, 135), 0.4f);
             }
 
             yield return new WaitForSeconds(0.03f);
 
         }
 
-        _lookLock = false;
+        _isLockLookAngle = false;
         yield return new WaitForSeconds(0.3f);
         _movingCoroutine = StartCoroutine(ActionBranch());
     }
@@ -326,25 +364,25 @@ public class IfritC : MonoBehaviour
         {
             if (j < 20)
             {
-                target = ppos;
-                if (pos.x > ppos.x)
+                target = _posPlayer;
+                if (_posOwn.x > _posPlayer.x)
                 {
-                    look = 0;//L
-                    face = pos + new Vector3(-12, 9, 0);
+                    _lookAngle = 0;//L
+                    face = _posOwn + new Vector3(-12, 9, 0);
                 }
                 else
                 {
-                    look = 1;//R
-                    face = pos + new Vector3(12, 9, 0);
+                    _lookAngle = 1;//R
+                    face = _posOwn + new Vector3(12, 9, 0);
                 }
             }
-            else _lookLock = true;
+            else _isLockLookAngle = true;
 
             for (i = 0; i < 10; i++)
             {
 
-                Vector3 direction = target - pos;
-                float angle = GameData.GetAngle(pos, target) + Random.Range(-20, 20);
+                Vector3 direction = target - _posOwn;
+                float angle = GameData.GetAngle(_posOwn, target) + Random.Range(-20, 20);
                 ExpC shot2 = Instantiate(PowderPrefab, face, rot);
                 shot2.EShot1(angle, Random.Range(15, 135), 0.4f);
             }
@@ -358,8 +396,8 @@ public class IfritC : MonoBehaviour
             for (i = 0; i < 10; i++)
             {
 
-                Vector3 direction = target - pos;
-                float angle = GameData.GetAngle(pos, target) + Random.Range(-20, 20);
+                Vector3 direction = target - _posOwn;
+                float angle = GameData.GetAngle(_posOwn, target) + Random.Range(-20, 20);
                 ExpC shot2 = Instantiate(ExpPrefab, face, rot);
                 shot2.EShot1(angle, Random.Range(15, 135), 0.4f);
             }
@@ -368,7 +406,7 @@ public class IfritC : MonoBehaviour
 
         }
 
-        _lookLock = false;
+        _isLockLookAngle = false;
         yield return new WaitForSeconds(0.3f);
         _movingCoroutine = StartCoroutine(ActionBranch());
     }
@@ -379,27 +417,27 @@ public class IfritC : MonoBehaviour
     /// <returns></returns>
     private IEnumerator VolcanoSlash()
     {
-        target = ppos;
-        _lookLock = true;
+        target = _posPlayer;
+        _isLockLookAngle = true;
         for (int j = 0; j < 30; j++)
         {
 
             for (i = 0; i < 10; i++)
             {
-                if (look == 0)
+                if (_lookAngle == 0)
                 {
                     transform.localPosition += new Vector3(0.05f, 0, 0);
-                    angle = 270 + ((-30 + j) * (-30 + j) * 0.03f);
-                    face = pos + new Vector3(-12, 9, 0);
+                    _angle = 270 + ((-30 + j) * (-30 + j) * 0.03f);
+                    face = _posOwn + new Vector3(-12, 9, 0);
                 }
                 else
                 {
                     transform.localPosition += new Vector3(-0.05f, 0, 0);
-                    angle = 270 - ((-30 + j) * (-30 + j) * 0.03f);
-                    face = pos + new Vector3(12, 9, 0);
+                    _angle = 270 - ((-30 + j) * (-30 + j) * 0.03f);
+                    face = _posOwn + new Vector3(12, 9, 0);
                 }
                 ExpC shot2 = Instantiate(PowderPrefab, face, rot);
-                shot2.EShot1(angle + Random.Range(-10, 10), Random.Range(15, 135), 0.4f);
+                shot2.EShot1(_angle + Random.Range(-10, 10), Random.Range(15, 135), 0.4f);
             }
             yield return new WaitForSeconds(0.03f);
 
@@ -411,27 +449,27 @@ public class IfritC : MonoBehaviour
 
             for (i = 0; i < 10; i++)
             {
-                if (look == 0)
+                if (_lookAngle == 0)
                 {
                     transform.localPosition += new Vector3(0.05f, 0, 0);
-                    angle = 270 - (j * j * 0.03f);
-                    face = pos + new Vector3(-12, 9, 0);
+                    _angle = 270 - (j * j * 0.03f);
+                    face = _posOwn + new Vector3(-12, 9, 0);
                 }
                 else
                 {
                     transform.localPosition += new Vector3(-0.05f, 0, 0);
-                    angle = 270 + (j * j * 0.03f);
-                    face = pos + new Vector3(12, 9, 0);
+                    _angle = 270 + (j * j * 0.03f);
+                    face = _posOwn + new Vector3(12, 9, 0);
                 }
                 ExpC shot2 = Instantiate(ExpPrefab, face, rot);
-                shot2.EShot1(angle + Random.Range(-10, 10), Random.Range(15, 135), 0.4f);
+                shot2.EShot1(_angle + Random.Range(-10, 10), Random.Range(15, 135), 0.4f);
             }
 
             yield return new WaitForSeconds(0.03f);
 
         }
 
-        _lookLock = false;
+        _isLockLookAngle = false;
         yield return new WaitForSeconds(0.3f);
         _movingCoroutine = StartCoroutine(ActionBranch());
     }
@@ -457,7 +495,7 @@ public class IfritC : MonoBehaviour
                 for (int l = 0; l < 10; l++)
                 {
 
-                    Instantiate(PowderPrefab, pos, rot).EShot1(Random.Range(0, 360), 10 + (j * 10), 0.4f);
+                    Instantiate(PowderPrefab, _posOwn, rot).EShot1(Random.Range(0, 360), 10 + (j * 10), 0.4f);
                 }
             }
 
@@ -470,11 +508,11 @@ public class IfritC : MonoBehaviour
         }
         for (int j = 0; j < 50; j++)
         {
-            Instantiate(PowderPrefab, pos, rot).EShot1(Random.Range(0, 360), 20, 0.4f);
+            Instantiate(PowderPrefab, _posOwn, rot).EShot1(Random.Range(0, 360), 20, 0.4f);
         }
         if (GameData.Round == GameData.GoalRound)
         {
-            Instantiate(StaffPrefab, new Vector3(320, -100, 0), Quaternion.Euler(0, 0, 0)).Summon(0);
+            Instantiate(StaffPrefab, new Vector3(320, -100, 0), Quaternion.Euler(0, 0, 0));
         }
         else
         {

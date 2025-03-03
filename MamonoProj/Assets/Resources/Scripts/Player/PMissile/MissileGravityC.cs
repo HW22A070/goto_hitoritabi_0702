@@ -2,10 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EnumDic.Floor;
 
 public class MissileGravityC : MonoBehaviour
 {
-    private Vector3 pos;
+    private Vector3 _posOwn;
 
     /// <summary>
     /// 下降中なう
@@ -32,7 +33,7 @@ public class MissileGravityC : MonoBehaviour
     /// </summary>
     private int _gravityNow = 0;
 
-    private int _floorMode=0;
+    private MODE_FLOOR _floorMode=MODE_FLOOR.Normal;
 
     /// <summary>
     /// 足の位置と足の広さ
@@ -54,10 +55,10 @@ public class MissileGravityC : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        pos = transform.position;
+        _posOwn = transform.position;
 
         //炎の床なら爆発
-        if (_floorMode == 3)
+        if (_floorMode == MODE_FLOOR.Burning)
         {
             if(GetComponent<PMCoreC>())GetComponent<PMCoreC>().SetDelete();
         }
@@ -76,12 +77,12 @@ public class MissileGravityC : MonoBehaviour
         if (_isGround)
         {
             GameObject floor = _hitEnemyToFloor.collider.gameObject;
-            pos = transform.position;
+            _posOwn = transform.position;
 
-            transform.position = new Vector3(pos.x
+            transform.position = new Vector3(_posOwn.x
                 , floor.transform.position.y + (floor.GetComponent<BoxCollider2D>().size.y / 2) + ((GetComponent<BoxCollider2D>().size.y - GetComponent<BoxCollider2D>().offset.y) / 2), 0);
 
-            _floorMode = floor.GetComponent<FloorC>()._floorMode;
+            _floorMode = floor.GetComponent<FloorC>().GetFloorMode();
 
             //重力ゼロ
             _gravityNow = 0;

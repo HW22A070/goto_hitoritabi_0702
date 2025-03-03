@@ -62,7 +62,7 @@ public class ProrogueC : MonoBehaviour
         Destroy(mail);
         for (_forhoge = 0; _forhoge < 100; _forhoge++)
         {
-            Instantiate(_prfbVirusE, GameData.RandomWindowPosition(), rot).EShot1(Random.Range(0, 360), 0.2f, 10);
+            Instantiate(_prfbVirusE, GameData.GetRandomWindowPosition(), rot).EShot1(Random.Range(0, 360), 0.2f, 10);
         }
         for (_forhoge = 0; _forhoge < 30; _forhoge++)
         {

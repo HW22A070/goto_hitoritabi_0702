@@ -1,43 +1,34 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿
 using UnityEngine;
 
 public class PMissile : MonoBehaviour
 {
-    private Vector3 velocity, pos;
+    private Vector3 _velocity, _posOwn;
 
-    private float sspeed, kkaso, aang;
-
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
+    private float _speed, _speedDelta, _angle;
 
     public void Shot(float angle, float speed, float kasoku)
     {
         var direction = GameData.GetDirection(angle);
-        velocity = direction * speed;
+        _velocity = direction * speed;
         var angles = transform.localEulerAngles;
         angles.z = angle - 90;
         transform.localEulerAngles = angles;
 
-        sspeed = speed;
-        kkaso = kasoku;
-        aang = angle;
+        _speed = speed;
+        _speedDelta = kasoku;
+        _angle = angle;
     }
 
     // Update is called once per frame
     private void FixedUpdate()
     {
-        pos = transform.position;
+        _posOwn = transform.position;
 
-        transform.localPosition += velocity;
-        sspeed += kkaso;
-        var direction = GameData.GetDirection(aang);
-        velocity = direction * sspeed;
+        transform.localPosition += _velocity;
+        _speed += _speedDelta;
+        var direction = GameData.GetDirection(_angle);
+        _velocity = direction * _speed;
 
         if (GetComponent<PMCoreC>().DeleteMissileCheck())
         {
@@ -45,8 +36,5 @@ public class PMissile : MonoBehaviour
         }
     }
 
-    private void DeleteEMissile()
-    {
-        Destroy(gameObject);
-    }
+    private void DeleteEMissile() => Destroy(gameObject);
 }

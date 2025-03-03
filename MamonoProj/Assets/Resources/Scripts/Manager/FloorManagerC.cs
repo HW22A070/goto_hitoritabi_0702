@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EnumDic.Floor;
 
 public class FloorManagerC : MonoBehaviour
 {
@@ -54,14 +55,14 @@ public class FloorManagerC : MonoBehaviour
     /// </summary>
     /// <param name="createPercent"></param>
     /// <param name="value"></param>
-    public static void StageGimic(int createPercent,int value)
+    public static void SetStageGimic(int createPercent,MODE_FLOOR value)
     {
         GameObject[] stageTiles = GameObject.FindGameObjectsWithTag("Floor");
         for (int i = 0; i < stageTiles.Length; i++)
         {
             if (Random.Range(1, 101) <= createPercent)
             {
-                stageTiles[i].GetComponent<FloorC>()._floorMode = value;
+                stageTiles[i].GetComponent<FloorC>().SetFloorMode(value);
             }
         }
     }
@@ -69,7 +70,7 @@ public class FloorManagerC : MonoBehaviour
     /// <summary>
     /// 最下層だけ発動
     /// </summary>
-    public static void SetGimicBedRock(int value)
+    public static void SetGimicBedRock(MODE_FLOOR value)
     {
         GameObject[] stageTiles = GameObject.FindGameObjectsWithTag("Floor");
         //着火
@@ -77,7 +78,7 @@ public class FloorManagerC : MonoBehaviour
         {
             if (stageTiles[i].GetComponent<FloorC>()._isBedRock)
             {
-                stageTiles[i].GetComponent<FloorC>()._floorMode = value;
+                stageTiles[i].GetComponent<FloorC>().SetFloorMode(value);
             }
         }
     }

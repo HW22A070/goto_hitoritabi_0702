@@ -19,8 +19,8 @@ public class TurretC : ETypeTurretC
         {
             float angle = Random.Range(0.0f, 360.0f);
             Quaternion rot = transform.localRotation;
-            pos.y += 14;
-            EMissile1C shot = Instantiate(EMissile1Prefab, pos, rot);
+            _posOwn.y += 14;
+            EMissile1C shot = Instantiate(EMissile1Prefab, _posOwn, rot);
             shot.EShot1(angle, 10, 0);
             _audioGO.PlayOneShot(shotS);
             shotdown = 1;

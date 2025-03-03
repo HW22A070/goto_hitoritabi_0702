@@ -10,7 +10,7 @@ public class TargetC : MonoBehaviour
 
     [SerializeField]
     private int Hp = 0;
-    private Vector3 pos;
+    private Vector3 _posOwn;
     private Quaternion rot;
 
     private bool death, deathStarted;
@@ -49,13 +49,13 @@ public class TargetC : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        pos = transform.position;
+        _posOwn = transform.position;
         rot = transform.localRotation;
 
         if (death && !deathStarted)
         {
             _tutorialGO = GameObject.FindGameObjectsWithTag("Tutorial");
-            for (int i = 0; i < _tutorialGO.Length; i++) _tutorialGO[i].GetComponent<TutorialC>().GoTutorial();
+            for (int i = 0; i < _tutorialGO.Length; i++) _tutorialGO[i].GetComponent<TutorialC>().GoToTutorial();
             Destroy(gameObject);
 
         }
@@ -154,8 +154,7 @@ public class TargetC : MonoBehaviour
             }
             _audioGO.PlayOneShot(criticalS);
             EffectSummon(_criticalEP, effectPos);
-            CameraC.IsCriticalShake = true;
-            GameObject.Find("Player").GetComponent<PlayerC>().CriticalVibration();
+            GameObject.Find("Player").GetComponent<PlayerC>().VibrationCritical();
         }
         else
         {
@@ -167,7 +166,7 @@ public class TargetC : MonoBehaviour
     public void InvalidEffect(Vector3 effectPos)
     {
         _audioGO.PlayOneShot(invalidS);
-        Vector3 direction2 = new Vector3(pos.x, pos.y, 0);
+        Vector3 direction2 = new Vector3(_posOwn.x, _posOwn.y, 0);
         for (int ddd = 0; ddd < 4; ddd++)
         {
             Quaternion rot2 = transform.localRotation;
@@ -184,7 +183,7 @@ public class TargetC : MonoBehaviour
     private void EffectSummon(ExpC damageE, Vector3 effectGenten)
     {
         float angle2 = 0;
-        Vector3 direction2 = new Vector3(pos.x, pos.y, 0);
+        Vector3 direction2 = new Vector3(_posOwn.x, _posOwn.y, 0);
         for (int ddd = 0; ddd < 10; ddd++)
         {
             angle2 += 36;

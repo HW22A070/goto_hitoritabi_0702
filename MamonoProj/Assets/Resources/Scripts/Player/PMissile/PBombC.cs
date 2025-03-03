@@ -6,9 +6,9 @@ using UnityEngine;
 
 public class PBombC : MonoBehaviour
 {
-    private Vector3 velocity, pos;
+    private Vector3 _velocity, _posOwn;
 
-    private float sspeed, kkaso, aang, eexp, eexptim=99;
+    private float _speed, _speedDelta, _angle, _expCount, _expCounttime=99;
     private int i, hunj;
 
     [SerializeField]
@@ -20,7 +20,7 @@ public class PBombC : MonoBehaviour
     /// 1=カウントスタート
     /// 2=起爆
     /// </summary>
-    private int _expMode;
+    private int _expCountMode;
 
     [SerializeField]
     [Tooltip("爆発物")]
@@ -65,18 +65,18 @@ public class PBombC : MonoBehaviour
     {
         
         var direction = GameData.GetDirection(angle);
-        velocity = direction * speed;
+        _velocity = direction * speed;
         var angles = transform.localEulerAngles;
         angles.z = angle - 90;
         transform.localEulerAngles = angles;
 
-        sspeed = speed;
-        kkaso = kasoku;
-        aang = angle;
-        eexp = exp;
-        eexptim = exptime;
+        _speed = speed;
+        _speedDelta = kasoku;
+        _angle = angle;
+        _expCount = exp;
+        _expCounttime = exptime;
         hunj = hunjin;
-        _expMode = 1;
+        _expCountMode = 1;
     }
 
     private void Update()
@@ -88,18 +88,18 @@ public class PBombC : MonoBehaviour
     private void FixedUpdate()
     {
 
-        if (_expMode == 1)
+        if (_expCountMode == 1)
         {
-            pos = transform.position;
+            _posOwn = transform.position;
 
-            transform.localPosition += velocity;
-            sspeed += kkaso;
-            var direction = GameData.GetDirection(aang);
-            velocity = direction * sspeed;
+            transform.localPosition += _velocity;
+            _speed += _speedDelta;
+            var direction = GameData.GetDirection(_angle);
+            _velocity = direction * _speed;
 
             //time_ex
-            eexp--;
-            if (eexp <= 0) EXPEffect(hunj);
+            _expCount--;
+            if (_expCount <= 0) EXPEffect(hunj);
 
             if (GetComponent<PMCoreC>().DeleteMissileCheck())
             {
@@ -110,18 +110,18 @@ public class PBombC : MonoBehaviour
 
     private void EXPEffect(int hun)
     {
-        if (_expMode == 1)
+        if (_expCountMode == 1)
         {
-            _expMode = 2;
+            _expCountMode = 2;
             StartCoroutine(Explosion(hun));
         }
     }
 
     private IEnumerator Explosion(int hunj)
     {
-        pos = transform.position;
+        _posOwn = transform.position;
         _audioGO.PlayOneShot(expS);
-        _goCamera.GetComponent<CameraC>().StartShakeVertical(3, 6);
+        _goCamera.GetComponent<CameraShakeC>().StartShakeVertical(3, 6);
 
         ExpEffect(4);
 
@@ -130,7 +130,7 @@ public class PBombC : MonoBehaviour
             for(int k = 0; k < 2; k++)
             {
                 Vector3 direction2 = new Vector3(Random.Range(10, 630), Random.Range(10, 470), 0);
-                Instantiate(ExpPrefab, pos, transform.localRotation).EShot1(Random.Range(0,360)/*((360 / hunj) * j)+(k*180)*/, 10, eexptim);
+                Instantiate(ExpPrefab, _posOwn, transform.localRotation).EShot1(Random.Range(0,360)/*((360 / hunj) * j)+(k*180)*/, 10, _expCounttime);
             }
 
             yield return new WaitForSeconds(0.03f);
@@ -140,10 +140,10 @@ public class PBombC : MonoBehaviour
 
     private void ExpEffect(int shiningValue)
     {
-        Instantiate(_prhbExpShining, pos, Quaternion.Euler(0, 0, 0)).EShot1(0, 0, 0.3f);
+        Instantiate(_prhbExpShining, _posOwn, Quaternion.Euler(0, 0, 0)).EShot1(0, 0, 0.3f);
         for (int i = 0; i < shiningValue; i++)
         {
-            Instantiate(_prhbExpShining, pos + new Vector3(Random.Range(-48, 48), Random.Range(-48, 48), 0), Quaternion.Euler(0, 0, 0))
+            Instantiate(_prhbExpShining, _posOwn + new Vector3(Random.Range(-48, 48), Random.Range(-48, 48), 0), Quaternion.Euler(0, 0, 0))
                 .EShot1(0, 0, 0.3f);
         }
     }

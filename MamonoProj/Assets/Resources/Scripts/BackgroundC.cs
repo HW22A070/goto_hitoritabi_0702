@@ -1,122 +1,182 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using EnumDic.Enemy.Virus;
 using UnityEngine;
 
+/// <summary>
+/// 背景設定
+/// </summary>
 public class BackgroundC : MonoBehaviour
 {
-    public SpriteRenderer spriteRenderer;
-    public Sprite windy,blue,bug1,bug2,bug3,bug4,bug5,bug6;
-    int backran;
+    [SerializeField]
+    private SpriteRenderer spriteRenderer;
+
+    [SerializeField]
+    private Sprite windy, blue, bug1, bug2, bug3, bug4, bug5, bug6;
 
     [SerializeField, Tooltip("A=Insect,B=UFO,C=Vane,D=Ice,E=Ifrirt,F=Zombie,G=Virus")]
     private Sprite[] normalTexture;
 
-    // Update is called once per frame
-    void Start()
-    {
-    }
-
     void FixedUpdate()
     {
-        if (GameData.VirusBugEffectLevel == 0)
+        Sprite spriteSet = null;
+
+        switch (GameData.VirusBugEffectLevel)
         {
+            //通常時
+            case MODE_VIRUS.None:
+                spriteSet = SettingNormal();
+                break;
 
-            if (GameData.WindSpeed >= 100 || GameData.WindSpeed <= -100) spriteRenderer.sprite = windy;
+            case MODE_VIRUS.Little:
+                spriteSet = SettingVirusLittle();
+                break;
 
-            else spriteRenderer.sprite = normalTexture[(GameData.Round - 1) / 5];
+            case MODE_VIRUS.Medium:
+                spriteSet = SettingVirusMedium();
+                break;
 
+            case MODE_VIRUS.Large:
+                spriteSet = SettingVirusCrazy();
+                break;
+
+            case MODE_VIRUS.FullThrottle1:
+                spriteSet = blue;
+                break;
+
+            case MODE_VIRUS.FullThrottle2:
+                spriteSet = SpriteSettingVirusCritical2();
+                break;
         }
-        else if (GameData.VirusBugEffectLevel == 1)
+
+        if (spriteRenderer.sprite != spriteSet)
         {
-            backran = Random.Range(0, 30);
-            if (backran == 2)
+            if (spriteSet != null)
             {
-                spriteRenderer.sprite = bug1;
-            }
-            else if (backran == 3)
-            {
-                spriteRenderer.sprite = bug2;
+                spriteRenderer.sprite = spriteSet;
             }
             else
             {
-                spriteRenderer.sprite = normalTexture[(GameData.Round - 1) / 5];
+                if (spriteRenderer.sprite == null)
+                {
+                    spriteRenderer.sprite = SettingNormal();
+                }
             }
         }
-        else if (GameData.VirusBugEffectLevel == 2)
+    }
+
+    /// <summary>
+    /// 背景設定　通常時
+    /// </summary>
+    /// <returns></returns>
+    private Sprite SettingNormal()
+    {
+        return (GameData.WindSpeed >= 100 || GameData.WindSpeed <= -100) ? windy : normalTexture[(GameData.Round - 1) / 5];
+    }
+
+    /// <summary>
+    /// 背景設定　裏ボス第一形態
+    /// </summary>
+    /// <returns></returns>
+    private Sprite SettingVirusLittle()
+    {
+        switch (Random.Range(0, 30))
         {
-            backran = Random.Range(0, 10);
-            if (backran == 0)
-            {
-                spriteRenderer.sprite = normalTexture[(GameData.Round - 1) / 5];
-            }
-            else if (backran == 1)
-            {
-                spriteRenderer.sprite = normalTexture[Random.Range(0, 6)];
-            }
-            else if (backran == 2)
-            {
-                spriteRenderer.sprite = bug1;
-            }
-            else if (backran == 3)
-            {
-                spriteRenderer.sprite = bug2;
-            }
+            case 2:
+                return bug1;
+
+            case 3:
+                return bug2;
+
+            default:
+                return normalTexture[(GameData.Round - 1) / 5];
         }
-        else if (GameData.VirusBugEffectLevel == 3)
+    }
+
+    /// <summary>
+    /// 背景設定　裏ボス第二形態
+    /// </summary>
+    /// <returns></returns>
+    private Sprite SettingVirusMedium()
+    {
+        switch (Random.Range(0, 10))
         {
-            backran = Random.Range(0, 20);
-            if (backran == 0)
-            {
-                spriteRenderer.sprite = normalTexture[(GameData.Round - 1) / 5];
-            }
-            else if (backran == 1)
-            {
-                spriteRenderer.sprite = normalTexture[Random.Range(0, 6)];
-            }
-            else if (backran == 2)
-            {
-                spriteRenderer.sprite = bug1;
-            }
-            else if (backran == 3)
-            {
-                spriteRenderer.sprite = bug2;
-            }
-            else if (backran == 4)
-            {
-                spriteRenderer.sprite = bug3;
-            }
-            else if (backran == 5)
-            {
-                spriteRenderer.sprite = bug4;
-            }
-            else if (backran == 6)
-            {
-                spriteRenderer.sprite = bug5;
-            }
-            else if (backran == 7)
-            {
-                spriteRenderer.sprite = bug6;
-            }
+            case 0:
+                return normalTexture[(GameData.Round - 1) / 5];
+
+            case 1:
+                return normalTexture[Random.Range(0, 6)];
+
+            case 2:
+                return bug1;
+
+            case 3:
+                return bug2;
+
         }
-        else if (GameData.VirusBugEffectLevel == 100)
+        return null;
+    }
+
+    /// <summary>
+    /// 背景設定　裏ボス最終形態
+    /// </summary>
+    /// <returns></returns>
+    private Sprite SettingVirusCrazy()
+    {
+        switch (Random.Range(0, 20))
         {
-            spriteRenderer.sprite = blue;
+            case 0:
+                return normalTexture[(GameData.Round - 1) / 5];
+
+            case 1:
+                return normalTexture[Random.Range(0, 6)];
+
+            case 2:
+                return bug1;
+
+            case 3:
+                return bug2;
+
+            case 4:
+                return bug3;
+
+            case 5:
+                return bug4;
+
+            case 6:
+                return bug5;
+
+            case 7:
+                return bug6;
         }
-        else if (GameData.VirusBugEffectLevel == 200)
+        return null;
+    }
+
+    /// <summary>
+    /// 背景設定　裏ボス必殺技
+    /// </summary>
+    /// <returns></returns>
+    private Sprite SettingSettingVirusCritical1()
+    {
+        return blue;
+    }
+
+    /// <summary>
+    /// 背景設定　裏ボス必殺技２
+    /// </summary>
+    /// <returns></returns>
+    private Sprite SpriteSettingVirusCritical2()
+    {
+        switch (Random.Range(0, 10))
         {
-            backran = Random.Range(0, 10);
-            if (backran == 0)
-            {
-                spriteRenderer.sprite = bug3;
-            }
-            else if (backran == 1)
-            {
-                spriteRenderer.sprite = bug4;
-            }
-            else if (backran == 2)
-            {
-                spriteRenderer.sprite = normalTexture[(GameData.Round - 1) / 5];
-            }
+            case 0:
+                return bug3;
+
+            case 1:
+                return bug4;
+
+            case 2:
+                return normalTexture[(GameData.Round - 1) / 5];
+
         }
+        return null;
     }
 }

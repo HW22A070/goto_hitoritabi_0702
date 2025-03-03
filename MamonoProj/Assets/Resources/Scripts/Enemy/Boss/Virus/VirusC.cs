@@ -1,5 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using EnumDic.Enemy;
+using EnumDic.Enemy.Virus;
+using EnumDic.System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,44 +9,56 @@ public class VirusC : MonoBehaviour
 {
     private int i = 0;
     private int j = 0;
-    private int k = 0;
-    private float fi = 0, f6 = 0;
-    private int _attackVariation = 0;
+    private int _deathActionTime = 0;
+    
+    private ATTACK_VIRUS1 _beforeAction1;
+    
+    private ATTACK_VIRUS2 _beforeAction2;
+    
+    private ATTACK_VIRUS3 _beforeAction3;
+
+    /// <summary>
+    /// クールタイムのチャージ時間
+    /// </summary>
     private int changetime = 0;
-    private int count1 = 0, count2 = 0, count3 = 0, count4 = 0, count5 = 0, count6 = 0;
-    private int sct = 0;
 
-    private int mae = 0;
 
     /// <summary>
     /// 0=第一形態クール
     /// 1=第二形態クール
     /// 2=第３形態
     /// </summary>
-    private int virusmode = 0;
-    /// <summary>
-    /// 0=第一形態クール
-    /// 1=第二形態クール
-    /// 2=第３形態
-    /// </summary>
-    public static int VirusMode = 0;
-    private int looks;
-    private float angle, angle2;
-    private float down = 2;
-    private Vector3 pos, ppos, muki, velocity, shutu, Aa, gai, nerai;
-    public SpriteRenderer mine;
-    public Sprite a, b, c, d, e, f, g, h, aa, bb, cc, dd, ee, ff;
+    private int _virusmode = 0;
+
+    private float _angle;
+    private Vector3 _posOwn, _posPlayer, shutu, muzzle;
+
+    [SerializeField]
+    private SpriteRenderer mine;
+
+    [SerializeField]
+    private Sprite[] _spritesType1, _spritesType2, _spritesLast;
 
     /// <summary>
     /// 隙晒しまでのカウンター
     /// </summary>
     private int _countBlood = 0;
 
-    public HealC HealP, StarP;
-    public ExpC Virus2E, VirusE, BeamE;
-    public GuardC tamaP;
-    public EMissile1C MissileP, CubeP;
-    public FireworkC FireworkP;
+
+    [SerializeField]
+    private HealC HealP, StarP;
+
+    [SerializeField]
+    private ExpC Virus2E, VirusE, BeamE;
+
+    [SerializeField]
+    private GuardC tamaP;
+
+    [SerializeField]
+    private EMissile1C MissileP, CubeP;
+
+    [SerializeField]
+    private FireworkC FireworkP;
 
     [SerializeField]
     [Tooltip("爆弾")]
@@ -55,20 +69,23 @@ public class VirusC : MonoBehaviour
     /// </summary>
     private AudioSource _audioGO;
 
-    public AudioClip damageS, deadS, heavyS, beamS, magicS, shineS, expS, chargeS;
-    public short[] BeamD , BulletD , FireD , BombD, ExpD;
 
-    private Vector3 hitPos;
+    [SerializeField]
+    private AudioClip damageS, deadS, heavyS, beamS, magicS, shineS, expS, chargeS;
+
+    [SerializeField]
+    private short[] BeamD , BulletD , FireD , BombD, ExpD;
+
     private PMCoreC playerMissileP;
 
     [SerializeField]
     [Tooltip("クリティカル発生")]
     private bool[] _isBeamCritical, _isBulletCritical, _isFireCritical, _isBombCritical;
 
-    private PlayerC playerP;
+    private PlayerC _scPlayer;
     private GameObject PlayerGO;
 
-    private Quaternion rot;
+    private Quaternion _rotOwn;
 
     /// <summary>
     /// 動作中のコルーチン
@@ -100,7 +117,7 @@ public class VirusC : MonoBehaviour
         GameData.PlayerMoveAble = 3;
 
         _eCoreC = GetComponent<ECoreC>();
-        pos = transform.position;
+        _posOwn = transform.position;
         PlayerGO = GameObject.Find("Player");
         _gameManaC = GameObject.Find("GameManager").GetComponent<GameManagement>();
         _gameManaC._bossNowHp = _eCoreC.hp[1];
@@ -108,136 +125,115 @@ public class VirusC : MonoBehaviour
         _eCoreC.IsBoss = true;
     }
 
-
-    public void Summon(int judge)
-    {
-
-    }
-
     // Update is called once per frame
     void Update()
     {
-        pos = transform.position;
-        ppos = PlayerGO.transform.position;
-        rot = transform.localRotation;
-        if (_eCoreC.BossLifeMode != 2) _gameManaC._bossNowHp = _eCoreC.hp[_eCoreC.EvoltionMode];
+        _posOwn = transform.position;
+        _posPlayer = PlayerGO.transform.position;
+        _rotOwn = transform.localRotation;
+        if (_eCoreC.BossLifeMode != MODE_LIFE.Dead) _gameManaC._bossNowHp = _eCoreC.hp[_eCoreC.EvoltionMode];
 
     }
 
-
     void FixedUpdate()
     {
-
-        VirusMode = virusmode;
-
-        //SummonAction
+        
+        //出現行動
         if (_eCoreC.BossLifeMode == 0)
         {
             _bgmManager.ChangeAudio(101, false, 0.8f);
+
+            //牽制
             for (int i = 0; i < 200; i++)
             {
+                Vector3 posVirusDust;
                 do
                 {
-                    Aa = new Vector3(Random.Range(0, 640), Random.Range(0, 530), 0);
+                    posVirusDust = new Vector3(Random.Range(0, 640), Random.Range(0, 530), 0);
                 }
-                while ((ppos.x + 64 > Aa.x && Aa.x > ppos.x - 64) && (ppos.y + 64 > Aa.y && Aa.y > ppos.y - 64));
+                while ((_posPlayer.x + 64 > posVirusDust.x && posVirusDust.x > _posPlayer.x - 64) && (_posPlayer.y + 64 > posVirusDust.y && posVirusDust.y > _posPlayer.y - 64));
 
                 float sho = Random.Range(0, 360);
-                ExpC shot2 = Instantiate(Virus2E, Aa, rot);
+                ExpC shot2 = Instantiate(Virus2E, posVirusDust, _rotOwn);
                 shot2.EShot1(sho, Random.Range(-0.2f, 0.2f), 1);
             }
-            GameData.VirusBugEffectLevel = 1;
-            _eCoreC.BossLifeMode = 1;
+
+            GameData.VirusBugEffectLevel = MODE_VIRUS.Little;
+            _eCoreC.BossLifeMode = MODE_LIFE.Fight;
             _movingCoroutine = StartCoroutine(ActionBranch());
         }
         
         //形態変化1->2
-        if (virusmode==0&&_eCoreC.hp[1]<=0)
+        if (_virusmode==0&&_eCoreC.hp[1]<=0)
         {
             AllCoroutineStop();
             _movingCoroutine = StartCoroutine(Evoltion1());
         }
 
         //形態変化2->3
-        if (virusmode == 1 && _eCoreC.hp[2] <= 0)
+        if (_virusmode == 1 && _eCoreC.hp[2] <= 0)
         {
             AllCoroutineStop();
             _movingCoroutine = StartCoroutine(Evoltion2());
         }
 
-        if(GameData.VirusBugEffectLevel>0)
+
+        if(GameData.VirusBugEffectLevel != MODE_VIRUS.None)
         {
             TextBug();
         }
 
         //DeathAction
-        if (_eCoreC.BossLifeMode == 2)
+        if (_eCoreC.BossLifeMode == MODE_LIFE.Dead)
         {
             
-            GameData.Star = true;
-            GameData.TimerMoving = false;
+            GameData.IsInvincible = true;
+            GameData.IsTimerMoving = false;
             _gameManaC._bossNowHp=0;
             AllCoroutineStop();
-            GameData.VirusBugEffectLevel = 0;
-            if (k == 1)
+            GameData.VirusBugEffectLevel = MODE_VIRUS.None;
+            if (_deathActionTime == 1)
             {
                 TimeManager.ChangeTimeValue(1.0f);
             }
-            k++;
-            if (k <= 100)
+            _deathActionTime++;
+            if (_deathActionTime <= 100)
             {
-                angle = Random.Range(0, 360);
-                ExpC cosgun = Instantiate(Virus2E, pos, rot);
-                cosgun.EShot1(angle, 20, 0.3f);
+                _angle = Random.Range(0, 360);
+                ExpC cosgun = Instantiate(Virus2E, _posOwn, _rotOwn);
+                cosgun.EShot1(_angle, 20, 0.3f);
             }
-            if (k > 100)
+            if (_deathActionTime > 100)
             {
-                angle = Random.Range(0, 360);
-                ExpC cosgun = Instantiate(Virus2E, pos, rot);
-                cosgun.EShot1(angle, 20, 0.3f);
+                _angle = Random.Range(0, 360);
+                ExpC cosgun = Instantiate(Virus2E, _posOwn, _rotOwn);
+                cosgun.EShot1(_angle, 20, 0.3f);
                 gameObject.transform.localScale -= new Vector3(0.01f, 0.01f, 0);
             }
-            if (k > 200)
+            if (_deathActionTime > 200)
             {
                 GameData.Point += 100000;
-                CrearC.BossBonus += 10;
+                ClearC.BossBonus += 10;
                 Destroy(gameObject);
             }
 
         }
 
-        //LooksChange
-        if (virusmode<=1)
+        //見た目変化
+        if (_virusmode<=1)
         {
-            looks = Random.Range(0, 8);
-            if (looks == 0) mine.sprite = a;
-            else if (looks == 1) mine.sprite = b;
-            else if (looks == 2) mine.sprite = c;
-            else if (looks == 3) mine.sprite = d;
-            else if (looks == 4) mine.sprite = e;
-            else if (looks == 5) mine.sprite = f;
-            else if (looks == 6) mine.sprite = g;
-            else if (looks == 7) mine.sprite = h;
+            int looks = Random.Range(0, _spritesType1.Length);
+            mine.sprite = _spritesType1[looks];
         }
-        else if (virusmode==2)
+        else if (_virusmode==2)
         {
-            looks = Random.Range(0, 6);
-            if (looks == 0) mine.sprite = aa;
-            else if (looks == 1) mine.sprite = bb;
-            else if (looks == 2) mine.sprite = cc;
-            else if (looks == 3) mine.sprite = dd;
-            else if (looks == 4) mine.sprite = ee;
-            else if (looks == 5) mine.sprite = ff;
+            int looks = Random.Range(0, _spritesLast.Length);
+            mine.sprite = _spritesLast[looks];
         }
         if (changetime > 100)
         {
-            looks = Random.Range(0, 6);
-            if (looks == 0) mine.sprite = aa;
-            else if (looks == 1) mine.sprite = bb;
-            else if (looks == 2) mine.sprite = cc;
-            else if (looks == 3) mine.sprite = dd;
-            else if (looks == 4) mine.sprite = ee;
-            else if (looks == 5) mine.sprite = ff;
+            int looks = Random.Range(0, _spritesType1.Length);
+            mine.sprite = _spritesType1[looks];
         }
 
 
@@ -245,23 +241,23 @@ public class VirusC : MonoBehaviour
         {
             //Barrier
             i = Random.Range(0, 12) * 30;
-            float angle = GameData.GetAngle(transform.position,ppos);
-            shutu = pos + new Vector3(Mathf.Cos(i * Mathf.Deg2Rad) * 8 * 5, Mathf.Sin(i * Mathf.Deg2Rad) * 8 * 5, 0);
-            ExpC barrier = Instantiate(Virus2E, shutu, rot);
+            float angle = GameData.GetAngle(transform.position,_posPlayer);
+            shutu = _posOwn + new Vector3(Mathf.Cos(i * Mathf.Deg2Rad) * 8 * 5, Mathf.Sin(i * Mathf.Deg2Rad) * 8 * 5, 0);
+            ExpC barrier = Instantiate(Virus2E, shutu, _rotOwn);
             barrier.EShot1(angle, 1, 0.9f);
 
             //Effect
             angle = Random.Range(0, 360);
             shutu = new Vector3(Random.Range(-160, 800), Random.Range(0, 530),0) ;
-            ExpC effect = Instantiate(VirusE, shutu, rot);
+            ExpC effect = Instantiate(VirusE, shutu, _rotOwn);
             effect.EShot1(angle, 0.3f, 4);
         }
 
         //hpbug
         if (_eCoreC.EvoltionMode == 0)
         {
-            if (virusmode == 0) _eCoreC.hp[0] = Random.Range(0, 42000);
-            else if (virusmode == 1) _eCoreC.hp[0] = Random.Range(0, 42000);
+            if (_virusmode == 0) _eCoreC.hp[0] = Random.Range(0, 42000);
+            else if (_virusmode == 1) _eCoreC.hp[0] = Random.Range(0, 42000);
         }
         else _eCoreC.hp[0] = 1;
 
@@ -269,11 +265,38 @@ public class VirusC : MonoBehaviour
 
 
         //Roll
-        if (_eCoreC.BossLifeMode < 2)transform.localEulerAngles += new Vector3(0, 0, -_eCoreC.BossLifeMode + 4);
+        if (_eCoreC.BossLifeMode != MODE_LIFE.Dead)transform.localEulerAngles += new Vector3(0, 0, 4);
         else transform.localEulerAngles += new Vector3(0, 0, 0);
 
         
     }
+
+    private enum ATTACK_VIRUS1
+    {
+        MathVirus,
+        EruptionBeam,
+        Cube
+    }
+
+    private enum ATTACK_VIRUS2
+    {
+        MathVirus,
+        FireWork,
+        Cube,
+        Meteor
+    }
+
+    private enum ATTACK_VIRUS3
+    {
+        MathVirus,
+        EruptionBeam,
+        FireWork,
+        Cube2,
+        Meteor,
+        Bloodbeam
+    }
+
+
 
     /// <summary>
     /// 行動分岐
@@ -282,119 +305,151 @@ public class VirusC : MonoBehaviour
     private IEnumerator ActionBranch()
     {
 
-        if (virusmode == 0)
+        switch (_virusmode)
         {
-            if(GameData.Difficulty>=2)RandomScreenWipe(2,5);
-            //Screen.SetResolution(480, 270, true);
-            yield return new WaitForSeconds(1.0f);
-            GameData.PlayerMoveAble = 3;
-            _eCoreC.EvoltionMode = 0;
-            if (_countBlood >= 4)
-            {
-                _countBlood = 0;
-                _movingCoroutine = StartCoroutine(BloodBeam1());
-            }
-            else
-            {
-                _countBlood++;
+            case 0:
+                if (GameData.CheckIsUpperDifficulty(MODE_DIFFICULTY.Assault)) RandomScreenWipe(2, 5);
+
+                yield return new WaitForSeconds(1.0f);
+                GameData.PlayerMoveAble = 3;
+                _eCoreC.EvoltionMode = 0;
+                if (_countBlood >= 4)
+                {
+                    _countBlood = 0;
+                    _movingCoroutine = StartCoroutine(BloodBeam1());
+                }
+                else
+                {
+                    _countBlood++;
+
+                    ATTACK_VIRUS1 attackVariation1;
+                    do
+                    {
+                        attackVariation1 = (ATTACK_VIRUS1)Random.Range(0, System.Enum.GetNames(typeof( ATTACK_VIRUS1)).Length);
+                    } while (attackVariation1 == _beforeAction1);
+
+                    _beforeAction1=attackVariation1;
+
+                    switch (_beforeAction1)
+                    {
+                        case ATTACK_VIRUS1.MathVirus:
+                            _movingCoroutine = StartCoroutine(MathBeam(10));
+                            break;
+
+                        case ATTACK_VIRUS1.EruptionBeam:
+                            _movingCoroutine = StartCoroutine(EruptionBeam());
+                            break;
+
+                        case ATTACK_VIRUS1.Cube:
+                            _movingCoroutine = StartCoroutine(Cube1());
+                            break;
+                    }
+                }
+                break;
+
+            case 1:
+                if (GameData.CheckIsUpperDifficulty(MODE_DIFFICULTY.Assault)) RandomScreenWipe(3, 7);
+                yield return new WaitForSeconds(0.7f);
+                GameData.PlayerMoveAble = 3;
+                _eCoreC.EvoltionMode = 0;
+
+                if (_countBlood >= 6)
+                {
+                    _countBlood = 0;
+                    _movingCoroutine = StartCoroutine(BloodBeam2());
+                }
+                else
+                {
+                    _countBlood++;
+
+                    ATTACK_VIRUS2 attackVariation2;
+                    do
+                    {
+                        attackVariation2 = (ATTACK_VIRUS2)Random.Range(0, System.Enum.GetNames(typeof(ATTACK_VIRUS2)).Length);
+                    } while (attackVariation2 == _beforeAction2);
+
+                    _beforeAction2 = attackVariation2;
+
+                    switch (_beforeAction2)
+                    {
+                        case ATTACK_VIRUS2.MathVirus:
+                            _movingCoroutine = StartCoroutine(MathBeam(9));
+                            break;
+
+                        case ATTACK_VIRUS2.FireWork:
+                            _movingCoroutine = StartCoroutine(FireWork());
+                            break;
+
+                        case ATTACK_VIRUS2.Cube:
+                            _movingCoroutine = StartCoroutine(Cube1());
+                            break;
+
+                        case ATTACK_VIRUS2.Meteor:
+                            _movingCoroutine = StartCoroutine(Meteor());
+                            break;
+                    }
+                }
+                break;
+
+            case 2:
+                if (GameData.CheckIsUpperDifficulty(MODE_DIFFICULTY.Assault)) Screen.SetResolution(GameData.FirstWidth, GameData.FirstHeight, true);
+                GameData.PlayerMoveAble = 6;
+                yield return new WaitForSeconds(0.03f);
+
+                ATTACK_VIRUS3 attackVariation3;
                 do
                 {
-                    _attackVariation = Random.Range(0, 3);
-                } while (_attackVariation == mae);
-                mae = _attackVariation;
-                if (_attackVariation == 0) _movingCoroutine = StartCoroutine(SCT(10));
-                else if (_attackVariation == 1) _movingCoroutine = StartCoroutine(UnderBeam());
-                else if (_attackVariation == 2) _movingCoroutine = StartCoroutine(SCT(13));
-            }
+                    attackVariation3 = (ATTACK_VIRUS3)Random.Range(0, System.Enum.GetNames(typeof(ATTACK_VIRUS3)).Length);
+                } while (attackVariation3 == _beforeAction3);
 
+                _beforeAction3 = attackVariation3;
 
-        }
-        else if (virusmode == 1)
-        {
-            if (GameData.Difficulty >= 2) RandomScreenWipe(3,7);
-            yield return new WaitForSeconds(0.7f);
-            GameData.PlayerMoveAble = 3;
-            _eCoreC.EvoltionMode = 0;
-
-            if (_countBlood >= 6)
-            {
-                _countBlood = 0;
-                _movingCoroutine = StartCoroutine(BloodBeam2());
-            }
-            else
-            {
-                _countBlood++;
-                do
+                switch (_beforeAction3)
                 {
-                    _attackVariation = Random.Range(0, 5);
-                } while (_attackVariation == mae);
-                mae = _attackVariation;
-                if (_attackVariation == 0) _movingCoroutine = StartCoroutine(SCT(9));
-                else if (_attackVariation == 1) _movingCoroutine = StartCoroutine(SCT(9));
-                else if (_attackVariation == 2) _movingCoroutine = StartCoroutine(FireWork());
-                else if (_attackVariation == 3) _movingCoroutine = StartCoroutine(Cube1());
-                else if (_attackVariation == 4) _movingCoroutine = StartCoroutine(Meteor());
-            }
-        }
-        else if (virusmode == 2)
-        {
+                    case ATTACK_VIRUS3.MathVirus:
+                        _movingCoroutine = StartCoroutine(MathBeam(7));
+                        break;
 
-            if (GameData.Difficulty >= 2) Screen.SetResolution(GameData.FirstWidth, GameData.FirstHeight, true);
-            GameData.PlayerMoveAble = 6;
-            yield return new WaitForSeconds(0.03f);
-            _eCoreC.EvoltionMode = 3;
-            do
-            {
-                _attackVariation = Random.Range(0, 6);
-            } while (_attackVariation == mae);
-            mae = _attackVariation;
-            if (_attackVariation == 0) _movingCoroutine = StartCoroutine(FireWork());
-            else if (_attackVariation == 1) _movingCoroutine = StartCoroutine(Meteor());
-            else if (_attackVariation == 2) _movingCoroutine = StartCoroutine(UnderBeam());
-            else if (_attackVariation == 3) _movingCoroutine = StartCoroutine(Cube2());
-            else if (_attackVariation == 4) _movingCoroutine = StartCoroutine(SCT(7));
-            else if (_attackVariation == 5) _movingCoroutine = StartCoroutine(BloodBeam3());
-        }
+                    case ATTACK_VIRUS3.FireWork:
+                        _movingCoroutine = StartCoroutine(FireWork());
+                        break;
 
+                    case ATTACK_VIRUS3.Cube2:
+                        _movingCoroutine = StartCoroutine(CubeSpeedUp());
+                        break;
+
+                    case ATTACK_VIRUS3.Meteor:
+                        _movingCoroutine = StartCoroutine(Meteor());
+                        break;
+
+                    case ATTACK_VIRUS3.Bloodbeam:
+                        _movingCoroutine = StartCoroutine(BloodBeam3());
+                        break;
+
+                    case ATTACK_VIRUS3.EruptionBeam:
+                        _movingCoroutine = StartCoroutine(EruptionBeam());
+                        break;
+                }
+                break;
+        }
     }    
-    
-    /// <summary>
-    /// 衛生
-    /// </summary>
-    /// <returns></returns>
-    private IEnumerator Guardian()
-    {
-        for(int j=0;j<6;j++)
-        {
-            transform.localPosition = ppos + new Vector3(0, 100, 0);
-            for (i = 0; i < 10; i++)
-            {
-                GuardC shot = Instantiate(tamaP, pos, rot);
-                shot.EShot1(10, i * 36, 1, ((i % 2) + 1) * 3, pos);
-            }
-            _audioGO.PlayOneShot(heavyS);
-            yield return new WaitForSeconds(0.5f);
-        }
-        yield return new WaitForSeconds(0.15f);
-        _movingCoroutine = StartCoroutine(ActionBranch());
-    }
 
     /// <summary>
-    /// 地下ビーム
+    /// 噴火ビーム
     /// </summary>
     /// <returns></returns>
-    private IEnumerator UnderBeam()
+    private IEnumerator EruptionBeam()
     {
 
-        gai = new Vector3(Random.Range(20, 620), 0, 0);
-        angle2 = Random.Range(45, 135);
+        muzzle = new Vector3(Random.Range(20, 620), 0, 0);
+        float angle = Random.Range(45, 135);
 
         for (int j = 0; j < 30; j++)
         {
             if (Random.Range(0, 2) == 0)
             {
-                ExpC shot = Instantiate(BeamE, gai, rot);
-                shot.EShot1(angle2, 100, 1);
+                ExpC shot = Instantiate(BeamE, muzzle, _rotOwn);
+                shot.EShot1(angle, 100, 1);
                 _audioGO.PlayOneShot(beamS);
                 _audioGO.PlayOneShot(expS);
                 yield return new WaitForSeconds(0.03f);
@@ -404,67 +459,75 @@ public class VirusC : MonoBehaviour
         _movingCoroutine = StartCoroutine(ActionBranch());
     }
 
+    private enum TYPE_MATHBEAM
+    {
+        Sin,
+        Sin2,
+        Cos,
+        Tan,
+    }
+
     /// <summary>
     /// サインコサインタンジェント
     /// </summary>
     /// <returns></returns>
-    private IEnumerator SCT(int speed)
+    private IEnumerator MathBeam(int speed)
     {
-        sct = Random.Range(0, 4);
+        TYPE_MATHBEAM sct = (TYPE_MATHBEAM)Random.Range(0, 4);
         _audioGO.PlayOneShot(magicS);
         for (float f6 = 0; f6 < 100; f6++)
         {
-            if (sct == 0)
+            switch (sct)
             {
+                case TYPE_MATHBEAM.Sin:
+                    for (float fi = 1; fi < f6; fi++)
+                    {
+                        shutu = new Vector3(-200 + (fi * 16), 240 + Mathf.Sin(fi / (3 + ((100 - f6) / speed))) * 220, 0);
+                        ExpC singun = Instantiate(Virus2E, shutu, _rotOwn);
+                        singun.EShot1(0, 0, 0.1f);
+                        shutu = new Vector3(-200 + (fi * 16), 240 + Mathf.Sin(-fi / (3 + ((100 - f6) / speed))) * 220, 0);
+                        ExpC cosgun = Instantiate(Virus2E, shutu, _rotOwn);
+                        cosgun.EShot1(0, 0, 0.1f);
+                    }
+                    break;
 
-                for (fi = 1; fi < f6; fi++)
-                {
-                    shutu = new Vector3(-200+(fi * 16), 240 + Mathf.Sin(fi / (3 + ((100 - f6) / speed))) * 220, 0);
-                    ExpC singun = Instantiate(Virus2E, shutu, rot);
-                    singun.EShot1(0, 0, 0.1f);
-                    shutu = new Vector3(-200 + (fi * 16), 240 + Mathf.Sin(-fi / (3 + ((100 - f6) / speed))) * 220, 0);
-                    ExpC cosgun = Instantiate(Virus2E, shutu, rot);
-                    cosgun.EShot1(0, 0, 0.1f);
-                }
+                case TYPE_MATHBEAM.Sin2:
+                    for (float fi = 1; fi < f6; fi++)
+                    {
+                        shutu = new Vector3(-200 + (fi * 16), 240 + Mathf.Cos(fi / (3 + ((100 - f6) / speed))) * 220, 0);
+                        ExpC singun = Instantiate(Virus2E, shutu, _rotOwn);
+                        singun.EShot1(0, 0, 0.1f);
+                        shutu = new Vector3(-200 + (fi * 16), 240 + Mathf.Cos(-fi / (3 + ((100 - f6) / speed))) * 220, 0);
+                        ExpC cosgun = Instantiate(Virus2E, shutu, _rotOwn);
+                        cosgun.EShot1(0, 0, 0.05f);
+                    }
+                    break;
+
+                case TYPE_MATHBEAM.Cos:
+                    for (float fi = 1; fi < f6; fi++)
+                    {
+                        shutu = new Vector3(-200 + (fi * 16), 240 + Mathf.Tan(fi / (3 + ((100 - f6) / (speed * 1.5f)))) * 220, 0);
+                        ExpC singun = Instantiate(Virus2E, shutu, _rotOwn);
+                        singun.EShot1(0, 0, 0.1f);
+                        shutu = new Vector3(-200 + (fi * 16), 240 + Mathf.Tan(-fi / (3 + ((100 - f6) / (speed * 1.5f)))) * 220, 0);
+                        ExpC cosgun = Instantiate(Virus2E, shutu, _rotOwn);
+                        cosgun.EShot1(0, 0, 0.05f);
+                    }
+                    break;
+
+                case TYPE_MATHBEAM.Tan:
+                    for (float fi = 1; fi < f6; fi++)
+                    {
+                        shutu = new Vector3(fi * 16, 240 + Mathf.Sin((fi / 5) + (f6 / speed)) * 220, 0);
+                        ExpC singun = Instantiate(Virus2E, shutu, _rotOwn);
+                        singun.EShot1(0, 0, 0.05f);
+                        shutu = new Vector3(fi * 16, 240 + Mathf.Sin(-(fi / 5) - (f6 / speed)) * 220, 0);
+                        ExpC cosgun = Instantiate(Virus2E, shutu, _rotOwn);
+                        cosgun.EShot1(0, 0, 0.05f);
+                    }
+                    break;
             }
-            else if (sct == 1)
-            {
-                for (fi = 1; fi < f6; fi++)
-                {
-                    shutu = new Vector3(-200 + (fi * 16), 240 + Mathf.Cos(fi / (3 + ((100 - f6) / speed))) * 220, 0);
-                    ExpC singun = Instantiate(Virus2E, shutu, rot);
-                    singun.EShot1(0, 0, 0.1f);
-                    shutu = new Vector3(-200 + (fi * 16), 240 + Mathf.Cos(-fi / (3 + ((100 - f6) / speed))) * 220, 0);
-                    ExpC cosgun = Instantiate(Virus2E, shutu, rot);
-                    cosgun.EShot1(0, 0, 0.05f);
-                }
-            }
-            else if (sct == 2)
-            {
-                for (fi = 1; fi < f6; fi++)
-                {
-                    shutu = new Vector3(-200 + (fi * 16), 240 + Mathf.Tan(fi / (3 + ((100 - f6) / (speed * 1.5f)))) * 220, 0);
-                    ExpC singun = Instantiate(Virus2E, shutu, rot);
-                    singun.EShot1(0, 0, 0.1f);
-                    shutu = new Vector3(-200 + (fi * 16), 240 + Mathf.Tan(-fi / (3 + ((100 - f6) / (speed * 1.5f)))) * 220, 0);
-                    ExpC cosgun = Instantiate(Virus2E, shutu, rot);
-                    cosgun.EShot1(0, 0, 0.05f);
-                }
-            }
-            else
-            {
-                for (fi = 1; fi < f6; fi++)
-                {
-                    shutu = new Vector3(fi * 16, 240 + Mathf.Sin((fi / 5) + (f6 / speed)) * 220, 0);
-                    ExpC singun = Instantiate(Virus2E, shutu, rot);
-                    singun.EShot1(0, 0, 0.05f);
-                    shutu = new Vector3(fi * 16, 240 + Mathf.Sin(-(fi / 5) - (f6 / speed)) * 220, 0);
-                    ExpC cosgun = Instantiate(Virus2E, shutu, rot);
-                    cosgun.EShot1(0, 0, 0.05f);
-                }
-                
-            }
-            _audioGO.PlayOneShot(shineS);
+            if(Random.Range(0,2)==0)_audioGO.PlayOneShot(shineS);
             yield return new WaitForSeconds(0.03f);
         }
         _movingCoroutine = StartCoroutine(ActionBranch());
@@ -476,21 +539,21 @@ public class VirusC : MonoBehaviour
     /// <returns></returns>
     private IEnumerator BloodBeam1()
     {
-        if (GameData.Difficulty >= 2) Screen.SetResolution(384, 216, true);
+        if (GameData.CheckIsUpperDifficulty(MODE_DIFFICULTY.Assault)) Screen.SetResolution(384, 216, true);
         GameData.PlayerMoveAble = 6;
         _eCoreC.EvoltionMode = 1;
         transform.localPosition = new Vector3(Random.Range(50, 590), 120, 0);
-        GameData.VirusBugEffectLevel = 100;
-        pos = transform.position;
-        angle2 = GameData.GetAngle(pos, ppos);
+        GameData.VirusBugEffectLevel = MODE_VIRUS.FullThrottle1;
+        _posOwn = transform.position;
+        float angle = GameData.GetAngle(_posOwn, _posPlayer);
         TimeManager.ChangeTimeValue(0.1f);
         for (int j = 0; j < 29; j++)
         {
             for (i = 0; i < 3; i++)
             {
-                Vector3 tar = pos + new Vector3(Random.Range(-100, 100), Random.Range(-100, 100), 0);
-                ExpC shot2 = Instantiate(VirusE, tar, rot);
-                shot2.EShot1(GameData.GetAngle(tar, pos), 5, 0.1f);
+                Vector3 tar = _posOwn + new Vector3(Random.Range(-100, 100), Random.Range(-100, 100), 0);
+                ExpC shot2 = Instantiate(VirusE, tar, _rotOwn);
+                shot2.EShot1(GameData.GetAngle(tar, _posOwn), 5, 0.1f);
             }
             _audioGO.PlayOneShot(chargeS);
             TimeManager.ChangeTimeValue(0.1f+(j*0.03f));
@@ -503,21 +566,18 @@ public class VirusC : MonoBehaviour
             {
                 for (i = 0; i < 10; i++)
                 {
-                    
-                    rot.z = Random.Range(0, 360);
-                    ExpC shot2 = Instantiate(BeamE, pos, rot);
-                    shot2.EShot1(angle2 + Random.Range(-20, 20), Random.Range(50, 135), 0.4f);
+                    _rotOwn.z = Random.Range(0, 360);
+                    Instantiate(BeamE, _posOwn, _rotOwn).EShot1(angle + Random.Range(-20, 20), Random.Range(50, 135), 0.4f);
                 }
                 _audioGO.PlayOneShot(damageS);
                 _audioGO.PlayOneShot(heavyS);
-                playerP = PlayerGO.GetComponent<PlayerC>();
-                playerP.CriticalVibration();
-                _goCamera.GetComponent<CameraC>().StartShakeVertical(5, 1);
+                PlayerGO.GetComponent<PlayerC>().VibrationCritical();
+                _goCamera.GetComponent<CameraShakeC>().StartShakeVertical(5, 1);
                 _eCoreC.hp[1] -= 50;
                 yield return new WaitForSeconds(0.03f);
             }
         }
-        GameData.VirusBugEffectLevel = 0;
+        GameData.VirusBugEffectLevel = MODE_VIRUS.None;
         for (int j = 0; j < 400; j++)
         {
             if (Random.Range(0, 100) == 0)
@@ -525,7 +585,7 @@ public class VirusC : MonoBehaviour
                 HealSummon();
             }
             
-            if (j > 300) GameData.VirusBugEffectLevel = 1;
+            if (j > 300) GameData.VirusBugEffectLevel = MODE_VIRUS.Little;
             yield return new WaitForSeconds(0.03f);
         }
         yield return new WaitForSeconds(0.03f);
@@ -540,22 +600,22 @@ public class VirusC : MonoBehaviour
     private IEnumerator Evoltion1()
     {
         _bgmManager.VolumefeedInOut(1.8f, 0);
-        virusmode = 1;
+        _virusmode = 1;
         yield return new WaitForSeconds(0.03f);
         for (int j = 0; j < 2; j++)
         {
-            gai = new Vector3(Random.Range(20, 620), 0, 0);
-            angle = Random.Range(70, 110);
-            Instantiate(FireworkP, gai, rot).EShot1(angle, Random.Range(18, 25), -1.0f, Random.Range(10, 16), 10, 0.3f);
+            muzzle = new Vector3(Random.Range(20, 620), 0, 0);
+            _angle = Random.Range(70, 110);
+            Instantiate(FireworkP, muzzle, _rotOwn).EShot1(_angle, Random.Range(18, 25), -1.0f, Random.Range(10, 16), 10, 0.3f);
             _audioGO.PlayOneShot(heavyS);
             _audioGO.PlayOneShot(chargeS);
             yield return new WaitForSeconds(0.5f);
         }
         for (int j = 0; j < 9; j++)
         {
-            gai = new Vector3(320, 0, 0);
-            angle = 45 + (j * 10);
-            Instantiate(FireworkP, gai, rot).EShot1(angle, 22, -1.0f, 20, 10, 0.3f);
+            muzzle = new Vector3(320, 0, 0);
+            _angle = 45 + (j * 10);
+            Instantiate(FireworkP, muzzle, _rotOwn).EShot1(_angle, 22, -1.0f, 20, 10, 0.3f);
             _audioGO.PlayOneShot(heavyS);
             _audioGO.PlayOneShot(chargeS);
             yield return new WaitForSeconds(0.09f);
@@ -563,13 +623,13 @@ public class VirusC : MonoBehaviour
         yield return new WaitForSeconds(0.03f);
         _eCoreC.EvoltionMode = 0;
         Vector3 direction = new Vector3(Random.Range(10, 630), 32 + Random.Range(1, 5) * 90, 0);
-        Instantiate(StarP, direction, rot);
+        Instantiate(StarP, direction, _rotOwn);
         for (i = 0; i < 3; i++)
         {
             HealSummon();
         }
         _bgmManager.ChangeAudio(102, false, 0.8f);
-        GameData.VirusBugEffectLevel = 2;
+        GameData.VirusBugEffectLevel = MODE_VIRUS.Medium;
         _movingCoroutine = StartCoroutine(ActionBranch());
     }
 
@@ -583,26 +643,26 @@ public class VirusC : MonoBehaviour
         {
             for (i = 0; i < 3; i++)
             {
-                Vector3 tar = pos + new Vector3(Random.Range(-100, 100), Random.Range(-100, 100), 0);
-                float angle2 = GameData.GetAngle(tar,pos);
-                Instantiate(VirusE, tar, rot).EShot1(angle2, 10, 0.1f);
+                Vector3 tar = _posOwn + new Vector3(Random.Range(-100, 100), Random.Range(-100, 100), 0);
+                float angle2 = GameData.GetAngle(tar,_posOwn);
+                Instantiate(VirusE, tar, _rotOwn).EShot1(angle2, 10, 0.1f);
             }
             yield return new WaitForSeconds(0.03f);
         }
         for(int j = 0; j < 2; j++)
         {
-            gai = new Vector3(Random.Range(20, 620), 0, 0);
-            angle = Random.Range(70, 110);
-            Instantiate(FireworkP, gai, rot).EShot1(angle, Random.Range(18, 25), -1.0f, Random.Range(18, 25), 10, 0.3f);
+            muzzle = new Vector3(Random.Range(20, 620), 0, 0);
+            _angle = Random.Range(70, 110);
+            Instantiate(FireworkP, muzzle, _rotOwn).EShot1(_angle, Random.Range(18, 25), -1.0f, Random.Range(18, 25), 10, 0.3f);
             _audioGO.PlayOneShot(heavyS);
             _audioGO.PlayOneShot(chargeS);
             yield return new WaitForSeconds(0.5f);
         }
         for (int j = 0; j < 9; j++)
         {
-            gai = new Vector3(320, 0, 0);
-            angle = 45 + (j * 10);
-            Instantiate(FireworkP, gai, rot).EShot1(angle, 22, -1.0f, 20, 10, 0.3f);
+            muzzle = new Vector3(320, 0, 0);
+            _angle = 45 + (j * 10);
+            Instantiate(FireworkP, muzzle, _rotOwn).EShot1(_angle, 22, -1.0f, 20, 10, 0.3f);
             _audioGO.PlayOneShot(heavyS);
             _audioGO.PlayOneShot(chargeS);
             yield return new WaitForSeconds(0.09f);
@@ -620,12 +680,12 @@ public class VirusC : MonoBehaviour
         _audioGO.PlayOneShot(magicS);
         for(int k=0;k<10;k++)
         {
-            angle2 = 180;
+            float angle = 180;
 
             j = Random.Range(0, 5);
-            gai = new Vector3(1000, (j * 90) + 6 + 48, 0);
-            EMissile1C shot = Instantiate(CubeP, gai, rot);
-            shot.EShot1(angle2, (j % 2 + 1) * 7, 0);
+            muzzle = new Vector3(1000, (j * 90) + 6 + 48, 0);
+            EMissile1C shot = Instantiate(CubeP, muzzle, _rotOwn);
+            shot.EShot1(angle, (j % 2 + 1) * 7, 0);
             yield return new WaitForSeconds(0.5f);
 
         }
@@ -639,11 +699,17 @@ public class VirusC : MonoBehaviour
     /// <returns></returns>
     private IEnumerator Meteor()
     {
-        _audioGO.PlayOneShot(shineS);
         float angle = Random.Range(260, 280);
-        BombC shot = Instantiate(_meteorP, new Vector3(360, 650, 0), rot);
-        shot.EShot1(angle, 0, 0.1f, 100, 30, 3.0f);
-        yield return new WaitForSeconds(1.5f);
+        Instantiate(_meteorP, new Vector3(360, 650, 0), _rotOwn).EShot1(angle, 0, 0.1f, 100, 30, 3.0f);
+
+        for(int i = 0; i < 5; i++)
+        {
+            angle = Random.Range(260, 280);
+            _audioGO.PlayOneShot(shineS);
+            Instantiate(_meteorP, new Vector3(GameData.GetRandomWindowPosition().x, GameData.WindowSize.y+64, 0), _rotOwn).EShot1(angle, 30, 0.1f, 100, 5, 0.6f);
+            yield return new WaitForSeconds(0.3f);
+        }
+        
         _movingCoroutine = StartCoroutine(ActionBranch());
     }
 
@@ -653,49 +719,53 @@ public class VirusC : MonoBehaviour
     /// <returns></returns>
     private IEnumerator BloodBeam2()
     {
-        if (GameData.Difficulty >= 2) Screen.SetResolution(96, 54, true);
+        if (GameData.CheckIsUpperDifficulty(MODE_DIFFICULTY.Assault)) Screen.SetResolution(96, 54, true);
         GameData.PlayerMoveAble = 6;
         _eCoreC.EvoltionMode = 2;
         transform.localPosition = new Vector3(Random.Range(50, 590), 210, 0);
-        GameData.VirusBugEffectLevel = 200;
+        GameData.VirusBugEffectLevel = MODE_VIRUS.FullThrottle2;
+
         yield return new WaitForSeconds(0.6f);
         TimeManager.ChangeTimeValue(0.1f);
+
         for (int j = 0; j < 30; j++)
         {
             TimeManager.ChangeTimeValue(0.1f+(j*0.03f));
             _audioGO.PlayOneShot(chargeS);
             yield return new WaitForSeconds(0.03f);
         }
+
         TimeManager.ChangeTimeValue(1.0f);
-        angle2 = GameData.GetAngle(pos, ppos);
+        float angle = GameData.GetAngle(_posOwn, _posPlayer);
         for (int j = 0; j < 200; j++)
         {
             if (_eCoreC.hp[2] > 50)
             {
                 for (i = 0; i < 30; i++)
                 {
-                    rot.z = Random.Range(0, 360);
-                    ExpC shot2 = Instantiate(BeamE, pos, rot);
-                    shot2.EShot1(angle2 + Random.Range(30, 330), Random.Range(50, 135), 0.4f);
+                    _rotOwn.z = Random.Range(0, 360);
+                    ExpC shot2 = Instantiate(BeamE, _posOwn, _rotOwn);
+                    shot2.EShot1(angle + Random.Range(30, 330), Random.Range(50, 135), 0.4f);
                 }
-                angle2 += Random.Range(-2, 2);
+                angle += Random.Range(-2, 2);
                 _audioGO.PlayOneShot(damageS);
                 _audioGO.PlayOneShot(heavyS);
-                playerP = PlayerGO.GetComponent<PlayerC>();
-                playerP.CriticalVibration();
-                _goCamera.GetComponent<CameraC>().StartShakeVertical(5, 1);
+                _scPlayer = PlayerGO.GetComponent<PlayerC>();
+                _scPlayer.VibrationCritical();
+                _goCamera.GetComponent<CameraShakeC>().StartShakeVertical(5, 1);
                 _eCoreC.hp[2] -= 1;
             }
             yield return new WaitForSeconds(0.03f);
         }
-        GameData.VirusBugEffectLevel = 0;
+
+        GameData.VirusBugEffectLevel = MODE_VIRUS.None;
         for (int j = 0; j < 340; j++)
         {
             if (Random.Range(0, 100) == 0)
             {
                 HealSummon();
             }
-            if (j > 240) GameData.VirusBugEffectLevel = 2;
+            if (j > 240) GameData.VirusBugEffectLevel = MODE_VIRUS.FullThrottle2;
             yield return new WaitForSeconds(0.03f);
         }
         yield return new WaitForSeconds(0.03f);
@@ -710,15 +780,15 @@ public class VirusC : MonoBehaviour
     private IEnumerator Evoltion2()
     {
         _bgmManager.VolumefeedInOut(2.5f, 0);
-        virusmode = 2;
+        _virusmode = 2;
         _gameManaC._bossMaxHp = _eCoreC.hp[3];
-        GameData.VirusBugEffectLevel = 0;
+        GameData.VirusBugEffectLevel = MODE_VIRUS.None;
         for (int j = 0; j < 100; j++)
         {
             i = Random.Range(0, 12) * 30;
-            float angle = GameData.GetAngle(transform.position,ppos);
-            shutu = pos + new Vector3(Mathf.Cos(i * Mathf.Deg2Rad) * 8 * 5, Mathf.Sin(i * Mathf.Deg2Rad) * 8 * 5, 0);
-            ExpC barrier = Instantiate(Virus2E, shutu, rot);
+            float angle = GameData.GetAngle(transform.position,_posPlayer);
+            shutu = _posOwn + new Vector3(Mathf.Cos(i * Mathf.Deg2Rad) * 8 * 5, Mathf.Sin(i * Mathf.Deg2Rad) * 8 * 5, 0);
+            ExpC barrier = Instantiate(Virus2E, shutu, _rotOwn);
             barrier.EShot1(angle, 1, 0.9f);
             yield return new WaitForSeconds(0.03f);
         }
@@ -727,21 +797,20 @@ public class VirusC : MonoBehaviour
         {
             i = Random.Range(0, 12) * 30;
             float angle = Random.Range(0, 360);
-            shutu = pos + new Vector3(Mathf.Cos(i * Mathf.Deg2Rad) * 8 * 5, Mathf.Sin(i * Mathf.Deg2Rad) * 8 * 5, 0);
-            ExpC barrier = Instantiate(Virus2E, shutu, rot);
+            shutu = _posOwn + new Vector3(Mathf.Cos(i * Mathf.Deg2Rad) * 8 * 5, Mathf.Sin(i * Mathf.Deg2Rad) * 8 * 5, 0);
+            ExpC barrier = Instantiate(Virus2E, shutu, _rotOwn);
             barrier.EShot1(angle, 10, 0.9f);
         }
 
         yield return new WaitForSeconds(3.00f);
-        _eCoreC.EvoltionMode = 2;
+        _eCoreC.EvoltionMode = 3;
         Vector3 direction = new Vector3(Random.Range(10, 630), 32 + Random.Range(1, 5) * 90, 0);
-        HealC shot = Instantiate(StarP, direction, rot);
-        shot.EShot1();
+        Instantiate(StarP, direction, _rotOwn);
         for (i = 0; i < 3; i++)
         {
             HealSummon();
         }
-        GameData.VirusBugEffectLevel = 2;
+        GameData.VirusBugEffectLevel = MODE_VIRUS.Large;
         _movingCoroutine = StartCoroutine(ActionBranch());
     }
 
@@ -749,16 +818,16 @@ public class VirusC : MonoBehaviour
     /// すれ違いキューブ
     /// </summary>
     /// <returns></returns>
-    private IEnumerator Cube2()
+    private IEnumerator CubeSpeedUp()
     {
         TimeManager.ChangeTimeValue(1.0f);
         _audioGO.PlayOneShot(magicS);
         for(int k=0;k<30;k++)
         {
-            angle2 = 180;
+            float angle = 180;
             j = Random.Range(0, 5);
-            gai = new Vector3((j % 2 * 1200)-200, (j * 90) + 6 + 48, 0);
-            Instantiate(CubeP, gai, rot).EShot1(angle2, ((j % 2 * 2) - 1) * 9, 0);
+            muzzle = new Vector3((j % 2 * 1200)-200, (j * 90) + 6 + 48, 0);
+            Instantiate(CubeP, muzzle, _rotOwn).EShot1(angle, ((j % 2 * 2) - 1) * 9, 0);
             TimeManager.ChangeTimeValue(1.0f+(k*0.03f));
             yield return new WaitForSeconds(0.21f);
         }
@@ -773,44 +842,50 @@ public class VirusC : MonoBehaviour
     /// <returns></returns>
     private IEnumerator BloodBeam3()
     {
-        if(GameData.Difficulty>=2) Screen.SetResolution(384, 216, true);
-        GameData.VirusBugEffectLevel = 100;
+        if(GameData.CheckIsUpperDifficulty(MODE_DIFFICULTY.Assault)) Screen.SetResolution(384, 216, true);
+        GameData.VirusBugEffectLevel = MODE_VIRUS.Medium;
         transform.localPosition = new Vector3(Random.Range(50, 590), 120, 0);
-        angle2 = GameData.GetAngle(transform.position, ppos);
+        float angle = GameData.GetAngle(transform.position, _posPlayer);
         TimeManager.ChangeTimeValue(0.4f);
+
         for (int j=0;j<30;j++)
         {
             for (i = 0; i < 3; i++)
             {
-                Vector3 tar = pos + new Vector3(Random.Range(-100, 100), Random.Range(-100, 100), 0);
-                ExpC shot2 = Instantiate(VirusE, tar, rot);
-                shot2.EShot1(GameData.GetAngle(tar, pos), 10, 0.1f);
+                Vector3 tar = _posOwn + new Vector3(Random.Range(-100, 100), Random.Range(-100, 100), 0);
+                ExpC shot2 = Instantiate(VirusE, tar, _rotOwn);
+                shot2.EShot1(GameData.GetAngle(tar, _posOwn), 10, 0.1f);
             }
             TimeManager.ChangeTimeValue(0.4f+(j*0.02f));
             _audioGO.PlayOneShot(chargeS);
             yield return new WaitForSeconds(0.03f);
         }
+
         TimeManager.ChangeTimeValue(1.0f);
         for (int j=0;j<70;j++)
         {
             for (i = 0; i < 10; i++)
             {
                
-                rot.z = Random.Range(0, 360);
-                ExpC shot2 = Instantiate(BeamE, pos, rot);
-                shot2.EShot1(angle2 + Random.Range(-20, 20), Random.Range(50, 135), 0.4f);
+                _rotOwn.z = Random.Range(0, 360);
+                ExpC shot2 = Instantiate(BeamE, _posOwn, _rotOwn);
+                shot2.EShot1(angle + Random.Range(-20, 20), Random.Range(50, 135), 0.4f);
             }
             _audioGO.PlayOneShot(heavyS);
             _audioGO.PlayOneShot(beamS);
-            playerP = PlayerGO.GetComponent<PlayerC>();
-            playerP.CriticalVibration();
-            _goCamera.GetComponent<CameraC>().StartShakeVertical(5, 1);
+            _scPlayer = PlayerGO.GetComponent<PlayerC>();
+            _scPlayer.VibrationCritical();
+            _goCamera.GetComponent<CameraShakeC>().StartShakeVertical(5, 1);
             yield return new WaitForSeconds(0.03f);
         }
-        GameData.VirusBugEffectLevel = 2;
+
+        GameData.VirusBugEffectLevel = MODE_VIRUS.Large;
         _movingCoroutine = StartCoroutine(ActionBranch());
     }
 
+    /// <summary>
+    /// テキストのランダム生成
+    /// </summary>
     private void TextBug()
     {
         string base_string = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ%&!$#";
@@ -834,20 +909,37 @@ public class VirusC : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 画面のサイズをむりやり変更
+    /// </summary>
+    /// <param name="min"></param>
+    /// <param name="max"></param>
     private void RandomScreenWipe(int min,int max)
     {
         int hoge = Random.Range(min, max+1);
         Screen.SetResolution(GameData.FirstWidth / hoge, GameData.FirstHeight / hoge, true);
     }
 
+    /// <summary>
+    /// 回復を生成
+    /// </summary>
     private void HealSummon()
     {
-        Instantiate(HealP, new Vector3(Random.Range(10, 630), 32 + Random.Range(1, 5) * 90, 0), transform.localRotation).EShot1();
+        Instantiate(HealP, new Vector3(Random.Range(10, 630), 32 + Random.Range(1, 5) * 90, 0), transform.localRotation);
     }
 
     private void AllCoroutineStop()
     {
-        StopAllCoroutines();
-        _movingCoroutine = null;
+        if (_movingCoroutine != null)
+        {
+            StopCoroutine(_movingCoroutine);
+            _movingCoroutine = null;
+        }
+
+    }
+
+    public int GetVirusMode()
+    {
+        return _virusmode;
     }
 }

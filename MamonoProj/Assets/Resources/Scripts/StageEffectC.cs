@@ -1,18 +1,41 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
+/// <summary>
+/// ステージ演出
+/// </summary>
 public class StageEffectC : MonoBehaviour
 {
     private float _timecount = 0;
 
+    /// <summary>
+    /// 葉
+    /// </summary>
     [SerializeField]
-    private ExpC _leafEf,_ufoEfL, _ufoEfR, _snowEf,_fireEf,_virusEffect;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    private ExpC _leafEf;
+
+    /// <summary>
+    /// UFO
+    /// </summary>
+    [SerializeField]
+    private ExpC _ufoEfL, _ufoEfR;
+
+    /// <summary>
+    /// 雪
+    /// </summary>
+    [SerializeField]
+    private ExpC _snowEf;
+
+    /// <summary>
+    /// 火の粉
+    /// </summary>
+    [SerializeField]
+    private ExpC _fireEf;
+
+    /// <summary>
+    /// ウイルス
+    /// </summary>
+    [SerializeField]
+    private ExpC _virusEffect;
 
     // Update is called once per frame
     void FixedUpdate()
@@ -23,7 +46,7 @@ public class StageEffectC : MonoBehaviour
             //葉
             if (1 <= GameData.Round && GameData.Round <= 5)
             {
-                EffectRain(_leafEf, Random.Range(2,5), 10);
+                RunEffectRain(_leafEf, Random.Range(2,5), 10);
                 _timecount = 0.7f;
             }
             //UFO
@@ -36,7 +59,7 @@ public class StageEffectC : MonoBehaviour
             //雪
             if (16 <= GameData.Round && GameData.Round <= 20)
             {
-                EffectRain(_snowEf, 2,10);
+                RunEffectRain(_snowEf, 2,10);
                 _timecount = 0.4f;
             }
             //火の粉
@@ -56,29 +79,28 @@ public class StageEffectC : MonoBehaviour
 
     private void EffectDust(ExpC dust,float destroy)
     {
-        Instantiate(dust, new Vector3(Random.Range(0, 640), Random.Range(-50, 480), 0), transform.localRotation).EShot1(Random.Range(0, 360), 0.3f, destroy);
+        Instantiate(dust, new Vector3(Random.Range(0, GameData.WindowSize.y), Random.Range(-50, GameData.WindowSize.y), 0), transform.localRotation).EShot1(Random.Range(0, 360), 0.3f, destroy);
     }
 
     private void EffectSmog(ExpC dust, int speed, float destroy)
     {
-        Instantiate(dust, new Vector3(Random.Range(0, 640), -5, 0), transform.localRotation).EShot1(Random.Range(85, 96), speed, destroy);
+        Instantiate(dust, new Vector3(Random.Range(0, GameData.WindowSize.y), -5, 0), transform.localRotation).EShot1(Random.Range(85, 96), speed, destroy);
     }
 
     private void EffectUFO(ExpC dustL, ExpC dustR, int speed, float destroy,int LR)
     {
         if (LR == 0)
         {
-            Instantiate(dustL, new Vector3(656, Random.Range(0, 480), 0), transform.localRotation).EShot1(Random.Range(175, 186), speed, destroy);
+            Instantiate(dustL, new Vector3(GameData.WindowSize.x+16, Random.Range(0, GameData.WindowSize.y), 0), transform.localRotation).EShot1(Random.Range(175, 186), speed, destroy);
          }
         else
         {
-            Instantiate(dustR, new Vector3(-16, Random.Range(0, 480), 0), transform.localRotation).EShot1(Random.Range(-10, 10), speed, destroy);
+            Instantiate(dustR, new Vector3(-16, Random.Range(0, GameData.WindowSize.y), 0), transform.localRotation).EShot1(Random.Range(-10, 10), speed, destroy);
         }
-        
     }
 
-    private void EffectRain(ExpC dust,int speed,float destroy)
+    private void RunEffectRain(ExpC dust,int speed,float destroy)
     {
-        Instantiate(dust, new Vector3(Random.Range(0, 640), 485, 0), transform.localRotation).EShot1(Random.Range(265, 276), speed, destroy);
+        Instantiate(dust, new Vector3(Random.Range(0, GameData.WindowSize.y), 485, 0), transform.localRotation).EShot1(Random.Range(265, 276), speed, destroy);
     }
 }

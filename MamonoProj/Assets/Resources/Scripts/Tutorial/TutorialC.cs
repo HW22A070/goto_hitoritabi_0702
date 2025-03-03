@@ -1,10 +1,6 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.InputSystem;
-using System.Text.RegularExpressions;
-using System.Drawing;
 using UnityEngine.SceneManagement;
 
 public class TutorialC : MonoBehaviour
@@ -16,10 +12,7 @@ public class TutorialC : MonoBehaviour
 
     private int action = 0;
 
-    private Vector3 pos, ppos;
-
-    public SpriteRenderer spriteRenderer;
-    public Sprite normal, lightning, dead;
+    private Vector3 _posOwn, _posPlayer;
 
     public EMissile1C EMissile1Prefab,ThunderP;
 
@@ -144,7 +137,7 @@ public class TutorialC : MonoBehaviour
 
     [SerializeField]
     [Tooltip("PlayerGameObject")]
-    private GameObject playerGO;
+    private GameObject _goPlayer;
 
     [SerializeField]
     private FlagC _flagP;
@@ -166,25 +159,25 @@ public class TutorialC : MonoBehaviour
         //_bgmManager.ChangeAudio(-1, false, -1);
 
         _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
-        Can = GameObject.Find("Canvas");
+        Can = GameObject.Find("UIs");
         this.transform.parent = Can.transform;
         GM = GameObject.Find("GameManager");
         GM.GetComponent<GameManagement>()._bossNowHp = hp;
         GM.GetComponent<GameManagement>()._bossMaxHp = hp;
         _point = 0;
         _textLevel = 0;
-        playerGO = GameObject.Find("Player");
-        _playerHP=GameData.HP;
-        StartCoroutine(TutorialMove());
+        _goPlayer = GameObject.Find("Player");
+        _playerHP=GameData.GetMaxHP();
+        StartCoroutine(MoveTutorial());
     }
 
     // Update is called once per frame
     void Update()
     {
-        ppos=playerGO.transform.position;
-        pos = transform.position;
+        _posPlayer=_goPlayer.transform.position;
+        _posOwn = transform.position;
 
-        //if(ppos.y>300) transform.position= new Vector2(320, 100);
+        //if(_posPlayer.y>300) transform.position= new Vector2(320, 100);
         //else transform.position = new Vector2(320, 380);
         switch (GameData.Language)
         {
@@ -201,134 +194,154 @@ public class TutorialC : MonoBehaviour
         
     }
 
-    private IEnumerator TutorialMove()
+    private IEnumerator MoveTutorial()
     {
         _point = 0;
         yield return new WaitForSeconds(3.0f);
+
         _textLevel++ ;
         yield return new WaitForSeconds(3.0f);
+
         _textLevel++;
         GameData.PlayerMoveAble = 1;
-        Instantiate(_flagP, new Vector3(100, GameData.GroundPutY((int)ppos.y / 90, 48), 0), transform.localRotation);
-        Instantiate(_flagP, new Vector3(540, GameData.GroundPutY((int)ppos.y / 90, 48), 0), transform.localRotation);
+        Instantiate(_flagP, new Vector3(100, GameData.GetGroundPutY((int)_posPlayer.y / 90, 48), 0), transform.localRotation);
+        Instantiate(_flagP, new Vector3(540, GameData.GetGroundPutY((int)_posPlayer.y / 90, 48), 0), transform.localRotation);
         while (_point < 2)
         {
             yield return new WaitForSeconds(1.0f);
         }
+
         _textLevel++ ;
         yield return new WaitForSeconds(2.0f);
 
         _textLevel++ ;
         yield return new WaitForSeconds(3.0f);
+
         _textLevel++ ;
         GameData.PlayerMoveAble = 2;
-        Instantiate(_flagP, new Vector3(ppos.x, GameData.GroundPutY(4, 48), 0), transform.localRotation);
+        Instantiate(_flagP, new Vector3(_posPlayer.x, GameData.GetGroundPutY(4, 48), 0), transform.localRotation);
         while (_point < 3)
         {
             yield return new WaitForSeconds(1.0f);
         }
+
         _textLevel++ ;
         yield return new WaitForSeconds(2.0f);
 
         _textLevel++ ;
         yield return new WaitForSeconds(3.0f);
+
         _textLevel++ ;
         GameData.PlayerMoveAble = 3;
-        Instantiate(_flagP, new Vector3(ppos.x, GameData.GroundPutY(0, 48), 0), transform.localRotation);
+        Instantiate(_flagP, new Vector3(_posPlayer.x, GameData.GetGroundPutY(0, 48), 0), transform.localRotation);
         while (_point < 4)
         {
             yield return new WaitForSeconds(1.0f);
         }
+
         _textLevel++ ;
         yield return new WaitForSeconds(3.0f);
 
         _textLevel++ ;
         GameData.PlayerMoveAble = 4;
         yield return new WaitForSeconds(3.0f);
+
         _textLevel++ ;
         yield return new WaitForSeconds(6.0f);
         _textLevel++ ;
-        Instantiate(_targetP, new Vector3(100, GameData.GroundPutY((int)ppos.y / 90, 48), 0), transform.localRotation);
-        Instantiate(_targetP, new Vector3(320, GameData.GroundPutY((int)ppos.y / 90, 48), 0), transform.localRotation);
-        Instantiate(_targetP, new Vector3(540, GameData.GroundPutY((int)ppos.y / 90, 48), 0), transform.localRotation);
+        Instantiate(_targetP, new Vector3(100, GameData.GetGroundPutY((int)_posPlayer.y / 90, 48), 0), transform.localRotation);
+        Instantiate(_targetP, new Vector3(320, GameData.GetGroundPutY((int)_posPlayer.y / 90, 48), 0), transform.localRotation);
+        Instantiate(_targetP, new Vector3(540, GameData.GetGroundPutY((int)_posPlayer.y / 90, 48), 0), transform.localRotation);
         while (_point < 7)
         {
             yield return new WaitForSeconds(1.0f);
         }
+
         _textLevel++ ;
         yield return new WaitForSeconds(3.0f);
 
         _textLevel++;
         GameData.PlayerMoveAble = 5;
         yield return new WaitForSeconds(10.0f);
+
         _textLevel++ ;
-        Instantiate(_targetP, new Vector3(100, GameData.GroundPutY(3, 48), 0), transform.localRotation);
-        Instantiate(_targetP, new Vector3(100, GameData.GroundPutY(1, 48), 0), transform.localRotation);
-        Instantiate(_targetP, new Vector3(540, GameData.GroundPutY(3, 48), 0), transform.localRotation);
-        Instantiate(_targetP, new Vector3(540, GameData.GroundPutY(1, 48), 0), transform.localRotation);
+        Instantiate(_targetP, new Vector3(100, GameData.GetGroundPutY(3, 48), 0), transform.localRotation);
+        Instantiate(_targetP, new Vector3(100, GameData.GetGroundPutY(1, 48), 0), transform.localRotation);
+        Instantiate(_targetP, new Vector3(540, GameData.GetGroundPutY(3, 48), 0), transform.localRotation);
+        Instantiate(_targetP, new Vector3(540, GameData.GetGroundPutY(1, 48), 0), transform.localRotation);
         while (_point < 11)
         {
             yield return new WaitForSeconds(1.0f);
         }
+
         _textLevel++ ;
         yield return new WaitForSeconds(3.0f);
         _textLevel++ ;
 
-        Instantiate(_targetP, new Vector3(100, GameData.GroundPutY(0, 48), 0), transform.localRotation).Changeritical(true,false,false,false);
-        Instantiate(_targetP, new Vector3(100, GameData.GroundPutY(1, 48), 0), transform.localRotation).Changeritical(false, true, false, false);
-        Instantiate(_targetP, new Vector3(100, GameData.GroundPutY(2, 48), 0), transform.localRotation).Changeritical(false, false, true, false);
-        Instantiate(_targetP, new Vector3(100, GameData.GroundPutY(3, 48), 0), transform.localRotation).Changeritical(false, false, false, true);
+        Instantiate(_targetP, new Vector3(100, GameData.GetGroundPutY(0, 48), 0), transform.localRotation).Changeritical(true,false,false,false);
+        Instantiate(_targetP, new Vector3(100, GameData.GetGroundPutY(1, 48), 0), transform.localRotation).Changeritical(false, true, false, false);
+        Instantiate(_targetP, new Vector3(100, GameData.GetGroundPutY(2, 48), 0), transform.localRotation).Changeritical(false, false, true, false);
+        Instantiate(_targetP, new Vector3(100, GameData.GetGroundPutY(3, 48), 0), transform.localRotation).Changeritical(false, false, false, true);
         while (_point < 15)
         {
             yield return new WaitForSeconds(1.0f);
         }
+
         _textLevel++ ;
         yield return new WaitForSeconds(3.0f);
 
         _textLevel++ ;
         for (int i = 0; i < 6; i++)
         {
-            Instantiate(ThunderP, new Vector3(ppos.x, 240, 0), transform.localRotation).EShot1(270, 120, 1000);
+            Instantiate(ThunderP, new Vector3(_posPlayer.x, 240, 0), transform.localRotation).EShot1(270, 120, 1000);
             yield return new WaitForSeconds(0.3f);
         }
+
         _textLevel++ ;
         yield return new WaitForSeconds(5.0f);
+
         _textLevel++ ;
-        Instantiate(HealPrefab, new Vector3(100, GameData.GroundPutY((int)ppos.y / 90, 48), 0), transform.localRotation);
-        Instantiate(HealPrefab, new Vector3(540, GameData.GroundPutY((int)ppos.y / 90, 48), 0), transform.localRotation);
-        while (GameData.HP<_playerHP)
+        Instantiate(HealPrefab, new Vector3(100, GameData.GetGroundPutY((int)_posPlayer.y / 90, 48), 0), transform.localRotation);
+        Instantiate(HealPrefab, new Vector3(540, GameData.GetGroundPutY((int)_posPlayer.y / 90, 48), 0), transform.localRotation);
+        while (_goPlayer.GetComponent<PlayerC>().GetHP()<_playerHP)
         {
             yield return new WaitForSeconds(1.0f);
         }
+
         _textLevel++ ;
         yield return new WaitForSeconds(3.0f);
 
         _textLevel++ ;
         yield return new WaitForSeconds(3.0f);
+
         _textLevel++;
         yield return new WaitForSeconds(8.0f);
+
         _textLevel++ ;
         GameData.PlayerMoveAble = 6;
-        Instantiate(MagicPrefab, new Vector3(540, GameData.GroundPutY(2, 48), 0), transform.localRotation);
+        Instantiate(MagicPrefab, new Vector3(540, GameData.GetGroundPutY(2, 48), 0), transform.localRotation);
         for(int i = 80; i < 640; i += 80)
         {
-            Instantiate(_targetP, new Vector3(i, GameData.GroundPutY(3, 48), 0), transform.localRotation);
+            Instantiate(_targetP, new Vector3(i, GameData.GetGroundPutY(3, 48), 0), transform.localRotation);
         }
         for (int i = 80; i < 640; i += 80)
         {
-            Instantiate(_targetP, new Vector3(i, GameData.GroundPutY(1, 48), 0), transform.localRotation);
+            Instantiate(_targetP, new Vector3(i, GameData.GetGroundPutY(1, 48), 0), transform.localRotation);
         }
         while (_point < 29)
         {
             yield return new WaitForSeconds(1.0f);
         }
+
         _textLevel++ ;
         yield return new WaitForSeconds(3.0f);
 
         _textLevel++ ;
         yield return new WaitForSeconds(3.0f);
+
         _textLevel++ ;
         yield return new WaitForSeconds(7.0f);
+
         _textLevel++ ;
         yield return new WaitForSeconds(3.0f);
 
@@ -342,7 +355,7 @@ public class TutorialC : MonoBehaviour
 
     }
 
-    public void GoTutorial()
+    public void GoToTutorial()
     {
         _audioGO.PlayOneShot(_getFlag);
         _point++;

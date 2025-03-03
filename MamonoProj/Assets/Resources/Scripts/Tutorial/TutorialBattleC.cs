@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using EnumDic.Player;
 using UnityEngine;
 
 public class TutorialBattleC : MonoBehaviour
@@ -26,7 +25,7 @@ public class TutorialBattleC : MonoBehaviour
         {
             _levelPlate[i].SetActive(false);
         }
-        GameData.TimerMoving = false;
+        GameData.IsTimerMoving = false;
 
     }
 
@@ -55,22 +54,22 @@ public class TutorialBattleC : MonoBehaviour
                     switch ((GameData.Round - 1) / 5)
                     {
                         case 0:
-                            _goPlayer.GetComponent<PlayerC>().ChangeWeapon(1);
+                            _goPlayer.GetComponent<PlayerC>().ChangeWeapon(MODE_GUN.Physical);
                             break;
                         case 1:
-                            _goPlayer.GetComponent<PlayerC>().ChangeWeapon(1);
+                            _goPlayer.GetComponent<PlayerC>().ChangeWeapon(MODE_GUN.Physical);
                             break;
                         case 2:
-                            _goPlayer.GetComponent<PlayerC>().ChangeWeapon(0);
+                            _goPlayer.GetComponent<PlayerC>().ChangeWeapon(MODE_GUN.Shining);
                             break;
                         case 3:
-                            _goPlayer.GetComponent<PlayerC>().ChangeWeapon(3);
+                            _goPlayer.GetComponent<PlayerC>().ChangeWeapon(MODE_GUN.Heat);
                             break;
                         case 4:
-                            _goPlayer.GetComponent<PlayerC>().ChangeWeapon(2);
+                            _goPlayer.GetComponent<PlayerC>().ChangeWeapon(MODE_GUN.Crash);
                             break;
                         case 5:
-                            _goPlayer.GetComponent<PlayerC>().ChangeWeapon(2);
+                            _goPlayer.GetComponent<PlayerC>().ChangeWeapon(MODE_GUN.Crash);
                             break;
                     }
                     _isWeaponSetting = true;
@@ -82,7 +81,7 @@ public class TutorialBattleC : MonoBehaviour
             case 1:
                 if (GameData.StartRound == 1) GameData.PlayerMoveAble = 4;
                 else GameData.PlayerMoveAble = 6;
-                GameData.TimerMoving = true;
+                GameData.IsTimerMoving = true;
                 _goEnemySummoner.SetActive(true);
                 if (GameData.Round % 5 == 2) _tutorialValue = 2;
                 break;

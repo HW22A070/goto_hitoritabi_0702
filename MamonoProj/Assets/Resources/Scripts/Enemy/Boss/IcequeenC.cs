@@ -1,14 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EnumDic.Floor;
+using EnumDic.Enemy;
 
 public class IcequeenC : MonoBehaviour
 {
-    private int _attackVariation = 0;
+    private MODE_ATTACK _attackVariation = 0;
 
-    private Vector3[] ftree;
+    private Vector3[] _treePoses=  new Vector3[20];
 
-    private Vector3 pos, ppos;
+    private Vector3 _posOwn, _posPlayer;
 
     public SpriteRenderer spriteRenderer;
     public Sprite normal, lightning;
@@ -31,7 +33,7 @@ public class IcequeenC : MonoBehaviour
 
     private Quaternion rot;
 
-    public StaffRollC StaffPrefab;
+    public ClearEffectC StaffPrefab;
 
     /// <summary>
     /// PlayerGameObject
@@ -53,13 +55,17 @@ public class IcequeenC : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
+        GetComponents();
 
-        playerGO = GameObject.Find("Player");
-        _eCoreC = GetComponent<ECoreC>();
         _eCoreC.IsBoss = true;
 
-        ftree = new Vector3[20];
+    }
+
+    private void GetComponents()
+    {
+        _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
+        playerGO = GameObject.Find("Player");
+        _eCoreC = GetComponent<ECoreC>();
         GM = GameObject.Find("GameManager");
         GM.GetComponent<GameManagement>()._bossNowHp = _eCoreC.hp[0];
         GM.GetComponent<GameManagement>()._bossMaxHp = _eCoreC.hp[0];
@@ -70,43 +76,43 @@ public class IcequeenC : MonoBehaviour
     {
         rot = transform.localRotation;
 
-        pos = transform.position;
-        ppos = playerGO.transform.position;
+        _posOwn = transform.position;
+        _posPlayer = playerGO.transform.position;
 
         if (_eCoreC.BossLifeMode == 0)
         {
-            pos = transform.position;
+            _posOwn = transform.position;
             for (i = 0; i < 100; i++)
             {
                 float angle = i * 3.6f;
                 Quaternion rot = transform.localRotation;
-                ExpC shot = Instantiate(ExpPrefab, pos, rot);
+                ExpC shot = Instantiate(ExpPrefab, _posOwn, rot);
                 shot.EShot1(angle, 10, 5);
             }
 
-            FloorManagerC.StageGimic(100, 1);
+            FloorManagerC.SetStageGimic(100, MODE_FLOOR.IceFloor);
             _movingCoroutine = StartCoroutine(ActionBranch());
-            _eCoreC.BossLifeMode = 1;
+            _eCoreC.BossLifeMode = MODE_LIFE.Fight;
         }
 
     }
 
     void FixedUpdate()
     {
-        if (_eCoreC.BossLifeMode != 2) GM.GetComponent<GameManagement>()._bossNowHp = _eCoreC.hp[0];
+        if (_eCoreC.BossLifeMode != MODE_LIFE.Dead) GM.GetComponent<GameManagement>()._bossNowHp = _eCoreC.hp[0];
 
         //死
-        if (_eCoreC.BossLifeMode == 2)
+        if (_eCoreC.BossLifeMode == MODE_LIFE.Dead)
         {
-            GameData.Star = true;
-            FloorManagerC.StageGimic(100, 0);
-            GameData.TimerMoving = false;
+            GameData.IsInvincible = true;
+            FloorManagerC.SetStageGimic(100, 0);
+            GameData.IsTimerMoving = false;
             AllCoroutineStop();
 
             GM.GetComponent<GameManagement>()._bossNowHp = 0;
             if (GameData.Round == GameData.GoalRound)
             {
-                Instantiate(StaffPrefab, new Vector3(320, -100, 0), Quaternion.Euler(0, 0, 0)).Summon(0);
+                Instantiate(StaffPrefab, new Vector3(320, -100, 0), Quaternion.Euler(0, 0, 0));
             }
             else
             {
@@ -115,6 +121,14 @@ public class IcequeenC : MonoBehaviour
 
             Destroy(gameObject);
         }
+    }
+
+    private enum MODE_ATTACK {
+        MoveEat,
+        VerticalBeam,
+        FrostAll,
+        FlostFinely,
+        IceSin
     }
 
 
@@ -126,53 +140,67 @@ public class IcequeenC : MonoBehaviour
     {
         spriteRenderer.sprite = normal;
         yield return new WaitForSeconds(0.15f);
-        _attackVariation= Random.Range(0, 5);
-        /*if (ppos.x > pos.x - 196 && pos.x + 196 > ppos.x&& ppos.y > pos.y - 196 && pos.y + 196 > ppos.y)
+        _attackVariation= (MODE_ATTACK)Random.Range(0, System.Enum.GetNames(typeof(MODE_ATTACK)).Length);
+
+        switch (_attackVariation)
         {
-            _movingCoroutine = StartCoroutine(Move());
-        }*/
-        if (_attackVariation == 0) _movingCoroutine = StartCoroutine(Move());
-        else if (_attackVariation == 1) _movingCoroutine = StartCoroutine(YBeam());
-        else if (_attackVariation == 2) _movingCoroutine = StartCoroutine(AllFrost());
-        else if (_attackVariation == 3) _movingCoroutine = StartCoroutine(DelayFrost()) ;
-        else if (_attackVariation == 4) _movingCoroutine = StartCoroutine(SinIce()) ;
+            case MODE_ATTACK.MoveEat:
+                _movingCoroutine = StartCoroutine(MoveEat());
+                break;
+
+            case MODE_ATTACK.VerticalBeam:
+                _movingCoroutine = StartCoroutine(VerticalBeam());
+                break;
+
+            case MODE_ATTACK.FrostAll:
+                _movingCoroutine = StartCoroutine(AllFrost());
+                break;
+
+            case MODE_ATTACK.FlostFinely:
+                _movingCoroutine = StartCoroutine(DelayFrost());
+                break;
+
+            case MODE_ATTACK.IceSin:
+                _movingCoroutine = StartCoroutine(SinIce());
+                break;
+        }
     }
 
     /// <summary>
-    /// 移動
+    /// 移動＆バッカルコーン攻撃
     /// </summary>
     /// <returns></returns>
-    private IEnumerator Move()
+    private IEnumerator MoveEat()
     {
         yield return new WaitForSeconds(0.6f);
         spriteRenderer.sprite = lightning;
 
-        Vector3 goalPos= ppos-(transform.up*16)/*new Vector3(Random.Range(16, 624), GameData.GroundPutY(Random.Range(0,5),64), 0)*/;
+        Vector3 goalPos= _posPlayer-(transform.up*16)/*new Vector3(Random.Range(16, 624), GameData.GroundPutY(Random.Range(0,5),64), 0)*/;
 
-        
+
+        //プレイヤーを閉じ込める
+        float hole = Random.Range(0, 360);
+        _audioGO.PlayOneShot(loveS);
         for (i = 0; i < 360; i += 10)
         {
-            Vector3 direction = goalPos + new Vector3(Mathf.Cos(i * Mathf.Deg2Rad) * 200, Mathf.Sin(i * Mathf.Deg2Rad) * 200, 0);
-            Quaternion rot = transform.localRotation;
-            Instantiate(FlostEP, direction, rot).EShot1(0, 0, 1.0f);
+            if (!(hole - 22 <= i && i <= hole + 22))
+            {
+                Vector3 direction = goalPos + new Vector3(Mathf.Cos(i * Mathf.Deg2Rad) * 200, Mathf.Sin(i * Mathf.Deg2Rad) * 200, 0);
+                Quaternion rot = transform.localRotation;
+                Instantiate(iceP, direction, rot).EShot1(0, 0, 3.0f);
+            }
         }
 
-        FloorManagerC.StageGimic(100,0);
+        FloorManagerC.SetStageGimic(100,MODE_FLOOR.Normal);
         for (int hoge = 0; hoge < 33; hoge++)
         {
-            Instantiate(FlostEP, pos+(((goalPos-pos)/33)*hoge), rot).EShot1(0, 0, 1-(0.03f*hoge));
+            Instantiate(FlostEP, _posOwn+(((goalPos-_posOwn)/33)*hoge), rot).EShot1(0, 0, 2-(0.03f*hoge));
             yield return new WaitForSeconds(0.03f);
         }
 
-        FloorManagerC.StageGimic(100,1);
-        for (i = 0; i < 360; i += 10)
-        {
-            Vector3 direction = goalPos + new Vector3(Mathf.Cos(i * Mathf.Deg2Rad) * 200, Mathf.Sin(i * Mathf.Deg2Rad) * 200, 0);
-            Quaternion rot = transform.localRotation;
-            Instantiate(iceP, direction, rot).EShot1(0, 0, 1.0f);
-        }
+        FloorManagerC.SetStageGimic(100, MODE_FLOOR.IceFloor);
         _audioGO.PlayOneShot(loveS);
-        Instantiate(SnowPrefab, pos, rot);
+        Instantiate(SnowPrefab, _posOwn, rot);
         transform.localPosition = goalPos;
 
         //バッカルコーン
@@ -189,24 +217,25 @@ public class IcequeenC : MonoBehaviour
     /// 縦方向ビーム
     /// </summary>
     /// <returns></returns>
-    private IEnumerator YBeam()
+    private IEnumerator VerticalBeam()
     {
-        Vector3 movePos = GameData.GetSneaking(pos, new Vector3(Random.Range(16, 624), GameData.GroundPutY(Random.Range(0, 5), 64), 0), 40);
+        Vector3 movePos = GameData.GetSneaking(_posOwn, new Vector3(Random.Range(16, 624), GameData.GetGroundPutY(Random.Range(0, 5), 64), 0), 40);
 
-        FloorManagerC.StageGimic(100, 1);
+        FloorManagerC.SetStageGimic(100, MODE_FLOOR.IceFloor);
         spriteRenderer.sprite = lightning;
         yield return new WaitForSeconds(0.6f);
         for (int j = 0; j < 4; j++)
         {
             Vector3 direction = new Vector3(Random.Range(0, 640), 420, 0);
             Quaternion rot = transform.localRotation;
-            Instantiate(LovePrefab, direction, rot).EShot1();
+            Instantiate(LovePrefab, direction, rot);
             _audioGO.PlayOneShot(loveS);
             for(int k = 0; k < 10; k++)
             {
                 transform.position += movePos;
             }
         }
+        yield return new WaitForSeconds(0.6f);
         _movingCoroutine = StartCoroutine(ActionBranch());
     }
 
@@ -216,26 +245,26 @@ public class IcequeenC : MonoBehaviour
     /// <returns></returns>
     private IEnumerator AllFrost()
     {
-        FloorManagerC.StageGimic(100,0);
+        FloorManagerC.SetStageGimic(100,MODE_FLOOR.Normal);
         yield return new WaitForSeconds(0.6f);
 
-        Vector3 movePos = GameData.GetSneaking(pos, new Vector3(Random.Range(16, 624), GameData.GroundPutY(Random.Range(0, 5),64), 0),40);
+        Vector3 movePos = GameData.GetSneaking(_posOwn, new Vector3(Random.Range(16, 624), GameData.GetGroundPutY(Random.Range(0, 5),64), 0),40);
 
         spriteRenderer.sprite = lightning;
         for (i = 0; i < 20; i++)
         {
-            ftree[i] = new Vector3(Random.Range(16, 624), GameData.GroundPutY(Random.Range(0,5),48), 0);
+            _treePoses[i] = new Vector3(Random.Range(16, 624), GameData.GetGroundPutY(Random.Range(0,5),48), 0);
         }
 
-        FloorManagerC.StageGimic(100, 0);
+        FloorManagerC.SetStageGimic(100, MODE_FLOOR.Normal);
         for (int j = 0; j < 40; j++) 
         {
-            FloorManagerC.StageGimic(2, 1);
+            FloorManagerC.SetStageGimic(2, MODE_FLOOR.IceFloor);
             Quaternion rot = transform.localRotation;
             for (i = 0; i < 20; i++)
             {
                 float angle = Random.Range(0, 360);
-                ExpC shot = Instantiate(FlostEP, ftree[i] + new Vector3(Random.Range(-16, 16), Random.Range(-36, 4), 0), rot);
+                ExpC shot = Instantiate(FlostEP, _treePoses[i] + new Vector3(Random.Range(-16, 16), Random.Range(-36, 4), 0), rot);
                 shot.EShot1(angle, 1, 0.3f);
             }
             transform.position += movePos;
@@ -243,16 +272,16 @@ public class IcequeenC : MonoBehaviour
         }
         for (i = 0; i < 20; i++)
         {
-            BombC shot = Instantiate(FlostP, ftree[i], rot);
+            BombC shot = Instantiate(FlostP, _treePoses[i], rot);
             shot.EShot1(0, 0, 0, Random.Range(15, 40), 10, 0.5f);
 
         }
         _audioGO.PlayOneShot(iceS);
 
-        FloorManagerC.StageGimic(100,0);
+        FloorManagerC.SetStageGimic(100, MODE_FLOOR.Normal);
 
         yield return new WaitForSeconds(1.0f);
-        _movingCoroutine = StartCoroutine(Move());
+        _movingCoroutine = StartCoroutine(MoveEat());
     }
 
 
@@ -262,18 +291,18 @@ public class IcequeenC : MonoBehaviour
     /// <returns></returns>
     private IEnumerator DelayFrost()
     {
-        FloorManagerC.StageGimic(100,0);
+        FloorManagerC.SetStageGimic(100,0);
         yield return new WaitForSeconds(1.0f);
 
-        Vector3 movePos = GameData.GetSneaking(pos, new Vector3(Random.Range(16, 624), GameData.GroundPutY(Random.Range(0, 5), 64), 0), 140);
+        Vector3 movePos = GameData.GetSneaking(_posOwn, new Vector3(Random.Range(16, 624), GameData.GetGroundPutY(Random.Range(0, 5), 64), 0), 140);
 
         spriteRenderer.sprite = lightning;
         for(int j = 0; j < 10; j++)
         {
-            FloorManagerC.StageGimic(30 ,1);
+            FloorManagerC.SetStageGimic(30 , MODE_FLOOR.IceFloor);
             for (i = 0; i < 3; i++)
             {
-                ftree[i] = new Vector3(Random.Range(16, 624), GameData.GroundPutY(Random.Range(0,5),48), 0);
+                _treePoses[i] = new Vector3(Random.Range(16, 624), GameData.GetGroundPutY(Random.Range(0,5),48), 0);
             }
             for (int k = 0; k < 14; k++)
             {
@@ -281,7 +310,7 @@ public class IcequeenC : MonoBehaviour
                 {
                     Quaternion rot = transform.localRotation;
                     float angle = Random.Range(0, 360);
-                    ExpC shot = Instantiate(FlostEP, ftree[i] + new Vector3(Random.Range(-16, 16), Random.Range(-36, 4), 0), rot);
+                    ExpC shot = Instantiate(FlostEP, _treePoses[i] + new Vector3(Random.Range(-16, 16), Random.Range(-36, 4), 0), rot);
                     shot.EShot1(angle, 1, 0.3f);
                 }
                 transform.position += movePos;
@@ -291,25 +320,26 @@ public class IcequeenC : MonoBehaviour
             for (i = 0; i < 3; i++)
             {
                 Quaternion rot = transform.localRotation;
-                BombC shot = Instantiate(FlostP, ftree[i], rot);
+                BombC shot = Instantiate(FlostP, _treePoses[i], rot);
                 shot.EShot1(0, 0, 0, Random.Range(15, 40), 10, 0.5f);
             }
             _audioGO.PlayOneShot(iceS);
         }
-        _movingCoroutine = StartCoroutine(Move()); ;
+        _movingCoroutine = StartCoroutine(MoveEat()); ;
     }
 
     /// <summary>
-    /// Sin氷塊
+    /// Sin結晶
     /// </summary>
     /// <returns></returns>
     private IEnumerator SinIce()
     {
-        FloorManagerC.StageGimic(100, 1);
+        FloorManagerC.SetStageGimic(100, MODE_FLOOR.IceFloor);
 
         yield return new WaitForSeconds(0.6f);
         spriteRenderer.sprite = lightning;
         
+        //予告
         for (float fi = 0; fi < 40; fi++)
         {
             Vector3 shutu = new Vector3(fi * 16, 240 + Mathf.Sin((fi / 7) + (fi / 15)) * 220, 0);
@@ -319,6 +349,7 @@ public class IcequeenC : MonoBehaviour
             Instantiate(FlostEP, shutu, rot).EShot1(0, 0, 1.2f);
         }
 
+        //結晶
         for (float fi=0;fi<40;fi++)
         {
             Vector3 shutu = new Vector3(fi * 16, 240 + Mathf.Sin((fi / 7) + (fi / 15)) * 220, 0);
@@ -335,12 +366,10 @@ public class IcequeenC : MonoBehaviour
     //全停止
     private void AllCoroutineStop()
     {
-        StopCoroutine(ActionBranch());
-        StopCoroutine(YBeam());
-        StopCoroutine(AllFrost());
-        StopCoroutine(DelayFrost());
-        StopCoroutine(SinIce());
-        StopCoroutine(Move());
-        _movingCoroutine = null;
+        if (_movingCoroutine != null)
+        {
+            StopCoroutine(_movingCoroutine);
+            _movingCoroutine = null;
+        }
     }
 }

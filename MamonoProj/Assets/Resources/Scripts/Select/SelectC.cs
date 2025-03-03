@@ -17,6 +17,11 @@ public class SelectC : MenuSystemC
 
     private bool VA, VB, VC, VD;
 
+    //裏コマンドビビらせ演出
+
+    [SerializeField]
+    private AudioSource _asOwn;
+
 
     private new void Start()
     {
@@ -35,6 +40,15 @@ public class SelectC : MenuSystemC
             _titleMode = 6;
             _audioSource.PlayOneShot(selectS);
             MoveFlash();
+        }
+        if (_titleMode == 6)
+        {
+            if (!_asOwn.isPlaying) _asOwn.Play();
+            //_asOwn.pitch = Random.Range(0.99f, 1.00f);
+        }
+        else
+        {
+            if (_asOwn.isPlaying) _asOwn.Stop();
         }
     }
 
@@ -126,7 +140,7 @@ public class SelectC : MenuSystemC
 
     public void OnEnd(InputAction.CallbackContext context)
     {
-        if (context.performed && !start)
+        if (context.performed && !_isStart)
         {
             SceneManager.LoadScene("Title");
         }

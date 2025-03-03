@@ -76,9 +76,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingLayerID: -560233965
+  m_SortingLayer: 5
+  m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 39dcc8f09bb43df4789930c1b08f7d00, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -151,6 +151,8 @@ MonoBehaviour:
     type: 3}
   LEPrefab: {fileID: -9156176788039494703, guid: 2965affb0428d5043b3f119b8d2462c1,
     type: 3}
+  _prfbTarget: {fileID: 4075970504917199329, guid: e9ccae2924759ca49a7ff4cf878db846,
+    type: 3}
   StaffPrefab: {fileID: 6086698536937280619, guid: cd0ed53e1d90ce943b8d7e6e89e70008,
     type: 3}
   spriteRenderer: {fileID: 8093284300258876514}
@@ -220,10 +222,10 @@ MonoBehaviour:
   ExpPrefab: {fileID: 471744604233654064, guid: 2e57d9ad8d6051a43b3ff882d2f69a11,
     type: 3}
   _isKaitenLock: 1
-  sizex: 8
-  sizey: 8
-  speed: 0
-  delete: 0.09
+  _sizeX: 16
+  _sizeY: 8
+  _speed: 0
+  _delete: 0.06
   _loop: 1
 --- !u!95 &-2562450511450869998
 Animator:

@@ -4,43 +4,38 @@ using UnityEngine;
 
 public class ShurikenC : MonoBehaviour
 {
-    Vector3 velocity, pos;
-    float sspeed, kkaso, aang,kkait;
+    private Vector3 _velocity, _posOwn;
+    private float _speed, _speedDelta, _angle,_rollValue;
 
-    public bool geigeki,bombbarrier = true, bombsosai;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
+    [SerializeField]
+    private bool geigeki,bombbarrier = true, bombsosai;
 
     public void EShot1(float angle, float speed, float kasoku,float kaiten)
     {
         var direction = GameData.GetDirection(angle);
-        velocity = direction * speed;
+        _velocity = direction * speed;
         var angles = transform.localEulerAngles;
         angles.z = angle - 90;
         transform.localEulerAngles = angles;
 
-        sspeed = speed;
-        kkaso = kasoku;
-        aang = angle;
-        kkait = kaiten;
+        _speed = speed;
+        _speedDelta = kasoku;
+        _angle = angle;
+        _rollValue = kaiten;
 
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        pos = transform.position;
+        _posOwn = transform.position;
 
-        transform.localEulerAngles += new Vector3(0, 0, kkait);
+        transform.localEulerAngles += new Vector3(0, 0, _rollValue);
 
-        transform.localPosition += velocity;
-        sspeed += kkaso;
-        var direction = GameData.GetDirection(aang);
-        velocity = direction * sspeed;
+        transform.localPosition += _velocity;
+        _speed += _speedDelta;
+        var direction = GameData.GetDirection(_angle);
+        _velocity = direction * _speed;
 
         if (GetComponent<EMCoreC>().DeleteMissileCheck())
         {

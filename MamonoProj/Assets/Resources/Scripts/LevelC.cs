@@ -4,15 +4,10 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using EnumDic.System;
 
 public class LevelC : MenuSystemC
 {
-    /*
-    public SpriteRenderer spriteRenderer;
-    public Sprite easy, normal, hard, noooo;
-    */
-
-
     [SerializeField]
     private SpriteRenderer _background;
 
@@ -97,43 +92,24 @@ public class LevelC : MenuSystemC
     {
         _textDisc.text = _disc[_titleMode,GameData.Language];
         _textLevel.text = _maxhpTag[GameData.Language] + _maxHP[_titleMode].ToString() + "\n\n" + _continueTag[GameData.Language] + _continueDisc[_titleMode, GameData.Language];
-        /*
-        switch (_titleMode)
-        {
-            case 0:
-                spriteRenderer.sprite = easy;
-                break;
-            case 1:
-                spriteRenderer.sprite = normal;
-                break;
-            case 2:
-                spriteRenderer.sprite = hard;
-                break;
-            case 3:
-                spriteRenderer.sprite = noooo;
-                break;
-        }
-        */
     }
 
-
-
-    protected override void Option1() { StartCoroutine(DoOption()); }
-    protected override void Option2() { StartCoroutine(DoOption()); }
-    protected override void Option3() { StartCoroutine(DoOption()); }
-    protected override void Option4() { StartCoroutine(DoOption()); }
+    protected override void Option1() => StartCoroutine(DoOption());
+    protected override void Option2() => StartCoroutine(DoOption());
+    protected override void Option3() => StartCoroutine(DoOption());
+    protected override void Option4() => StartCoroutine(DoOption());
 
     private IEnumerator DoOption()
     {
         yield return new WaitForSeconds(1.0f);
-        GameData.Difficulty = _titleMode;
-        CrearC.DeathCount = 0;
+        GameData.Difficulty = (MODE_DIFFICULTY)_titleMode;
+        ClearC.DeathCount = 0;
         SceneManager.LoadScene("Setumei");
     }
 
     public void OnEnd(InputAction.CallbackContext context)
     {
-        if (context.performed && !start)
+        if (context.performed && !_isStart)
         {
             SceneManager.LoadScene("Title");
         }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using EnumDic.Enemy;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -18,14 +19,14 @@ public class VaneC : MonoBehaviour
     private int _windowGraValue = 4;
 
     private GameManagement _gameManaC;
-    private Vector3 pos, ppos, movepo;
+    private Vector3 _posOwn, _posPlayer, _moveGoal;
     private Quaternion rot;
     public SpriteRenderer spriteRenderer;
 
     [SerializeField, Tooltip("LFR")]
     private Sprite[] normal, angry, last, death;
 
-    public StaffRollC StaffPrefab;
+    public ClearEffectC StaffPrefab;
 
     public ShurikenC F1, F2, F3;
     public EMissile1C SonicPrefab;
@@ -68,24 +69,24 @@ public class VaneC : MonoBehaviour
             firstHP += _eCoreC.hp[j];
         }
         _eCoreC.IsBoss = true;
-        _eCoreC.BossLifeMode = 1;
+        _eCoreC.BossLifeMode = MODE_LIFE.Fight;
         _gameManaC = GameObject.Find("GameManager").GetComponent<GameManagement>();
         _gameManaC._bossNowHp = firstHP;
         _gameManaC._bossMaxHp = firstHP;
         playerGO = GameObject.Find("Player");
 
-        _movingCoroutine = StartCoroutine("ActionBranch");
+        _movingCoroutine = StartCoroutine(ActionBranch());
     }
 
     // Update is called once per frame
     void Update()
     {
 
-        if (_eCoreC.BossLifeMode != 2) _gameManaC._bossNowHp = _eCoreC.TotalHp;
-        pos = transform.position;
-        ppos = playerGO.transform.position;
+        if (_eCoreC.BossLifeMode != MODE_LIFE.Dead) _gameManaC._bossNowHp = _eCoreC.TotalHp;
+        _posOwn = transform.position;
+        _posPlayer = playerGO.transform.position;
         damagePar = _eCoreC.TotalHp * 100 / firstHP;
-        if (_eCoreC.BossLifeMode == 1)
+        if (_eCoreC.BossLifeMode == MODE_LIFE.Fight)
         {
             //Normal
             if (_eCoreC.EvoltionMode == 0)
@@ -110,9 +111,9 @@ public class VaneC : MonoBehaviour
                     _islastMode = true;
                     GameData.WindSpeed = 0;
                     _audioGO.PlayOneShot(shoutS);
-                    movepo = new Vector3(100, (Random.Range(0, 3) * 90) + 110, 0) - pos;
+                    _moveGoal = new Vector3(100, (Random.Range(0, 3) * 90) + 110, 0) - _posOwn;
                     AllCoroutineStop();
-                    _movingCoroutine = StartCoroutine("Hurricane");
+                    _movingCoroutine = StartCoroutine(StartHurricane());
                 }
             }
         }
@@ -131,22 +132,22 @@ public class VaneC : MonoBehaviour
         if (_eCoreC.BossLifeMode == 0)
         {
             GameData.WindSpeed = 10;
-            _eCoreC.BossLifeMode = 1;
+            _eCoreC.BossLifeMode = MODE_LIFE.Fight;
         }
 
 
         //DeathAction
-        if (_eCoreC.BossLifeMode == 2)
+        if (_eCoreC.BossLifeMode == MODE_LIFE.Dead)
         {
-            GameData.Star = true;
-            GameData.TimerMoving = false;
+            GameData.IsInvincible = true;
+            GameData.IsTimerMoving = false;
             AllCoroutineStop();
             _gameManaC._bossNowHp = 0;
             k++;
-            if (pos.y < 96) transform.position += new Vector3(0, Random.Range(1, 20), 0);
-            else if (pos.y > 384) transform.position += new Vector3(0, Random.Range(-20, 0), 0);
+            if (_posOwn.y < 96) transform.position += new Vector3(0, Random.Range(1, 20), 0);
+            else if (_posOwn.y > 384) transform.position += new Vector3(0, Random.Range(-20, 0), 0);
             else transform.position += new Vector3(0, Random.Range(-10, 11), 0);
-            if (pos.x > ppos.x) GameData.WindSpeed = Random.Range(100, 501);
+            if (_posOwn.x > _posPlayer.x) GameData.WindSpeed = Random.Range(100, 501);
             else GameData.WindSpeed = Random.Range(-500, -99);
 
             if (k == 20)
@@ -155,17 +156,17 @@ public class VaneC : MonoBehaviour
                 {
                     for (i = 0; i < 30; i++)
                     {
-                        float angle = GameData.GetAngle(pos, ppos);
+                        float angle = GameData.GetAngle(_posOwn, _posPlayer);
                         angle += Random.Range(10, 350);
                         Quaternion rot = transform.localRotation;
-                        EMissile1C shot = Instantiate(SonicPrefab, pos, rot);
+                        EMissile1C shot = Instantiate(SonicPrefab, _posOwn, rot);
                         shot.EShot1(angle, 10 + (10 * j), 0);
                     }
                 }
                 GameData.WindSpeed = 0;
                 if (GameData.Round == GameData.GoalRound)
                 {
-                    Instantiate(StaffPrefab, new Vector3(320, -100, 0), Quaternion.Euler(0, 0, 0)).Summon(0);
+                    Instantiate(StaffPrefab, new Vector3(320, -100, 0), Quaternion.Euler(0, 0, 0));
                 }
                 else
                 {
@@ -178,141 +179,190 @@ public class VaneC : MonoBehaviour
         }
     }
 
+    private enum MODE_ATTTACK
+    {
+        SonicLtoR,
+        SonicRtoL,
+        Hurricane,
+    }
+
+    /// <summary>
+    /// 飛来物の種類
+    /// </summary>
+    private enum KIND_FLYINGOBJ
+    {
+        Wood,
+        Cristal,
+        DeadMonstar
+    }
+
     //行動変わるヤツ
     private IEnumerator ActionBranch()
     {
         yield return new WaitForSeconds(1.0f);
-        if (_eCoreC.EvoltionMode == 0 || _eCoreC.EvoltionMode == 1)
+
+        switch (_eCoreC.EvoltionMode)
         {
-            _action = Random.Range(0, 2);
-            if (_action == 0) StartCoroutine("SonicRtoL");
-            else if (_action == 1) StartCoroutine("SonicLtoR");
-        }
-        else if (_eCoreC.EvoltionMode == 2)
-        {
-            StartCoroutine("Hurricane");
+            case 0:
+            case 1:
+                switch ((MODE_ATTTACK)Random.Range(0, 2))
+                {
+                    case MODE_ATTTACK.SonicLtoR:
+                        _movingCoroutine = StartCoroutine(SonicLtoR());
+                        break;
+
+                    case MODE_ATTTACK.SonicRtoL:
+                        _movingCoroutine = StartCoroutine(SonicRtoL());
+                        break;
+                }
+                break;
+
+            case 2:
+                _movingCoroutine = StartCoroutine(StartHurricane());
+                break;
         }
 
     }
 
+    /// <summary>
+    /// 左向きに風を起こす
+    /// </summary>
+    /// <returns></returns>
     private IEnumerator SonicRtoL()
     {
 
-        movepo = new Vector3(100, (Random.Range(0, 3) * 90) + 110, 0) - pos;
+        _moveGoal = new Vector3(100, (Random.Range(0, 3) * 90) + 110, 0) - _posOwn;
+
         for (i = 0; i < 100; i++)
         {
-            transform.position += movepo / 100;
+            transform.position += _moveGoal / 100;
+
+            //左向きに風を起こす
             if (GameData.WindSpeed < 32) GameData.WindSpeed += 2;
             if (i % 20 == 0)
             {
-                SonicShot();
-                if (_eCoreC.EvoltionMode == 1) SonicShot();
+                ShotSonic();
+                //第二形態であれば二つ発射
+                if (_eCoreC.EvoltionMode == 1) ShotSonic();
                 _audioGO.PlayOneShot(sonicS);
             }
             yield return new WaitForSeconds(0.03f);
         }
-        if (_eCoreC.EvoltionMode == 1) FlyingObj(0);
-        _movingCoroutine = StartCoroutine("ActionBranch");
+
+        //第二形態であれば飛来物を召喚
+        if (_eCoreC.EvoltionMode == 1) ShotFlyingObj(KIND_FLYINGOBJ.Wood);
+        _movingCoroutine = StartCoroutine(ActionBranch());
     }
 
+    /// <summary>
+    /// 右向きに風を起こす
+    /// </summary>
+    /// <returns></returns>
     private IEnumerator SonicLtoR()
     {
-        movepo = new Vector3(540, (Random.Range(0, 3) * 90) + 110, 0) - pos;
+        _moveGoal = new Vector3(540, (Random.Range(0, 3) * 90) + 110, 0) - _posOwn;
+
         for (i = 0; i < 100; i++)
         {
-            transform.position += movepo / 100;
+            transform.position += _moveGoal / 100;
             if (GameData.WindSpeed > -32) GameData.WindSpeed -= 2;
             if (_eCoreC.EvoltionMode != 2)
             {
                 if (i % ((2 - _eCoreC.EvoltionMode) * 10) == 0)
                 {
-                    SonicShot();
+                    ShotSonic();
                     _audioGO.PlayOneShot(sonicS);
                 }
             }
             yield return new WaitForSeconds(0.03f);
         }
-        //if (_eCoreC.EvoltionMode == 1) FlyingObj(0);
-        _movingCoroutine = StartCoroutine("ActionBranch");
+        _movingCoroutine = StartCoroutine(ActionBranch());
     }
 
-    private void SonicShot()
+    /// <summary>
+    /// 衝撃波発射
+    /// </summary>
+    private void ShotSonic()
     {
-        float angle = GameData.GetAngle(pos, ppos);
+        float angle = GameData.GetAngle(_posOwn, _posPlayer);
         angle += Random.Range(-10, 10);
         Quaternion rot = transform.localRotation;
-        EMissile1C shot = Instantiate(SonicPrefab, pos, rot);
+        EMissile1C shot = Instantiate(SonicPrefab, _posOwn, rot);
         shot.EShot1(angle, 0, 0.3f);
     }
 
-    private IEnumerator Hurricane()
+    /// <summary>
+    /// 暴走
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator StartHurricane()
     {
-        for (i = 0; i < Random.Range(8, 20); i++)
+        //飛来物発射までの時間稼ぎ
+        for (i = 0; i < Random.Range(10, 20); i++)
         {
+            //風加速
             GameData.WindSpeed += 4;
-            if (GameData.WindSpeed <= 100) transform.position += movepo / 25;
+            if (GameData.WindSpeed <= 100) transform.position += _moveGoal / 25;
 
-            if (pos.y < 96) transform.position += new Vector3(0, Random.Range(1, 20), 0);
-            else if (pos.y > 384) transform.position += new Vector3(0, Random.Range(-20, 0), 0);
+            //痙攣
+            if (_posOwn.y < 96) transform.position += new Vector3(0, Random.Range(1, 20), 0);
+            else if (_posOwn.y > 384) transform.position += new Vector3(0, Random.Range(-20, 0), 0);
             else transform.position += new Vector3(0, Random.Range(-10, 11), 0);
 
             yield return new WaitForSeconds(0.03f);
         }
 
+        //風速が速ければ飛来物を飛ばす
         if (GameData.WindSpeed > 100)
         {
-            FlyingObj(Random.Range(0, 3));
+            ShotFlyingObj((KIND_FLYINGOBJ)Random.Range(0, 3));
         }
-        _movingCoroutine = StartCoroutine("Hurricane");
+        _movingCoroutine = StartCoroutine(StartHurricane());
     }
 
     /// <summary>
-    /// 
+    /// 飛来物を飛ばす
     /// </summary>
     /// <param name="objKind">
     /// 0=Wood
     /// 1=Cristal
     /// 2=Dead
     /// </param>
-    private void FlyingObj(int objKind)
-    {
-        if (objKind == 0)
-        {
-            angle = Random.Range(-10, 0);
-            Quaternion rot = transform.localRotation;
-            rot.z = Random.Range(0, 360);
-            ShurikenC shot = Instantiate(F1, new Vector3(-48, Random.Range(0, 480), 0), rot);
-            shot.EShot1(angle, Random.Range(20, 50), 0.1f, Random.Range(5, 20));
-            _audioGO.PlayOneShot(woodS);
-        }
-        else if (objKind == 1)
-        {
-            angle = Random.Range(-10, 0);
-            Quaternion rot = transform.localRotation;
-            rot.z = Random.Range(0, 360);
-            ShurikenC shot = Instantiate(F2, new Vector3(-48, Random.Range(0, 480), 0), rot);
-            shot.EShot1(angle, Random.Range(20, 50), 0.1f, Random.Range(5, 15));
-            _audioGO.PlayOneShot(woodS);
-        }
-        else if (objKind == 2)
-        {
-            angle = Random.Range(-10, 0);
-            Quaternion rot = transform.localRotation;
-            rot.z = Random.Range(0, 360);
-            ShurikenC shot = Instantiate(F3, new Vector3(-48, Random.Range(0, 480), 0), rot);
-            shot.EShot1(angle, Random.Range(20, 50), 0.1f, Random.Range(5, 10));
-            _audioGO.PlayOneShot(woodS);
-        }
-    }
-
-    private void DeathAction()
+    private void ShotFlyingObj(KIND_FLYINGOBJ objKind)
     {
 
+        angle = Random.Range(-10, 0);
+        Quaternion rot = transform.localRotation;
+        rot.z = Random.Range(0, 360);
+        ShurikenC shot = Instantiate(F1, new Vector3(-48, Random.Range(0, 480), 0), rot);
+        shot.EShot1(angle, Random.Range(10, 30), 0.1f, Random.Range(5, 20));
+        _audioGO.PlayOneShot(woodS);
+
+        switch (objKind)
+        {
+            case KIND_FLYINGOBJ.Wood:
+                Instantiate(F1, new Vector3(-48, Random.Range(0, 480), 0), rot)
+                    .EShot1(angle, Random.Range(10, 30), 0.1f, Random.Range(5, 20));
+                break;
+
+            case KIND_FLYINGOBJ.Cristal:
+                Instantiate(F2, new Vector3(-48, Random.Range(0, 480), 0), rot)
+                    .EShot1(angle, Random.Range(20, 50), 0.1f, Random.Range(5, 15));
+                break;
+
+            case KIND_FLYINGOBJ.DeadMonstar:
+                Instantiate(F3, new Vector3(-48, Random.Range(0, 480), 0), rot)
+                    .EShot1(angle, Random.Range(20, 50), 0.1f, Random.Range(5, 10));
+                break;
+        }
     }
 
     private void AllCoroutineStop()
     {
-        StopAllCoroutines();
-        _movingCoroutine = null;
+        if (_movingCoroutine != null)
+        {
+            StopCoroutine(_movingCoroutine);
+            _movingCoroutine = null;
+        }
     }
 }

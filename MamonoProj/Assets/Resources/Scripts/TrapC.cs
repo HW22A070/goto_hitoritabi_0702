@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class TrapC : MonoBehaviour
 {
-    Vector3 velocity, pos;
+    Vector3 velocity, _posOwn;
     int i;
 
     public ExpC ExpPrefab;
@@ -32,12 +30,12 @@ public class TrapC : MonoBehaviour
     public void Explosion()
     {
 
-        pos = transform.position;
+        _posOwn = transform.position;
         for (i = 0; i < 5; i++)
         {
             float angle2 = Random.Range(0, 360);
             Quaternion rot2 = transform.localRotation;
-            ExpC shot2 = Instantiate(ExpPrefab, pos, rot2);
+            ExpC shot2 = Instantiate(ExpPrefab, _posOwn, rot2);
             shot2.EShot1(angle2, Random.Range(1, 10.0f), 0.5f);
         }
         _audioGO.PlayOneShot(expS);

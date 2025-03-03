@@ -4,12 +4,15 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using EnumDic.System;
 
 public class DeadC : MenuSystemC
 {
-    public Text roundText, roundText2, LevelText;
+    [SerializeField]
+    private Text roundText, roundText2, LevelText;
 
-    public AudioClip reS;
+    [SerializeField]
+    private AudioClip reS;
 
     [SerializeField]
     private SpriteRenderer _lolEnemy;
@@ -48,7 +51,7 @@ public class DeadC : MenuSystemC
         if (gamepad != null) gamepad.SetMotorSpeeds(0.0f, 0.0f);
 
 
-        LevelText.text = GameData.TextDifficulty[GameData.Difficulty, GameData.Language];
+        LevelText.text = GameData.TextDifficulty[(int)GameData.Difficulty, GameData.Language];
 
         roundText2.text = "" + GameData.LastCrearLound.ToString();
         if (GameData.GameMode == 1)
@@ -65,7 +68,7 @@ public class DeadC : MenuSystemC
             roundText2.text = _textNone[GameData.Language];
         }
 
-        if (!start)
+        if (!_isStart)
         {
             if (GameData.GameMode == 1)
             {
@@ -88,9 +91,9 @@ public class DeadC : MenuSystemC
         _exitTimer += Time.deltaTime;
         if (_exitTimer >= _exitFireTimeS)
         {
-            if (!start)
+            if (!_isStart)
             {
-                start = true;
+                _isStart = true;
                 _titleMode = 1;
                 Option2();
                 _audioSource.PlayOneShot(reS);
@@ -99,8 +102,8 @@ public class DeadC : MenuSystemC
     }
 
 
-    protected override void Option1() { StartCoroutine(DoOption()); }
-    protected override void Option2() { StartCoroutine(DoOption()); }
+    protected override void Option1() => StartCoroutine(DoOption());
+    protected override void Option2() => StartCoroutine(DoOption());
 
     private IEnumerator DoOption()
     {
@@ -109,26 +112,35 @@ public class DeadC : MenuSystemC
 
             if (GameData.EX == 0)
             {
-                if (GameData.Difficulty == 2)
+                switch (GameData.Difficulty)
                 {
-                    GameData.Round = StageRestart(GameData.Round);
-                    if (GameData.Round < GameData.StartRound) GameData.Round = GameData.StartRound;
+                    case MODE_DIFFICULTY.Assault:
+                        GameData.Round = StageRestart(GameData.Round);
+                        if (GameData.Round < GameData.StartRound) GameData.Round = GameData.StartRound;
+                        break;
                 }
             }
             else
             {
-                if (GameData.Difficulty == 2 || GameData.Difficulty == 1)
+                switch (GameData.Difficulty)
                 {
-                    GameData.Round = 31;
+                    case MODE_DIFFICULTY.General:
+                    case MODE_DIFFICULTY.Assault:
+                        GameData.Round = 31;
+                        break;
                 }
             }
-            if (GameData.Difficulty == 3) GameData.Round = GameData.StartRound;
 
-            if (GameData.GameMode == 1)
+            if (GameData.Difficulty == MODE_DIFFICULTY.Berserker) GameData.Round = GameData.StartRound;
+
+            switch (GameData.GameMode)
             {
-                roundText.text = _textNewRound[GameData.Language] + ": BOSS " + (GameData.Round - 100).ToString();
+                case 1:
+                    roundText.text = _textNewRound[GameData.Language] + ": BOSS " + (GameData.Round - 100).ToString();
+                    break;
             }
-            else if (GameData.EX == 1)
+
+            if (GameData.EX == 1)
             {
                 roundText.text = _textNewRound[GameData.Language] + ": D " + (GameData.Round - 30).ToString();
             }
@@ -143,39 +155,49 @@ public class DeadC : MenuSystemC
         {
             if (GameData.EX == 0)
             {
-                if (GameData.Difficulty == 2)
+                switch (GameData.Difficulty)
                 {
-                    GameData.Round = StageRestart(GameData.Round);
-                    if (GameData.Round < GameData.StartRound) GameData.Round = GameData.StartRound;
+                    case MODE_DIFFICULTY.Assault:
+                        GameData.Round = StageRestart(GameData.Round);
+                        if (GameData.Round < GameData.StartRound) GameData.Round = GameData.StartRound;
+                        break;
                 }
             }
             else
             {
-                if (GameData.Difficulty == 2 || GameData.Difficulty == 1)
+                switch (GameData.Difficulty)
                 {
-                    GameData.Round = 31;
+                    case MODE_DIFFICULTY.General:
+                    case MODE_DIFFICULTY.Assault:
+                        GameData.Round = 31;
+                        break;
                 }
             }
-            if (GameData.Difficulty == 3) GameData.Round = GameData.StartRound;
+            if (GameData.Difficulty == MODE_DIFFICULTY.Berserker)
+            {
+                GameData.Round = GameData.StartRound;
+            }
+
             GameData.IsBossFight = false;
-            FloorManagerC.StageGimic(100, 0);
-            GameData.Star = false;
+            FloorManagerC.SetStageGimic(100, 0);
+            GameData.IsInvincible = false;
             GameData.TP = 0;
             GameData.Point = 0;
             GameData.WindSpeed = 0;
             GameData.VirusBugEffectLevel = 0;
+
             SceneManager.LoadScene("Game");
         }
         else if (_titleMode == 1)
         {
-            CrearC._isGiveUp = true;
+            ClearC._isGiveUp = true;
             SceneManager.LoadScene("Clear");
         }
     }
 
     public void OnEnd(InputAction.CallbackContext context)
     {
-        if (context.performed && !start)
+        if (context.performed && !_isStart)
         {
             _titleMode = _optionMax;
             MoveFlash();

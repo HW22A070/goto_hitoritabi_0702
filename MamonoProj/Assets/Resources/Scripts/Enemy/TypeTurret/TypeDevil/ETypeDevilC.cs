@@ -7,7 +7,7 @@ public class ETypeDevilC : ETypeTurretC
     [SerializeField]
     protected float _moveSpeedBound;
 
-    protected float move = 0;
+    protected float _move = 0;
 
 
     // Start is called before the first frame update
@@ -16,12 +16,12 @@ public class ETypeDevilC : ETypeTurretC
         base.Start();
         if (Random.Range(0, 2) == 0)
         {
-            move = _moveSpeedBound;
+            _move = _moveSpeedBound;
             spriteRenderer.flipX = true;
         }
         else
         {
-            move = -_moveSpeedBound;
+            _move = -_moveSpeedBound;
             spriteRenderer.flipX = false;
         }
     }
@@ -30,14 +30,14 @@ public class ETypeDevilC : ETypeTurretC
     protected new void Update()
     {
         base.Update();
-        if (pos.x > 632)
+        if (_posOwn.x > 632)
         {
-            move = -_moveSpeedBound;
+            _move = -_moveSpeedBound;
             spriteRenderer.flipX = false;
         }
-        if (pos.x < 8)
+        if (_posOwn.x < 8)
         {
-            move = _moveSpeedBound;
+            _move = _moveSpeedBound;
             spriteRenderer.flipX = true;
         }
 
@@ -46,7 +46,7 @@ public class ETypeDevilC : ETypeTurretC
     protected new void FixedUpdate()
     {
         base.FixedUpdate();
-        transform.position += new Vector3(move, 0, 0);
+        transform.position += new Vector3(_move, 0, 0);
     }
 
 

@@ -4,21 +4,15 @@ using UnityEngine;
 
 public class ExpC : MonoBehaviour
 {
-    Vector3 velocity, pos;
+    private Vector3 _velocity, _posOwn;
 
     [SerializeField, Tooltip("エフェクト扱い")]
     private bool _isEffect;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
     public void EShot1(float angle, float speed,float delete)
     {
         var direction = GameData.GetDirection(angle);
-        velocity = direction * speed;
+        _velocity = direction * speed;
         var angles = transform.localEulerAngles;
         angles.z = angle - 90;
         transform.localEulerAngles = angles;
@@ -28,7 +22,7 @@ public class ExpC : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        transform.localPosition += velocity;
+        transform.localPosition += _velocity;
 
         if (!_isEffect)
         {

@@ -1,11 +1,18 @@
 ﻿using UnityEngine;
+using EnumDic.System;
+using EnumDic.Enemy.Virus;
 
 public class GameData : MonoBehaviour
 {
     /// <summary>
     /// 0=easy 1=normal 2=hard 3=nooooo!!!
     /// </summary>
-    public static int Difficulty = 0;
+    public static MODE_DIFFICULTY Difficulty=MODE_DIFFICULTY.Safety;
+
+    /// <summary>
+    /// マルチプレイ人数
+    /// </summary>
+    public static int MultiPlayerCount = 1;
 
     /// <summary>
     /// 0=通常
@@ -28,17 +35,23 @@ public class GameData : MonoBehaviour
     public static float Point = 0;
 
     /// <summary>
-    /// PlayerHP
+    /// PlayerMaxHP
     /// </summary>
-    public static float HP = 20;
+    public static int[] MaxHP = new int[4] {100,50,20,1 };
 
     /// <summary>
-    /// 0=normal 1=NoDamage
+    /// 現在の難易度をもとに最大HPを取得
     /// </summary>
-    public static bool Star = false;
+    /// <returns></returns>
+    public static int GetMaxHP() => MaxHP[(int)Difficulty];
 
     /// <summary>
-    /// 0=normal 1=boss fight
+    /// 無敵
+    /// </summary>
+    public static bool IsInvincible = false;
+
+    /// <summary>
+    /// ボスバトルか
     /// </summary>
     public static bool IsBossFight;
 
@@ -50,17 +63,22 @@ public class GameData : MonoBehaviour
     /// <summary>
     /// 0=normal 1=pouse
     /// </summary>
-    public static bool Pouse = false;
+    public static bool IsPouse = false;
 
     /// <summary>
     /// Camera's Rotation
     /// </summary>
-    public static int Camera = 0;
+    public static int RotationCamera = 0;
 
     /// <summary>
     /// ClearTime
     /// </summary>
     public static float ClearTime = 0;
+
+    /// <summary>
+    /// １ステージのラウンド数
+    /// </summary>
+    public static int BossRound = 5;
 
     /// <summary>
     /// 0＝無風
@@ -85,15 +103,9 @@ public class GameData : MonoBehaviour
     public static int GoalRound = 30;
 
     /// <summary>
-    /// VirusBoss Level
-    /// 0=No Bug
-    /// 1=Little
-    /// 2=Crazy
-    /// 100=Blue
-    /// 200=City
+    /// ウィルス侵蝕レベル
     /// </summary>
-    public static int VirusBugEffectLevel = 0;
-
+    public static MODE_VIRUS VirusBugEffectLevel=MODE_VIRUS.None;
 
     /// <summary>
     /// ControllerisVibration
@@ -103,7 +115,7 @@ public class GameData : MonoBehaviour
     /// <summary>
     /// 移動アクション中かどうか
     /// </summary>
-    public static bool StageMovingAction;
+    public static bool IsStageMovingAction;
 
     /// <summary>
     /// 0=日本語
@@ -126,7 +138,7 @@ public class GameData : MonoBehaviour
     /// <summary>
     /// クリア時間動き
     /// </summary>
-    public static bool TimerMoving = true;
+    public static bool IsTimerMoving = true;
 
     /// <summary>
     /// プレイヤーの行動制限
@@ -135,7 +147,7 @@ public class GameData : MonoBehaviour
     /// 2=ジャンプ可能
     /// 3=降下可能
     /// 4=攻撃可能
-    /// 5=ぶき替え可能
+    /// 5=変形可能
     /// 6=すべて可能
     /// </summary>
     public static int PlayerMoveAble = 6;
@@ -160,10 +172,7 @@ public class GameData : MonoBehaviour
     /// 画面の中のどこか(X:0-640,Y:0-480,Z:0)をVector3で指定
     /// </summary>
     /// <returns></returns>
-    public static Vector3 RandomWindowPosition()
-    {
-        return new Vector3(Random.Range(0, 640), Random.Range(0, 480), 0);
-    }
+    public static Vector3 GetRandomWindowPosition() => new Vector3(Random.Range(0, WindowSize.x), Random.Range(0, WindowSize.y), 0);
 
     /// <summary>
     /// 床置きY座標計算
@@ -171,10 +180,7 @@ public class GameData : MonoBehaviour
     /// <param name="targetFloor">置きたい床0~4</param>
     /// <param name="offsetY">Yオフセット</param>
     /// <returns></returns>
-    public static float GroundPutY(int targetFloor, float offsetY)
-    {
-        return (targetFloor * 90) + offsetY;
-    }
+    public static float GetGroundPutY(int targetFloor, float offsetY) => (targetFloor * 90) + offsetY;
 
     /// <summary>
     /// Own座標から見たTarget座標への向きを割り出す
@@ -201,6 +207,13 @@ public class GameData : MonoBehaviour
         return direction;
     }
 
+    public static float GetDistance(Vector3 startPos, Vector3 goalPos)
+    {
+        Vector2 dis = goalPos - startPos;
+
+        return Mathf.Sqrt(Mathf.Pow(dis.x, 2) + Mathf.Pow(dis.y, 2));
+    }
+
     /// <summary>
     /// 忍び寄り
     /// </summary>
@@ -223,7 +236,7 @@ public class GameData : MonoBehaviour
     public static int GetRoundNumber()
     {
         if (Round == 0) return -1;
-        if (GameMode == 0) return ((Round - 1) / 5) + 1;
+        if (GameMode == 0) return ((Round - 1) / BossRound) + 1;
 
 
         return 0;
@@ -235,10 +248,10 @@ public class GameData : MonoBehaviour
     public static Vector3 FixPosition(Vector3 position, float ofsetX, float ofsetY)
     {
         if (position.x < ofsetX) position = new Vector3(ofsetX, position.y, 0);
-        else if (position.x > 640 - ofsetX) position = new Vector3(640 - ofsetX, position.y, 0);
+        else if (position.x > WindowSize.x - ofsetX) position = new Vector3(WindowSize.x - ofsetX, position.y, 0);
 
         if (position.y < ofsetY) position = new Vector3(position.x, ofsetY, 0);
-        else if (position.y > 480 - ofsetY) position = new Vector3(position.x, 480 - ofsetY, 0);
+        else if (position.y > WindowSize.y - ofsetY) position = new Vector3(position.x, WindowSize.y - ofsetY, 0);
 
         return position;
     }
@@ -246,7 +259,7 @@ public class GameData : MonoBehaviour
     /// <summary>
     /// エネミー全部消す
     /// </summary>
-    public static void AllDeleteEnemy()
+    public static void DeleteAllEnemys()
     {
         GameObject[] myObjects;
         string[] _tagName = { "Enemy" };
@@ -263,7 +276,7 @@ public class GameData : MonoBehaviour
     /// <summary>
     /// 敵弾全部消す
     /// </summary>
-    public static void AllDeleteEMissile()
+    public static void DeleteAllEMissiles()
     {
         GameObject[] myObjects;
         string[] _tagName = { "EM" };
@@ -276,4 +289,9 @@ public class GameData : MonoBehaviour
             }
         }
     }
+
+    /// <summary>
+    /// 現在の難易度が指定の難易度以上かを判定
+    /// </summary>
+    public static bool CheckIsUpperDifficulty(MODE_DIFFICULTY dif) => dif >= Difficulty;
 }

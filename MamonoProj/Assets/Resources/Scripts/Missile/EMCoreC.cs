@@ -35,24 +35,18 @@ public class EMCoreC : MonoBehaviour
     /// <summary>
     /// 自分の座標
     /// </summary>
-    private Vector3 pos;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    private Vector3 _posOwn;
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        pos = transform.position;
+        _posOwn = transform.position;
         BoxCollider2D box = GetComponent<BoxCollider2D>();
-        Vector2 v2pos = new Vector2(pos.x, pos.y);
+        Vector2 v2pos = new Vector2(_posOwn.x, _posOwn.y);
         _hitEmissileToPlayer = Physics2D.BoxCast(v2pos - box.offset, box.size, transform.localEulerAngles.z, Vector2.zero, 0, 64);
         if (_hitEmissileToPlayer)
         {
-            _hitEmissileToPlayer.collider.GetComponent<PlayerC>().Damage(_attackPower, _HitInvincible);
+            _hitEmissileToPlayer.collider.GetComponent<PlayerC>().SetDamage(_attackPower, _HitInvincible);
             if (_palyerDelete)
             {
                 _isDeleteTrigger = true;
@@ -61,16 +55,16 @@ public class EMCoreC : MonoBehaviour
         }
 
         //down_ex
-        if (pos.y <= 0 && _down) _isDeleteTrigger = true;
+        if (_posOwn.y <= 0 && _down) _isDeleteTrigger = true;
 
         //up_ex
-        if (pos.y >= 480 && _up) _isDeleteTrigger = true;
+        if (_posOwn.y >= 480 && _up) _isDeleteTrigger = true;
 
         //left_ex
-        if (pos.x <= 0 && _left) _isDeleteTrigger = true;
+        if (_posOwn.x <= 0 && _left) _isDeleteTrigger = true;
 
         //right_ex
-        if (pos.x >= 640 && _right) _isDeleteTrigger = true;
+        if (_posOwn.x >= 640 && _right) _isDeleteTrigger = true;
     }
 
     /// <summary>
@@ -86,8 +80,5 @@ public class EMCoreC : MonoBehaviour
         return _destroyToPM;
     }
 
-    public bool DeleteMissileCheck()
-    {
-        return _isDeleteTrigger;
-    }
+    public bool DeleteMissileCheck() => _isDeleteTrigger;
 }

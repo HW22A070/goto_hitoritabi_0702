@@ -1,25 +1,29 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using EnumDic.Enemy;
 using UnityEngine;
 
 public class MailC : MonoBehaviour
 {
-    GameObject GM;
-    Vector3 pos, ppos, muki, velocity;
-    Vector3 Aa;
-    Quaternion rot;
-    public ExpC Fire;
-    public VirusC VirusPrefab;
+    private GameObject _goGameManager;
 
-    public SpriteRenderer spriteRenderer;
-    public Sprite normal;
+    private Quaternion _rotOwn;
+
+    [SerializeField]
+    private VirusC VirusPrefab;
+
+    [SerializeField]
+    private SpriteRenderer spriteRenderer;
+
+    [SerializeField]
+    private Sprite normal;
 
     /// <summary>
     /// スピーカ
     /// </summary>
     private AudioSource _audioGO;
 
-    public AudioClip mailS;
+
+    [SerializeField]
+    private AudioClip mailS;
 
     [SerializeField]
     [Tooltip("PlayerGameObject")]
@@ -35,53 +39,45 @@ public class MailC : MonoBehaviour
     /// </summary>
     private ECoreC _eCoreC;
 
-
     // Start is called before the first frame update
     void Start()
+    {
+        GetComponents();
+        
+        _goGameManager.GetComponent<GameManagement>()._bossNowHp = _eCoreC.hp[0];
+        _goGameManager.GetComponent<GameManagement>()._bossMaxHp = _eCoreC.hp[0];
+        _audioGO.PlayOneShot(mailS);
+        _eCoreC.IsBoss = true;
+    }
+
+    private void GetComponents()
     {
         _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
         playerGO = GameObject.Find("Player");
         _eCoreC = GetComponent<ECoreC>();
-        pos = transform.position;
-        VirusC.VirusMode = 0;
-        GM = GameObject.Find("GameManager");
-        GM.GetComponent<GameManagement>()._bossNowHp = _eCoreC.hp[0];
-        GM.GetComponent<GameManagement>()._bossMaxHp = _eCoreC.hp[0];
-        _audioGO.PlayOneShot(mailS);
-        _eCoreC.IsBoss = true;
+        _goGameManager = GameObject.Find("GameManager");
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (_eCoreC.BossLifeMode != 2) GM.GetComponent<GameManagement>()._bossNowHp = _eCoreC.hp[0];
-
-        pos = transform.position;
-        ppos = playerGO.transform.position;
-
-        //follow
-        pos = transform.position;
-        ppos = GameObject.Find("Player").transform.position;
-
+        if (_eCoreC.BossLifeMode != MODE_LIFE.Dead) _goGameManager.GetComponent<GameManagement>()._bossNowHp = _eCoreC.hp[0];
     }
 
 
     void FixedUpdate()
     {
-
-
-
         //SummonAction
         if (_eCoreC.BossLifeMode == 0)
         {
-            _eCoreC.BossLifeMode = 1;
+            _eCoreC.BossLifeMode = MODE_LIFE.Fight;
         }
 
 
         //DeathAction
-        if (_eCoreC.BossLifeMode == 1)
+        if (_eCoreC.BossLifeMode == MODE_LIFE.Fight)
         {
-            if (pos.y > 120)
+            if (transform.position.y > 120)
             {
                 transform.localPosition += new Vector3(0, -1, 0);
             }
@@ -89,12 +85,9 @@ public class MailC : MonoBehaviour
 
 
         //DeathAction
-        if (_eCoreC.BossLifeMode == 2)
+        if (_eCoreC.BossLifeMode == MODE_LIFE.Dead)
         {
-
-            pos = new Vector3(Random.Range(100, 540), Random.Range(50, 430), 0);
-            VirusC virus = Instantiate(VirusPrefab, pos, rot);
-            virus.Summon(0);
+            Instantiate(VirusPrefab, new Vector3(Random.Range(100, 540), Random.Range(50, 430), 0), _rotOwn);
 
             Destroy(gameObject);
         }
