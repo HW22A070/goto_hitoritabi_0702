@@ -1,23 +1,1 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-
-public class LoadingC : MonoBehaviour
-{
-    private void Start() => StartCoroutine(LoadSceneAsync());
-
-    IEnumerator LoadSceneAsync()
-    {
-        GameData.Round = GameData.StartRound;
-        GameData.LastCrearLound = 0;
-        ClearC.BossBonus = 0;
-        ClearC.DeathCount=0;
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("Game");
-
-        while (!asyncLoad.isDone)
-        {
-            yield return null;
-        }
-    }
-}
+﻿using System.Collections;using System.Collections.Generic;using UnityEngine;using UnityEngine.SceneManagement;public class LoadingC : MonoBehaviour{    private void Start() => StartCoroutine(LoadSceneAsync());    IEnumerator LoadSceneAsync()    {        GameData.Round = GameData.StartRound;        GameData.LastCrearLound = 0;        ClearC.BossBonus = 0;        ClearC.DeathCount=0;        GameData.IsJoyStick1P = GameData.GetActiveControllerCount() > 0;        Debug.Log("1P is Joystick:"+GameData.IsJoyStick1P);        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("Game");        while (!asyncLoad.isDone)        {            yield return null;        }    }}

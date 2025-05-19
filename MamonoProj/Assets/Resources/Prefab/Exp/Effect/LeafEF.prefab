@@ -98,6 +98,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8516ee9c4b345f6498c51972065bc66d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _destroyToPM: 5
+  _right: 0
+  _left: 0
+  _up: 0
+  _down: 0
+  _palyerDelete: 0
+  _HitInvincible: 0.5
+  _attackPower: 0
   _isEffect: 1
 --- !u!114 &8685781753239843004
 MonoBehaviour:
@@ -111,7 +119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2dcab5bdf8e9894dba55b703a043b3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  changecount: 0.5
+  _countChange: 0
   spriteRenderer: {fileID: 5354978706960897820}
   sprites:
   - {fileID: 21300000, guid: 6739f2589d01dc64eb1f48436534e426, type: 3}

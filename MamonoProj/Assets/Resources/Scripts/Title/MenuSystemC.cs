@@ -8,7 +8,7 @@ using UnityEngine.InputSystem;
 public class MenuSystemC : MonoBehaviour
 {
     [SerializeField]
-    protected AudioClip startS, selectS;
+    protected AudioClip startS,faildS, selectS;
 
     protected AudioSource _audioSource;
 
@@ -53,7 +53,6 @@ public class MenuSystemC : MonoBehaviour
 
     protected void Load()
     {
-        Debug.Log("Loaded");
         if (_titleMode == 0) Option1();
         else if (_titleMode == 1)Option2();
         else if (_titleMode == 2)Option3();
@@ -94,7 +93,6 @@ public class MenuSystemC : MonoBehaviour
         {
             _isStart = true;
             Load();
-            _audioSource.PlayOneShot(startS);
         }
     }
 
@@ -108,6 +106,7 @@ public class MenuSystemC : MonoBehaviour
             _audioSource.PlayOneShot(selectS);
         }
     }
+
     public virtual void OnDown(InputAction.CallbackContext context)
     {
         if (context.started && !_isStart)
@@ -116,6 +115,20 @@ public class MenuSystemC : MonoBehaviour
             if (_titleMode > _optionMax) _titleMode = 0;
             MoveFlash();
             _audioSource.PlayOneShot(selectS);
+        }
+    }
+    public virtual void OnRight(InputAction.CallbackContext context)
+    {
+        if (context.started && !_isStart)
+        {
+
+        }
+    }
+    public virtual void OnLeft(InputAction.CallbackContext context)
+    {
+        if (context.started && !_isStart)
+        {
+
         }
     }
 }

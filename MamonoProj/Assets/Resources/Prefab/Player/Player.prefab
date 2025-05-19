@@ -46,10 +46,12 @@ GameObject:
   m_Component:
   - component: {fileID: 7036645374485729928}
   - component: {fileID: 3906968221739367234}
-  - component: {fileID: 1513542673281017200}
   - component: {fileID: 2716953441053010077}
   - component: {fileID: 7626951862496197857}
-  - component: {fileID: 4815941055968074136}
+  - component: {fileID: 1513542673281017200}
+  - component: {fileID: -6548763631851986370}
+  - component: {fileID: 2600030448144314971}
+  - component: {fileID: 3245736061792535596}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -72,6 +74,7 @@ Transform:
   m_Children:
   - {fileID: 7907010687019983589}
   - {fileID: 4212526797332554738}
+  - {fileID: 5505091683275065449}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &3906968221739367234
@@ -115,7 +118,7 @@ SpriteRenderer:
   m_SortingLayerID: -355946135
   m_SortingLayer: 6
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: 38a23f930b1b0a649b1144251aae545f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7e5f239f173b78140ad3a8c057fbc44e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -126,44 +129,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &1513542673281017200
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2816075815389422427}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 088c2383c5a53324ebb4cbd263eebe2e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _playerGurNormal:
-  - {fileID: 21300000, guid: 38a23f930b1b0a649b1144251aae545f, type: 3}
-  - {fileID: 21300000, guid: 0b0e91f804acb104bad38cb71f56ca76, type: 3}
-  - {fileID: 21300000, guid: 271340393db8a7448bbada714e6ef56e, type: 3}
-  - {fileID: 21300000, guid: ea6389df3c6ee4d4d947795bde00f9c6, type: 3}
-  _playerGurWark:
-  - {fileID: 21300000, guid: 787ebb96fe6a86f45ae228787927f46c, type: 3}
-  - {fileID: 21300000, guid: b78c7b284ccb2dd41bb97e929e50d614, type: 3}
-  - {fileID: 21300000, guid: 21eedbf17c45b4843964aa45ef428af6, type: 3}
-  - {fileID: 21300000, guid: 34dc96a1cd3530148952d6fdbc884a9f, type: 3}
-  _playerDeath: {fileID: 21300000, guid: 188f5bde8185bae4196cf99ea340ee52, type: 3}
-  _playerChanging: {fileID: 21300000, guid: 5e0ac7c09e2055c498a0b252614bb545, type: 3}
-  DamagePrefab: {fileID: -7712346880004829483, guid: 68137fa6eaa711748be379bb27b242d0,
-    type: 3}
-  HealEffectPrefab: {fileID: 3750906648815249016, guid: e5437bbde24574e23a3f7309642619e9,
-    type: 3}
-  BDE: {fileID: -1680574016585301769, guid: e2c6aa855d55e4cb1b692f5419a647ec, type: 3}
-  ExpPrefab: {fileID: 4075970504917199329, guid: b61c991931763cd42b5a16006c881ae6,
-    type: 3}
-  healS: {fileID: 8300000, guid: 61913fc6b66b25a4bb743eff68820957, type: 3}
-  damageS: {fileID: 8300000, guid: dc5e3ed60318d004cbd8d123bdf2772c, type: 3}
-  magicgetS: {fileID: 8300000, guid: e8f7c5e27b509c842a7de107c5cb61fe, type: 3}
-  magicuseS: {fileID: 8300000, guid: 1bcbcacf0c7d57f47a02c1eba7a8c7bc, type: 3}
-  _audioGO: {fileID: 0}
-  _spriteREffect: {fileID: 4695352279837742623}
-  _goCamera: {fileID: 0}
 --- !u!61 &2716953441053010077
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -230,6 +195,7 @@ MonoBehaviour:
     - {fileID: 21300000, guid: a7ea903a22bf8954e8382d84d3cc03d5, type: 3}
     energyChargeTick: 1.66
     cooltimeDefault: 0.1
+    cooltimeSPDefault: 0.06
     cooltimeNow: 0
     energy: 100
     enegyConsumption: 2
@@ -240,6 +206,7 @@ MonoBehaviour:
     - {fileID: 21300000, guid: ad50cb5e367ba794cac5dc7226f51c40, type: 3}
     energyChargeTick: 1.5
     cooltimeDefault: 0.08
+    cooltimeSPDefault: 0.3
     cooltimeNow: 0
     energy: 100
     enegyConsumption: 2
@@ -252,6 +219,7 @@ MonoBehaviour:
     - {fileID: 21300000, guid: e99937d12a6ce5640809acffda35411a, type: 3}
     energyChargeTick: 2
     cooltimeDefault: 0.6
+    cooltimeSPDefault: 0.6
     cooltimeNow: 0
     energy: 100
     enegyConsumption: 8
@@ -264,29 +232,27 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 0680ce32cf2362449a30efb2ebbb6d82, type: 3}
     energyChargeTick: 0.75
     cooltimeDefault: 0.03
+    cooltimeSPDefault: 0.03
     cooltimeNow: 0
     energy: 100
     enegyConsumption: 1
     isLoaded: 1
   _prhbMissile: {fileID: 2904002178031744729, guid: 4e522c1c61916c64db875c7fa10b8154,
     type: 3}
-  PBombP: {fileID: 7958207911518698987, guid: ab7d12b8da6f4ec46b389f3780da9273, type: 3}
-  PMinePutP: {fileID: 7958207911518698987, guid: 42fa75b290953994daa1e9b99a55f28a,
+  _prfbRifle: {fileID: 2904002178031744729, guid: 529ebc4df1f7a134a8421f6995da0a0d,
     type: 3}
-  PMineP: {fileID: 7958207911518698987, guid: e452e4a1799e37d4993fb9ea6eb1575b, type: 3}
-  PMinecristalP: {fileID: 7958207911518698987, guid: 33afb2f6166d6ab4aa94432d8bd6a383,
+  PBombP: {fileID: 7958207911518698987, guid: ab7d12b8da6f4ec46b389f3780da9273, type: 3}
+  _prfbPBeamSP: {fileID: -5937091584141241926, guid: 8ee0815fd9c5de944b77778a416872ee,
+    type: 3}
+  PMinePutP: {fileID: -8180984521476296728, guid: 42fa75b290953994daa1e9b99a55f28a,
+    type: 3}
+  PMinecristalP: {fileID: -1900956605352558785, guid: 33afb2f6166d6ab4aa94432d8bd6a383,
     type: 3}
   PFireP: {fileID: -9000075523311225345, guid: 313afcfe6366ba84e8b3d85dbcc2ece3, type: 3}
   PSlashP: {fileID: -9000075523311225345, guid: ba4c2c6ea185256499c370157219cfa5,
     type: 3}
-  TPwazaPrefab: {fileID: -1332283313603249801, guid: 90030474d92a60c4db2b36b5de746ec3,
-    type: 3}
+  TPwazaPrefab: {fileID: 0}
   _prhbBulletShot: {fileID: -4044055410789821065, guid: 4ab58ed8157a87f4b930420cb7ccaf3c,
-    type: 3}
-  BeamMP: {fileID: -2664356427944814709, guid: 7c5281a74c6dd3c4183e2f67d4f970b2, type: 3}
-  PMachinegunP: {fileID: 5631937864527954202, guid: a4b6d88225a7f8644a890b9c462ac933,
-    type: 3}
-  PMeteorP: {fileID: 6981937100478953326, guid: cb43fa6ec8b185b4b9c013be5b20c77f,
     type: 3}
   _prfbTarget: {fileID: 4075970504917199329, guid: 21b57fdf0345ba8448fa616f76d91aef,
     type: 3}
@@ -297,6 +263,8 @@ MonoBehaviour:
   _prhbBombChild: {fileID: 2433527638186499868, guid: 6e7317807f73c5c4fa043fc753037619,
     type: 3}
   _prhbBurnChild: {fileID: 2433527638186499868, guid: d0b0d4c7b25fdb84aa55d072d7d413fb,
+    type: 3}
+  _prfbFlashEffect: {fileID: -1680574016585301769, guid: 07e984eff6923ce458cf7b6375a6c190,
     type: 3}
   shotS: {fileID: 8300000, guid: bbc8216ffe8abdb47bfdc3f36e6d6e4e, type: 3}
   magicuseS: {fileID: 8300000, guid: 1bcbcacf0c7d57f47a02c1eba7a8c7bc, type: 3}
@@ -311,56 +279,588 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 12f40f87d71b84c46babbbbb77fc7536, type: 3}
   - {fileID: 8300000, guid: 24d4167a264ed284cbec67717e8b598d, type: 3}
   - {fileID: 8300000, guid: bb7c803bb115bfa47a6987957ae380cd, type: 3}
---- !u!114 &4815941055968074136
+--- !u!114 &1513542673281017200
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2816075815389422427}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
+  m_Script: {fileID: 11500000, guid: 088c2383c5a53324ebb4cbd263eebe2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ComponentVersion: 1
-  m_LightType: 3
-  m_BlendStyleIndex: 0
-  m_FalloffIntensity: 0.489
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 0
-  m_LightVolumeIntensity: 1
-  m_LightVolumeIntensityEnabled: 0
-  m_ApplyToSortingLayers: 00000000
-  m_LightCookieSprite: {fileID: 0}
-  m_DeprecatedPointLightCookieSprite: {fileID: 0}
-  m_LightOrder: 0
-  m_AlphaBlendOnOverlap: 0
-  m_OverlapOperation: 0
-  m_NormalMapDistance: 3
-  m_NormalMapQuality: 2
-  m_UseNormalMap: 0
-  m_ShadowIntensityEnabled: 1
-  m_ShadowIntensity: 1
-  m_ShadowVolumeIntensityEnabled: 0
-  m_ShadowVolumeIntensity: 0.75
-  m_LocalBounds:
-    m_Center: {x: 0, y: -0.00000011920929, z: 0}
-    m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
-  m_PointLightInnerAngle: 360.00003
-  m_PointLightOuterAngle: 360.00003
-  m_PointLightInnerRadius: 0
-  m_PointLightOuterRadius: 100
-  m_ShapeLightParametricSides: 5
-  m_ShapeLightParametricAngleOffset: 0
-  m_ShapeLightParametricRadius: 1
-  m_ShapeLightFalloffSize: 0.5
-  m_ShapeLightFalloffOffset: {x: 0, y: 0}
-  m_ShapePath:
-  - {x: -0.5, y: -0.5, z: 0}
-  - {x: 0.5, y: -0.5, z: 0}
-  - {x: 0.5, y: 0.5, z: 0}
-  - {x: -0.5, y: 0.5, z: 0}
+  _playerGurNormal:
+  - {fileID: 21300000, guid: 7e5f239f173b78140ad3a8c057fbc44e, type: 3}
+  - {fileID: 21300000, guid: 0b0e91f804acb104bad38cb71f56ca76, type: 3}
+  - {fileID: 21300000, guid: 271340393db8a7448bbada714e6ef56e, type: 3}
+  - {fileID: 21300000, guid: ea6389df3c6ee4d4d947795bde00f9c6, type: 3}
+  _playerGurWark:
+  - {fileID: 21300000, guid: 787ebb96fe6a86f45ae228787927f46c, type: 3}
+  - {fileID: 21300000, guid: b78c7b284ccb2dd41bb97e929e50d614, type: 3}
+  - {fileID: 21300000, guid: 21eedbf17c45b4843964aa45ef428af6, type: 3}
+  - {fileID: 21300000, guid: 34dc96a1cd3530148952d6fdbc884a9f, type: 3}
+  _playerDeath: {fileID: 21300000, guid: 188f5bde8185bae4196cf99ea340ee52, type: 3}
+  _playerChanging: {fileID: 21300000, guid: 5e0ac7c09e2055c498a0b252614bb545, type: 3}
+  DamagePrefab: {fileID: -7712346880004829483, guid: 68137fa6eaa711748be379bb27b242d0,
+    type: 3}
+  HealEffectPrefab: {fileID: 3750906648815249016, guid: e5437bbde24574e23a3f7309642619e9,
+    type: 3}
+  BDE: {fileID: -1680574016585301769, guid: e2c6aa855d55e4cb1b692f5419a647ec, type: 3}
+  ExpPrefab: {fileID: 4075970504917199329, guid: b61c991931763cd42b5a16006c881ae6,
+    type: 3}
+  healS: {fileID: 8300000, guid: 61913fc6b66b25a4bb743eff68820957, type: 3}
+  damageS: {fileID: 8300000, guid: dc5e3ed60318d004cbd8d123bdf2772c, type: 3}
+  magicgetS: {fileID: 8300000, guid: e8f7c5e27b509c842a7de107c5cb61fe, type: 3}
+  magicuseS: {fileID: 8300000, guid: 1bcbcacf0c7d57f47a02c1eba7a8c7bc, type: 3}
+  _spriteREffect: {fileID: 4695352279837742623}
+  _prfbTextStage: {fileID: 3537824361884008731, guid: 8def81ccf21855f438316b4ac8127f79,
+    type: 3}
+--- !u!114 &-6548763631851986370
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2816075815389422427}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8f07e46a9a2d53448a40ee9653f3544, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2600030448144314971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2816075815389422427}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actions: {fileID: -944628639613478452, guid: 6197e5532d7c2a54a81d3bea7cf37ad4,
+    type: 3}
+  m_NotificationBehavior: 2
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents:
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: OnFire
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 8db979a8-3c9f-4111-adca-1d6b6a2f5a08
+    m_ActionName: Player/Fire[/XInputControllerWindows/rightTrigger,/Mouse/leftButton,/XInputControllerWindows/rightShoulder]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: GunModeChange
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 9dae40a2-9df1-486c-8d7f-9243605b841c
+    m_ActionName: Player/ChangeUP[/XInputControllerWindows/rightStick/up]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: OnSuperFire
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 4884bf18-83e3-4550-8240-9ce71a6870c3
+    m_ActionName: Player/SuperFire[/XInputControllerWindows/leftShoulder]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: OnPouseEnd
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: dc47c5f2-f973-4ccd-b879-d87b46836853
+    m_ActionName: Player/Pouse[/XInputControllerWindows/start]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: OnMoveL
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: fac1b696-bac1-4ce7-8212-31d516b0d614
+    m_ActionName: Player/MoveL[/XInputControllerWindows/dpad/left]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: OnMoveR
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: d43e4187-6e7a-48c7-82cb-3d6dea40367a
+    m_ActionName: Player/MoveR[/XInputControllerWindows/dpad/right]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: OnJump
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 81e92a30-f126-4bfe-bedd-74306d300a6a
+    m_ActionName: Player/Jump[/XInputControllerWindows/dpad/up]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: OnDown
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: d1879624-a570-4413-a653-091751dcf682
+    m_ActionName: Player/Down[/XInputControllerWindows/dpad/down]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: OnFire2
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: fd3c270b-0287-47a3-b454-00524792c610
+    m_ActionName: Player/Fire2[/Mouse/rightButton,/XInputControllerWindows/rightShoulder,/Keyboard/f]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: OnPouseStart
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 4a267006-6114-4a34-8e56-b60f7dd732d6
+    m_ActionName: Main/Ok[/Keyboard/space,/XInputControllerWindows/start]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e203f868-ffcf-44a5-8548-e76310cb8127
+    m_ActionName: Main/Left[/Keyboard/leftArrow,/XInputControllerWindows/dpad/left]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 5e4f0bc6-19fe-445b-9398-311fabb99efb
+    m_ActionName: Main/Right[/Keyboard/rightArrow,/XInputControllerWindows/dpad/right]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: GunModeChangeBeam
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: c7dca105-806c-4c63-a9bb-6dc99c8875b9
+    m_ActionName: Player/Beam[/XInputControllerWindows/buttonNorth,/XInputControllerWindows1/buttonNorth]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: GunModeChangeBullet
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 5b48e42d-2ae9-4e8e-8083-171934005e95
+    m_ActionName: Player/Bullet[/XInputControllerWindows/buttonEast,/XInputControllerWindows1/buttonEast]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: GunModeChangeRocket
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 326ad5de-48ac-420b-a8dc-e2099cc6eca8
+    m_ActionName: Player/Rocket[/XInputControllerWindows/buttonSouth,/XInputControllerWindows1/buttonSouth]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: GunModeChangeMine
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 6796ee36-88dd-4b0c-908e-c16456f45dc5
+    m_ActionName: Player/Mine[/XInputControllerWindows/buttonWest,/XInputControllerWindows1/buttonWest]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 01da14d1-cec8-423b-a6e2-942f0c7ee17b
+    m_ActionName: Star0/FireStar[/Mouse/leftButton,/XInputControllerWindows/rightShoulder,/XInputControllerWindows1/rightShoulder,/Keyboard/space]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6875793471545032816, guid: a0855c1e7b82c794683ce3a874300525,
+          type: 3}
+        m_TargetAssemblyTypeName: TutorialC, Assembly-CSharp
+        m_MethodName: OnMove
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 14091a09-d3d2-40a8-a8fe-5c40c82b3d76
+    m_ActionName: Player/TutoMove[/XInputControllerWindows/dpad/left,/Keyboard/a,/Keyboard/leftArrow,/XInputControllerWindows/dpad/right,/Keyboard/d,/Keyboard/rightArrow]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: SP1
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: f6d18c83-2ce3-4aad-ad9b-752605b715b0
+    m_ActionName: Player/SP1[/XInputControllerWindows/leftTrigger]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: SP2
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 81ce4de7-7a98-4f9c-8f3d-396d3ec6cee2
+    m_ActionName: Player/SP2[/XInputControllerWindows/rightTrigger]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: PouseMenuC, Assembly-CSharp
+        m_MethodName: OnPouse
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 1e714553-5168-4d53-9a6c-172d359a2802
+    m_ActionName: Player/Back[/Keyboard/escape,/XInputControllerWindows/buttonSouth]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: f30cc5a1-f1f9-44d3-a307-2e2b4c8768e1
+    m_ActionName: Main/Back[/Keyboard/escape,/XInputControllerWindows/buttonSouth]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 7af28c81-508a-4c3c-985a-76244b821ca4
+    m_ActionName: Main/Bug1[/XInputControllerWindows1/leftTrigger]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: a212b683-20a1-41d0-9022-2fa13df2aa0a
+    m_ActionName: Main/Bug2[/XInputControllerWindows1/rightTrigger]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: bd547012-8df4-40ff-8e6d-8b8c8d5359fc
+    m_ActionName: Main/Bug3[/XInputControllerWindows1/leftShoulder]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 0b3e7f24-d10a-4b7a-87a7-096429244afb
+    m_ActionName: Main/Bug4[/XInputControllerWindows1/rightShoulder]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 80691693-f47c-4705-a964-8501e2ea9b3d
+    m_ActionName: Main/Any[/XInputControllerWindows/buttonEast,/XInputControllerWindows/buttonSouth,/XInputControllerWindows/buttonWest,/XInputControllerWindows/buttonNorth,/XInputControllerWindows/dpad/left,/XInputControllerWindows/dpad/up,/XInputControllerWindows/dpad/right,/XInputControllerWindows/dpad/down,/XInputControllerWindows/leftShoulder,/XInputControllerWindows/rightShoulder,/XInputControllerWindows/leftStickPress,/XInputControllerWindows/rightStickPress,/XInputControllerWindows/start]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: OnPouseUp
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: ec4c3a4e-5dd3-4556-9649-9a9913c98b0e
+    m_ActionName: Main/Up[/XInputControllerWindows/dpad/up]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: OnPouseDown
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 3c43c2cb-2081-44a2-882c-eadb0ff65ffb
+    m_ActionName: Main/Down[/XInputControllerWindows/dpad/down]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: OnMoveLStick
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: e0bd3112-61a8-450a-87b8-93d54b56348d
+    m_ActionName: Player/LStic[/XInputControllerWindows/leftStick/left]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: OnMoveRStick
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: d986d0cc-7391-44b4-b9d8-77713f91d4b5
+    m_ActionName: Player/RStic[/XInputControllerWindows/leftStick/right]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: OnJumpStick
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 6c540f81-1bd9-445b-af73-3bef6eb80a77
+    m_ActionName: Player/UStick[/XInputControllerWindows/leftStick/up]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: OnDownStick
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: c88c8656-896f-422f-b54b-0420fe7eacd7
+    m_ActionName: Player/DStick[/XInputControllerWindows/leftStick/down]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: GunModeChangeRocketStick
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 3cdc772d-1628-4cba-b7e3-bb90f35bc7a9
+    m_ActionName: Player/DStick1[/XInputControllerWindows/rightStick/down]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: GunModeChangeBeamStick
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 3d189901-2d60-4541-a767-e29fc89fe5a8
+    m_ActionName: Player/UStick1[/XInputControllerWindows/rightStick/up]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: GunModeChangeBulletStick
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: f5def71a-cc88-4d80-8e7e-518d14d285e0
+    m_ActionName: Player/RStic1[/XInputControllerWindows/rightStick/right]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1513542673281017200}
+        m_TargetAssemblyTypeName: PlayerC, Assembly-CSharp
+        m_MethodName: GunModeChangeMineStick
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 57f75c5b-5b36-42d2-883b-250593522542
+    m_ActionName: Player/LStic1[/XInputControllerWindows/rightStick/left]
+  m_NeverAutoSwitchControlSchemes: 1
+  m_DefaultControlScheme: Gamepad
+  m_DefaultActionMap: Player
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
+--- !u!114 &3245736061792535596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2816075815389422427}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24f2094ecec88cf499934ffbca77b25d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _srFace: {fileID: 3713097417469916537}
+  _spFaces:
+  - {fileID: 21300000, guid: 3cd69d16f35d7d04e9b59433e6047645, type: 3}
+  - {fileID: 21300000, guid: 87979faeb45834f4ca000ea22747084f, type: 3}
 --- !u!1 &3490990807346030775
 GameObject:
   m_ObjectHideFlags: 0
@@ -446,6 +946,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5435854285451063806}
   - component: {fileID: 2219200855708985067}
+  - component: {fileID: 8078729817229654768}
   m_Layer: 5
   m_Name: HP
   m_TagString: Untagged
@@ -525,6 +1026,104 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8078729817229654768
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4365880811644805046}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66d12d1a9fa69c84c8c4f7b5358ef39b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playerHpBar: {fileID: 2219200855708985067}
+  _player: {fileID: 1513542673281017200}
+--- !u!1 &4643709481521488703
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5505091683275065449}
+  - component: {fileID: 3713097417469916537}
+  m_Layer: 0
+  m_Name: Face
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5505091683275065449
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4643709481521488703}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7036645374485729928}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &3713097417469916537
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4643709481521488703}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: -355946135
+  m_SortingLayer: 6
+  m_SortingOrder: 2
+  m_Sprite: {fileID: 21300000, guid: 3cd69d16f35d7d04e9b59433e6047645, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 8, y: 7}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
 --- !u!1 &4758227544298885157
 GameObject:
   m_ObjectHideFlags: 0
@@ -663,6 +1262,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8aa19e93e0ca3434796d098c20deaa82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _playerGO: {fileID: 2816075815389422427}
   _coolDownBarFill: {fileID: 3490990807346030775}
 --- !u!1 &5145926208971410560
 GameObject:

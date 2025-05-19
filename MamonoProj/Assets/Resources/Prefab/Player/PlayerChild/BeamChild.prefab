@@ -145,7 +145,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _modeWeapon: 0
-  _prfbBeamBoll: {fileID: -5846645366218688318, guid: be2bd4b35f108954194ee5d2275a34dc,
+  _prfbBeamCristal: {fileID: 3944300286413516637, guid: 7c5281a74c6dd3c4183e2f67d4f970b2,
     type: 3}
   PBeamP: {fileID: 2904002178031744729, guid: cd3ccc31e2447674fb15a19b566100f8, type: 3}
   PRaserP: {fileID: 2904002178031744729, guid: cd3ccc31e2447674fb15a19b566100f8, type: 3}

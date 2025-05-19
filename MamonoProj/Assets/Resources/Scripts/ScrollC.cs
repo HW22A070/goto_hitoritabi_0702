@@ -1,20 +1,1 @@
-﻿using UnityEngine;
-
-/// <summary>
-/// 背景スクロール用
-/// </summary>
-public class ScrollC : MonoBehaviour
-{
-    [SerializeField]
-    private Vector3 _resetPosition;
-
-    [SerializeField]
-    private float _triggerPosX;
-
-    // Update is called once per frame
-    void FixedUpdate()
-    {
-        transform.position -= transform.right;
-        if(transform.position.x<=_triggerPosX)transform.position=_resetPosition;
-    }
-}
+﻿using UnityEngine;/// <summary>/// 背景スクロール用/// </summary>public class ScrollC : MonoBehaviour{    [SerializeField]    private Vector3 _resetPosition;    [SerializeField]    private float _triggerPosX;    // Update is called once per frame    void FixedUpdate()    {        transform.position -= transform.right;        if(transform.position.x<=_triggerPosX)transform.position=_resetPosition;    }}

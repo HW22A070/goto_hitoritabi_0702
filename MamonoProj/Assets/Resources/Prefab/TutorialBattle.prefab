@@ -73,7 +73,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -93742559
   m_SortingLayer: 1
-  m_SortingOrder: 1000
+  m_SortingOrder: 1001
   m_Sprite: {fileID: 21300000, guid: 4e7425bc112452144bd084456337b65b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1586,7 +1586,7 @@ MonoBehaviour:
   - {fileID: 1732058066361249364}
   - {fileID: 7435620607784320923}
   - {fileID: 567023222992869499}
-  _goPlayer: {fileID: 0}
+  _scPlsM: {fileID: 0}
   _goEnemySummoner: {fileID: 0}
 --- !u!95 &2607569399881429013
 Animator:
@@ -3486,7 +3486,7 @@ PrefabInstance:
     - target: {fileID: 9190287140862411520, guid: 909c457d070bad74ebdb6425de32a905,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 1.9
       objectReference: {fileID: 0}
     - target: {fileID: 9190287140862411520, guid: 909c457d070bad74ebdb6425de32a905,
         type: 3}

@@ -137,7 +137,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!1 &5812705016664728467
+--- !u!1 &5448852326355205983
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -145,44 +145,37 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2854822886094864065}
-  - component: {fileID: 1295037578723569222}
-  - component: {fileID: -8048661084623567557}
-  - component: {fileID: 1743331823203784909}
-  - component: {fileID: 2530017769736061194}
-  - component: {fileID: 3013033768182497160}
-  m_Layer: 7
-  m_Name: MechaZombie
-  m_TagString: Enemy
+  - component: {fileID: 334179342016012566}
+  - component: {fileID: 2404974191378216376}
+  m_Layer: 0
+  m_Name: Body
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &2854822886094864065
+--- !u!4 &334179342016012566
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5812705016664728467}
+  m_GameObject: {fileID: 5448852326355205983}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 507528537952482398}
-  - {fileID: 4264866059927084696}
-  - {fileID: 6243138714778377665}
-  m_Father: {fileID: 0}
+  m_Children: []
+  m_Father: {fileID: 2854822886094864065}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &1295037578723569222
+--- !u!212 &2404974191378216376
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5812705016664728467}
+  m_GameObject: {fileID: 5448852326355205983}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -215,7 +208,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -560233965
-  m_SortingLayer: 3
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 2780cac5fe6855a4dadeb83275be3c33, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -228,6 +221,45 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &5812705016664728467
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2854822886094864065}
+  - component: {fileID: -8048661084623567557}
+  - component: {fileID: 1743331823203784909}
+  - component: {fileID: 2530017769736061194}
+  - component: {fileID: 3013033768182497160}
+  m_Layer: 7
+  m_Name: MechaZombie
+  m_TagString: Enemy
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2854822886094864065
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5812705016664728467}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 507528537952482398}
+  - {fileID: 4264866059927084696}
+  - {fileID: 6243138714778377665}
+  - {fileID: 334179342016012566}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &-8048661084623567557
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -330,10 +362,6 @@ MonoBehaviour:
   - 0
   - 1
   - 2.2
-  _isBeamCritical: 0100000001
-  _isBulletCritical: 0001000001
-  _isFireCritical: 0000010001
-  _isBombCritical: 0000000101
   HealPrefab: {fileID: 8733729066436433301, guid: 42b6587cab18548a48766375c38ab0ae,
     type: 3}
   MagicPrefab: {fileID: -8123651273206196720, guid: 90d8f3e6b445a474aae3d875411b253e,
@@ -356,10 +384,10 @@ MonoBehaviour:
   ExpPrefab: {fileID: -4592046808661679008, guid: 3d64a951de8115d4b844c26849c43a24,
     type: 3}
   _isKaitenLock: 0
-  sizex: 96
-  sizey: 96
-  speed: 0.5
-  delete: 0.5
+  _sizeX: 0
+  _sizeY: 0
+  _speed: 0
+  _delete: 0
   _loop: 1
 --- !u!114 &3013033768182497160
 MonoBehaviour:
@@ -373,6 +401,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aaa70554e461a4a4aba2b7115fbfcbc2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  StaffPrefab: {fileID: 6086698536937280619, guid: cd0ed53e1d90ce943b8d7e6e89e70008,
+    type: 3}
   _srPlant: {fileID: 5386521402237177888}
   _beam: {fileID: 21300000, guid: 2780cac5fe6855a4dadeb83275be3c33, type: 3}
   _bullet: {fileID: 21300000, guid: a66b4b32389f1c742960733ab9bbc42f, type: 3}
@@ -399,18 +429,18 @@ MonoBehaviour:
     type: 3}
   _pefbVirusEF: {fileID: -4592046808661679008, guid: 3d64a951de8115d4b844c26849c43a24,
     type: 3}
-  GCP: {fileID: 0}
+  _pefbVirus: {fileID: -4592046808661679008, guid: ed6a3b8dab0043f4d920e5e7a9673bcd,
+    type: 3}
   FireworkP: {fileID: -6674347203523767852, guid: 83d11036f8015c74d8fd44f42972d5b6,
     type: 3}
-  _goUnitP: {fileID: -7217190988547447391, guid: 26d8347003bd98441a9db54cd9ef088b,
-    type: 3}
-  StaffPrefab: {fileID: 6086698536937280619, guid: cd0ed53e1d90ce943b8d7e6e89e70008,
+  _goUnitP: {fileID: 5465520100732817522, guid: 26d8347003bd98441a9db54cd9ef088b,
     type: 3}
   _seMissile: {fileID: 8300000, guid: 2ff593292b0002f4ea8be86daa0164c4, type: 3}
   _seGun: {fileID: 8300000, guid: ba2f8362b85e98a438119690b564b4d7, type: 3}
   _seFire: {fileID: 8300000, guid: 08ceed11f14b80a4e84c67b3f7edc331, type: 3}
   _seEXP: {fileID: 8300000, guid: d5a282c9faedf684a8ec6e889e4bce4c, type: 3}
-  playerGO: {fileID: 0}
+  _bellS: {fileID: 8300000, guid: e38456c970309654abce097d91851c14, type: 3}
+  _shoutS: {fileID: 8300000, guid: ebd0e409d6db155448d0cc6f06f15de0, type: 3}
 --- !u!1001 &6042189930253680838
 PrefabInstance:
   m_ObjectHideFlags: 0

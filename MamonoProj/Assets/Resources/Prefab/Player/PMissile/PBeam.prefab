@@ -10,9 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 8273601077572617860}
   - component: {fileID: 7387375148840293799}
-  - component: {fileID: 2904002178031744729}
   - component: {fileID: -4714404319016966720}
-  - component: {fileID: 6454019301030534584}
+  - component: {fileID: -5937091584141241926}
   m_Layer: 9
   m_Name: PBeam
   m_TagString: PM
@@ -74,7 +73,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1191421425
-  m_SortingLayer: 6
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 5c41b7c86b76c704eaef5ef3cfdcff15, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -87,18 +86,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &2904002178031744729
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5117051703357640148}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8af02f2bd389bf949ad72a85bbafd275, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!61 &-4714404319016966720
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -135,16 +122,16 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 32, y: 64}
+    oldSize: {x: 8, y: 64}
     newSize: {x: 8, y: 8}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 24, y: 24}
+  m_Size: {x: 16, y: 64}
   m_EdgeRadius: 0
---- !u!114 &6454019301030534584
+--- !u!114 &-5937091584141241926
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -153,13 +140,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 5117051703357640148}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16f6a05f897e0d54cb6705a051f5325a, type: 3}
+  m_Script: {fileID: 11500000, guid: d080ff4a949adeb489e6ba0a862a4611, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sosai: 0
   _right: 1
   _left: 1
   _up: 1
   _down: 1
   _attackType: 0
-  _attackPower: 1
+  _attackPower: 2
+  _penetrationHit: 2
+  _isSosaiEXP: 0
+  ExpPrefab: {fileID: -1693516515608062150, guid: eba44020f42e7c248968f9a27c5941a9,
+    type: 3}
+  _prhbExpShining: {fileID: -4044055410789821065, guid: 449e28a8868bcb242a1054bf0e390920,
+    type: 3}
+  expS: {fileID: 0}

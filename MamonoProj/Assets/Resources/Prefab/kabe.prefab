@@ -116,6 +116,7 @@ MonoBehaviour:
   _fire: {fileID: 21300000, guid: 666bfc4ea8f03bc4f8d96b9e0457c303, type: 3}
   _spike: {fileID: 21300000, guid: 57f50db50d3c6574d912fc8d6c8ab1d3, type: 3}
   _spike2: {fileID: 21300000, guid: fcb0dadf044a09443bf8bce049a60ee0, type: 3}
+  _tower: {fileID: 21300000, guid: 5e5de1f385f1dcc4d8e7b2d8ba2389df, type: 3}
   _isBedRock: 0
   _goFire: {fileID: 534874890660769460}
 --- !u!61 &-3213520324488131418

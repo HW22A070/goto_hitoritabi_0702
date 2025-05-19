@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5279932367109701850}
   - component: {fileID: 6292860868419153067}
-  - component: {fileID: 3177536712524737644}
   - component: {fileID: 4075970504917199329}
   - component: {fileID: -5192805781335190421}
   - component: {fileID: -2271181057779012196}
@@ -75,7 +74,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -560233965
-  m_SortingLayer: 4
+  m_SortingLayer: 5
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: 94adeb10277a6c444b434233f50a7bda, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -88,26 +87,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &3177536712524737644
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6987762620052230526}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 848c3c09004f3504fbc2d50d832f70ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _destroyToPM: 4
-  _right: 1
-  _left: 1
-  _up: 1
-  _down: 1
-  _palyerDelete: 0
-  _HitInvincible: 0.1
-  _attackPower: 2
 --- !u!114 &4075970504917199329
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -120,6 +99,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8516ee9c4b345f6498c51972065bc66d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _destroyToPM: 5
+  _right: 0
+  _left: 0
+  _up: 0
+  _down: 0
+  _palyerDelete: 0
+  _HitInvincible: 0.03
+  _attackPower: 1
   _isEffect: 0
 --- !u!61 &-5192805781335190421
 BoxCollider2D:

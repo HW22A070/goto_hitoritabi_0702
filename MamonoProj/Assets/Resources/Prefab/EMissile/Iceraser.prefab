@@ -10,8 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7874371025653058835}
   - component: {fileID: 77490751601902368}
-  - component: {fileID: -8764645529248843859}
-  - component: {fileID: 1255963561953599215}
+  - component: {fileID: 6125486606831542867}
   - component: {fileID: -8213876161111293550}
   m_Layer: 8
   m_Name: Iceraser
@@ -74,7 +73,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1191421425
-  m_SortingLayer: 6
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: da1c1143542f7314ab410ee4ff1ff921, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -87,7 +86,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 1
---- !u!114 &-8764645529248843859
+--- !u!114 &6125486606831542867
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -96,10 +95,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 2137866466195253933}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 848c3c09004f3504fbc2d50d832f70ab, type: 3}
+  m_Script: {fileID: 11500000, guid: 6eb3995d296a31f468eff01d1dd56b5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _destroyToPM: 0
+  _destroyToPM: 5
   _right: 1
   _left: 1
   _up: 1
@@ -107,18 +106,6 @@ MonoBehaviour:
   _palyerDelete: 0
   _HitInvincible: 0.5
   _attackPower: 3
---- !u!114 &1255963561953599215
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2137866466195253933}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 439bc6cc88c2e73419f4d5a96d89bcbe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!61 &-8213876161111293550
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -155,7 +142,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 48, y: 96}
+    oldSize: {x: 48, y: 640}
     newSize: {x: 8, y: 8}
     adaptiveTilingThreshold: 0.5
     drawMode: 0

@@ -917,12 +917,27 @@ PrefabInstance:
     - target: {fileID: 2693441708172207026, guid: f59ad719d37b04e4688e9bc35aee0824,
         type: 3}
       propertyPath: m_Text
-      value: "\u3059\u3059\u3080"
+      value: "\u30BF\u30A4\u30C8\u30EB\u306B\u3082\u3069\u308B"
       objectReference: {fileID: 0}
     - target: {fileID: 5960918325050713716, guid: f59ad719d37b04e4688e9bc35aee0824,
         type: 3}
       propertyPath: m_Name
       value: Key
+      objectReference: {fileID: 0}
+    - target: {fileID: 7479556384556134511, guid: f59ad719d37b04e4688e9bc35aee0824,
+        type: 3}
+      propertyPath: _en
+      value: Back to Title
+      objectReference: {fileID: 0}
+    - target: {fileID: 7479556384556134511, guid: f59ad719d37b04e4688e9bc35aee0824,
+        type: 3}
+      propertyPath: _jp
+      value: "\u30BF\u30A4\u30C8\u30EB\u306B\u3082\u3069\u308B"
+      objectReference: {fileID: 0}
+    - target: {fileID: 7479556384556134511, guid: f59ad719d37b04e4688e9bc35aee0824,
+        type: 3}
+      propertyPath: _kids
+      value: "\u30BF\u30A4\u30C8\u30EB\u306B\u3082\u3069\u308B"
       objectReference: {fileID: 0}
     - target: {fileID: 8530390409981255051, guid: f59ad719d37b04e4688e9bc35aee0824,
         type: 3}

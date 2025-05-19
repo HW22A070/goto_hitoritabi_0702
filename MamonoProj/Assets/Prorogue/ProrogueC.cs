@@ -62,18 +62,18 @@ public class ProrogueC : MonoBehaviour
         Destroy(mail);
         for (_forhoge = 0; _forhoge < 100; _forhoge++)
         {
-            Instantiate(_prfbVirusE, GameData.GetRandomWindowPosition(), rot).EShot1(Random.Range(0, 360), 0.2f, 10);
+            Instantiate(_prfbVirusE, GameData.GetRandomWindowPosition(), rot).ShotEXP(Random.Range(0, 360), 0.2f, 10);
         }
         for (_forhoge = 0; _forhoge < 30; _forhoge++)
         {
             Instantiate(_prfbVirusE2, zombie.transform.position+new Vector3(Random.Range(-64,64), Random.Range(-64, 64),0), rot)
-                .EShot1(Random.Range(0, 360), 0.2f, 3);
+                .ShotEXP(Random.Range(0, 360), 0.2f, 3);
         }
         zombie.GetComponent<SpriteRenderer>().sprite = _virused;
         yield return new WaitForSeconds(5.0f);
         while (zombie.transform.position.y < 700)
         {
-            Instantiate(_prfbVirusE2, zombie.transform.position + new Vector3(Random.Range(-64, 64), -64), rot).EShot1(270, 0.5f, 1);
+            Instantiate(_prfbVirusE2, zombie.transform.position + new Vector3(Random.Range(-64, 64), -64), rot).ShotEXP(270, 0.5f, 1);
             zombie.transform.position += transform.up * 5;
             yield return new WaitForSeconds(0.03f);
         }

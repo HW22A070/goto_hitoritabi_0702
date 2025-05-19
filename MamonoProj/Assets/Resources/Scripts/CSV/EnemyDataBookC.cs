@@ -1,28 +1,37 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class EnemyDataBookC : MonoBehaviour
 {
-    public EnemyDataC[] enemyDatas;
+    public EnemyDatas[] enemyDatas;
 
     // Start is called before the first frame update
     void FixedUpdate()
     {
         TextAsset textasset = new TextAsset();
         textasset = Resources.Load("EnemyData", typeof(TextAsset)) as TextAsset;
-        enemyDatas = CSVSerializer.Deserialize<EnemyDataC>(textasset.text);
+        enemyDatas = CSVSerializer.Deserialize<EnemyDatas>(textasset.text);
     }
 
-    public EnemyDataC sendEnenyData(string name)
+    public EnemyDatas sendEnenyData(string name)
     {
-        EnemyDataC enemyData=enemyDatas[0];
-        for(int i = 0; i < enemyDatas.Length; i++)
+        foreach(EnemyDatas data in enemyDatas)
         {
-            if (enemyDatas[i].NAME == name)
+            if (data.NAME == name)
             {
-                enemyData= enemyDatas[i];
-                break;
+                return data;
             }
         }
-        return enemyData;
+        return enemyDatas[0];
+    }
+
+    public List<EnemyDatas> GetEnemysByScore(int score)
+    {
+        List<EnemyDatas> datas = new List<EnemyDatas> { };
+        foreach(EnemyDatas data in enemyDatas)
+        {
+            if (data.SCORE == score) datas.Add(data);
+        }
+        return datas;
     }
 }

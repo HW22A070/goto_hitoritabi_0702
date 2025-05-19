@@ -98,6 +98,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8516ee9c4b345f6498c51972065bc66d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _destroyToPM: 5
+  _right: 0
+  _left: 0
+  _up: 0
+  _down: 0
+  _palyerDelete: 0
+  _HitInvincible: 0.5
+  _attackPower: 0
   _isEffect: 1
 --- !u!95 &-7754258741868379556
 Animator:

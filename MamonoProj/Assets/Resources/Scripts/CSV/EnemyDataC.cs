@@ -1,5 +1,5 @@
 [System.Serializable]
-public class EnemyDataC
+public struct EnemyDatas
 {
     public string NAME;
 
@@ -13,11 +13,6 @@ public class EnemyDataC
     public float[] BULLET_DAMAGE;
     public float[] FIRE_DAMAGE;
     public float[] BOMB_DAMAGE;
-
-    public bool[] BEAM_CRI;
-    public bool[] BULLET_CRI;
-    public bool[] FIRE_CRI;
-    public bool[] BOMB_CRI;
 
     public bool IS_BOSS;
 }

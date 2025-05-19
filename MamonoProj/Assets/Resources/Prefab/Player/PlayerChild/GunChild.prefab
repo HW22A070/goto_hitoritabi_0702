@@ -72,7 +72,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -355946135
-  m_SortingLayer: 5
+  m_SortingLayer: 6
   m_SortingOrder: -1
   m_Sprite: {fileID: 21300000, guid: a2c4ccfe85b931546b354e81236c1f07, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -97,10 +97,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7022a67c87098c245b3934c743cbf03a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _gunMode: 1
+  _modeWeapon: 0
   GOTarget: {x: 0, y: 0, z: 0}
   PBulletP: {fileID: 2904002178031744729, guid: 4e522c1c61916c64db875c7fa10b8154,
     type: 3}
   PRifleP: {fileID: 2904002178031744729, guid: dbc9d77c8070c794fb343c7ae04f1658, type: 3}
+  _prfbRailGun: {fileID: -6442999761529089167, guid: 80af14b256de7374d949a5835a4d4813,
+    type: 3}
   _prhbBulletShot: {fileID: -4044055410789821065, guid: 4ab58ed8157a87f4b930420cb7ccaf3c,
     type: 3}
+  _spNormal: {fileID: 21300000, guid: a2c4ccfe85b931546b354e81236c1f07, type: 3}
+  _spSpesial: {fileID: 21300000, guid: 7ab461e8a3f829d4b9c997aa1f8f69bb, type: 3}

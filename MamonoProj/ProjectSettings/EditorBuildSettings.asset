@@ -18,6 +18,9 @@ EditorBuildSettings:
     path: Assets/Scene/StageSelect.unity
     guid: c683582b572804347bc0321a930c27f1
   - enabled: 1
+    path: Assets/Scene/Dead.unity
+    guid: 90cafaf581895c54ea70445e2fadf38d
+  - enabled: 1
     path: Assets/Scene/Level.unity
     guid: 290067c5f28fb744ab6384b40b719b24
   - enabled: 1
@@ -26,9 +29,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scene/Game.unity
     guid: 2cda990e2423bbf4892e6590ba056729
-  - enabled: 1
-    path: Assets/Scene/Dead.unity
-    guid: 90cafaf581895c54ea70445e2fadf38d
   - enabled: 1
     path: Assets/Scene/Clear.unity
     guid: 32143b761f3e7a74981bcbad65469c8b

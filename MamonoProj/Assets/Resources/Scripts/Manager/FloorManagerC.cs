@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using EnumDic.Floor;
+using EnumDic.System;
+using EnumDic.Stage;
 
 public class FloorManagerC : MonoBehaviour
 {
@@ -38,7 +39,8 @@ public class FloorManagerC : MonoBehaviour
         //創造
         switch (GameData.GameMode)
         {
-            case 0:
+            case MODE_GAMEMODE.Normal:
+            case MODE_GAMEMODE.MultiTower:
                 for (int y = 0; y < GameData.WindowSize.y - 32; y += 90)
                 {
                     for (int x = 32; x < GameData.WindowSize.x; x += 64)

@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5161322619589986517}
   - component: {fileID: 1478278737224898294}
-  - component: {fileID: -1818743287159558888}
   - component: {fileID: 3056101085339816763}
   - component: {fileID: 2046118263094330464}
   - component: {fileID: -2019118161310319865}
@@ -89,26 +88,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &-1818743287159558888
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 968507221927611264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 848c3c09004f3504fbc2d50d832f70ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _destroyToPM: 5
-  _right: 1
-  _left: 1
-  _up: 0
-  _down: 1
-  _palyerDelete: 1
-  _HitInvincible: 1
-  _attackPower: 4
 --- !u!114 &3056101085339816763
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -121,6 +100,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8314ba47b0428cc45a33c33cdfc9928f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _destroyToPM: 5
+  _right: 1
+  _left: 1
+  _up: 0
+  _down: 1
+  _palyerDelete: 1
+  _HitInvincible: 1
+  _attackPower: 4
   ExpPrefab: {fileID: -4592046808661679008, guid: ed6a3b8dab0043f4d920e5e7a9673bcd,
     type: 3}
   expS: {fileID: 8300000, guid: d5a282c9faedf684a8ec6e889e4bce4c, type: 3}
@@ -142,10 +129,10 @@ MonoBehaviour:
   ExpPrefab: {fileID: -4592046808661679008, guid: 3d64a951de8115d4b844c26849c43a24,
     type: 3}
   _isKaitenLock: 0
-  sizex: 32
-  sizey: 32
-  speed: 1
-  delete: 0.5
+  _sizeX: 0
+  _sizeY: 0
+  _speed: 0
+  _delete: 0
   _loop: 1
 --- !u!114 &-2019118161310319865
 MonoBehaviour:
@@ -159,7 +146,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2dcab5bdf8e9894dba55b703a043b3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  changecount: 0.03
+  _countChange: 0
   spriteRenderer: {fileID: 1478278737224898294}
   sprites:
   - {fileID: 21300000, guid: d4c913a39c33cce4d801808c09a66f65, type: 3}

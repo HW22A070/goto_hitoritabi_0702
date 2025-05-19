@@ -24,19 +24,10 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "ChangeUP",
-                    "type": "Button",
+                    "name": "ChangeScroll",
+                    "type": "Value",
                     "id": "9dae40a2-9df1-486c-8d7f-9243605b841c",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "Press",
-                    "initialStateCheck": true
-                },
-                {
-                    "name": "ChangeDown",
-                    "type": "PassThrough",
-                    "id": "5fc6c6ec-d877-4513-b40a-a5d07802e92b",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "Delta",
                     "processors": "",
                     "interactions": "Press",
                     "initialStateCheck": true
@@ -266,29 +257,18 @@
                 {
                     "name": "",
                     "id": "54c59c0c-32c4-4da3-9a76-91a6a68eaa7d",
-                    "path": "<Mouse>/backButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "ChangeUP",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "9431df57-a7e6-42d2-97b3-6fd5a320cc52",
-                    "path": "<Mouse>/forwardButton",
+                    "path": "<Mouse>/scroll",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
-                    "action": "ChangeDown",
+                    "action": "ChangeScroll",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
                     "id": "b1836d26-6c13-4ddc-b6a7-9117282ed9db",
-                    "path": "<Keyboard>/x",
+                    "path": "<Mouse>/middleButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad;Keyboard&Mouse",

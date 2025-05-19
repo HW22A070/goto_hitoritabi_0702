@@ -16,10 +16,13 @@ public class TitleC : MenuSystemC
     [SerializeField]
     private float _prologueFireTimeS = 20;
 
+    [SerializeField]
+    private WarningWindowC _goWindow;
+
     private new void Start()
     {
         base.Start();
-        _optionMax = 4;
+        _optionMax = 5;
 
         GameData.ClearTime = 0;
 
@@ -41,57 +44,112 @@ public class TitleC : MenuSystemC
     protected override void Option3() { StartCoroutine(DoOption(2)); }
     protected override void Option4() { StartCoroutine(DoOption(3)); }
     protected override void Option5() { StartCoroutine(DoOption(4)); }
+    protected override void Option6() { StartCoroutine(DoOption(5)); }
 
     private IEnumerator DoOption(int mode)
     {
         AsyncOperation asyncLoad;
-        if (mode == 0)
+        switch (mode)
         {
-            asyncLoad = SceneManager.LoadSceneAsync("Level");
-            asyncLoad.allowSceneActivation = false;
-            yield return new WaitForSeconds(1.0f);
-            asyncLoad.allowSceneActivation = true;
-            GameData.GoalRound = 30;
-            GameData.StartRound = 1;
+            case 0:
+                //キーボード数識別ができるまで強制true
+                if (CheckIsConnectController()||true)
+                {
+                    _audioSource.PlayOneShot(startS);
+
+                    asyncLoad = SceneManager.LoadSceneAsync("Level");
+                    asyncLoad.allowSceneActivation = false;
+                    yield return new WaitForSeconds(1.0f);
+
+                    GameData.GameMode = MODE_GAMEMODE.Normal;
+                    GameData.GoalRound = 30;
+                    GameData.StartRound = 1;
+
+                    //GameData.MultiPlayerCount = 1;
+
+                    asyncLoad.allowSceneActivation = true;
+                }
+                else
+                {
+                    _audioSource.PlayOneShot(faildS);
+                    _isStart = false;
+                    _goWindow.DoOpen(1.0f);
+                }
+                break;
+
+            case 1:
+                    _audioSource.PlayOneShot(startS);
+
+                    asyncLoad = SceneManager.LoadSceneAsync("StageSelect");
+                    GameData.GameMode = MODE_GAMEMODE.Normal;
+                //GameData.MultiPlayerCount = 1;
+                asyncLoad.allowSceneActivation = false;
+                    yield return new WaitForSeconds(1.0f);
+                    asyncLoad.allowSceneActivation = true;
+                break;
+
+            case 2:
+                _audioSource.PlayOneShot(startS);
+
+                /*
+                GameData.MultiPlayerCount = GetActiveControllerCount();
+                asyncLoad = SceneManager.LoadSceneAsync("Level");
+                asyncLoad.allowSceneActivation = false;
+                yield return new WaitForSeconds(1.0f);
+                asyncLoad.allowSceneActivation = true;
+                GameData.GameMode = MODE_GAMEMODE.MultiTower;
+                GameData.GoalRound = 30;
+                GameData.StartRound = 1;
+                */
+
+                yield return new WaitForSeconds(0.5f);
+                switch (GameData.MultiPlayerCount)
+                {
+                    case 1:
+                        GameData.MultiPlayerCount = 2;
+                        break;
+
+                    case 2:
+                        GameData.MultiPlayerCount = 1;
+                        break;
+                }
+                _isStart = false;
+                break;
+
+            case 3:
+                _audioSource.PlayOneShot(startS);
+
+                asyncLoad = SceneManager.LoadSceneAsync("Setumei");
+                asyncLoad.allowSceneActivation = false;
+                GameData.MultiPlayerCount = 1;
+                yield return new WaitForSeconds(1.0f);
+                GameData.GameMode = MODE_GAMEMODE.Normal;
+                GameData.Difficulty = 0;
+                GameData.GoalRound = 0;
+                GameData.StartRound = 0;
+                
+                asyncLoad.allowSceneActivation = true;
+                break;
+            
+            case 4:
+                _audioSource.PlayOneShot(startS);
+
+                yield return new WaitForSeconds(0.5f);
+                GameData.Language++;
+                if (GameData.Language > 2) GameData.Language = 0;
+                _isStart = false;
+                break;
+
+            case 5:
+                _audioSource.PlayOneShot(startS);
+
+                yield return new WaitForSeconds(1.0f);
+                Application.Quit();
+                break;
 
         }
-        else if (mode == 1)
-        {
-            asyncLoad = SceneManager.LoadSceneAsync("StageSelect");
-            asyncLoad.allowSceneActivation = false;
-            yield return new WaitForSeconds(1.0f);
-            asyncLoad.allowSceneActivation = true;
-
-        }
-        else if (mode == 2)
-        {
-            asyncLoad = SceneManager.LoadSceneAsync("Game");
-            asyncLoad.allowSceneActivation = false;
-            yield return new WaitForSeconds(1.0f);
-            GameData.Difficulty = 0;
-            GameData.Round = 0;
-            GameData.GoalRound = 0;
-            GameData.StartRound = 0;
-            asyncLoad.allowSceneActivation = true;
-
-
-        }
-        else if (mode == 3)
-        {
-            yield return new WaitForSeconds(0.5f);
-            GameData.Language++;
-            if (GameData.Language > 2) GameData.Language = 0;
-            _isStart = false;
-        }
-        else if (mode == 4)
-        {
-            yield return new WaitForSeconds(1.0f);
-            Application.Quit();
-        }
-
-
     }
-
+    
     public void OnEnd(InputAction.CallbackContext context)
     {
         if (context.performed && !_isStart)
@@ -101,4 +159,12 @@ public class TitleC : MenuSystemC
         }
     }
 
+    /// <summary>
+    /// 人数にコントローラーが足りているかチェック
+    /// </summary>
+    /// <returns></returns>
+    private bool CheckIsConnectController()
+    {
+        return GameData.GetActiveControllerCount() >= GameData.MultiPlayerCount;
+    }
 }

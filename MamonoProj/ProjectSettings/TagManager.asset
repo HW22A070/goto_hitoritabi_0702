@@ -18,6 +18,7 @@ TagManager:
   - MechaUnit
   - Text
   - Enemy2
+  - NeonCristal
   layers:
   - Default
   - TransparentFX

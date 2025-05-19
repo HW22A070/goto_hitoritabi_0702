@@ -5,16 +5,17 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 using EnumDic.System;
+using EnumDic.Stage;
 
 public class GameManagement : MonoBehaviour
 {
     [SerializeField, Header("Player")]
-    private GameObject _playerGO;
+    private PlayersManagerC _scPlsM;
 
     /// <summary>
     /// ラウンドごとの目標スコア
     /// </summary>
-    private float _roundGoal;
+    private int _roundGoal;
 
     /// <summary>
     /// 風演出用の塵の発射トリガー
@@ -24,36 +25,26 @@ public class GameManagement : MonoBehaviour
     /// <summary>
     /// スコア用バー
     /// </summary>
+    [SerializeField]
     private Slider _scoreBar;
 
     [SerializeField, Header("ラウンド表示")]
     private Text _nowRoundText;
 
-    /// <summary>
-    /// ラウンド
-    /// </summary>
-    private string[] _roundLang = new string[3] { "ラウンド", "ラウンド", "Round" };
-
-
     [SerializeField]
     [Header("現在のスコア表示")]
     private Text _scoreText;
 
-    /// <summary>
-    /// ポイント
-    /// </summary>
-    private string[] _pointLang = new string[3] { "ポイント", "ポイント", "Point" };
-
     [SerializeField, Header("スコアバー伸びるとこ")]
     private GameObject _scoreBarFill;
+
+    [SerializeField]
+    private RoundMeterC _scRoundMeter;
 
     /// <summary>
     /// ボス襲来
     /// </summary>
     private string[] _bossAttackLang = new string[3] { "ボス襲来！", "ボスしゅうらい！", "Boss Invasion!" };
-
-    [SerializeField, Header("風速表示")]
-    private Text _windSpeedText;
 
     [SerializeField, Header("経過時間表示")]
     private Text _timeText;
@@ -124,11 +115,18 @@ public class GameManagement : MonoBehaviour
 
     private float _timeBeforePouse;
 
+    private List<StageStates> _stagesStages=new List<StageStates> { };
+
+
+
     [Header("デバッグモードTF")]
     public bool isDebug;
 
     [SerializeField, Header("初期ラウンド（デバッグON限定）")]
     private int _debugRound = 1;
+
+    //[SerializeField, Header("ゲームモード（デバッグON限定）")]
+    private MODE_GAMEMODE _debugGamemode = MODE_GAMEMODE.Normal;
 
     [SerializeField, Header("難易度（デバッグON限定）")]
     private MODE_DIFFICULTY _debugDif;
@@ -136,9 +134,34 @@ public class GameManagement : MonoBehaviour
     [SerializeField, Header("無限エネルギー（デバッグON限定）")]
     private bool _isInfinityEnergyDenug;
 
+    private void Awake()
+    {
+        //DEBUG
+        if (isDebug)
+        {
+            if (_debugRound >= 0)
+            {
+                switch (GameData.GameMode)
+                {
+                    case MODE_GAMEMODE.Normal:
+                        GameData.Round = _debugRound;
+                        break;
+
+                    case MODE_GAMEMODE.MultiTower:
+                        GameData.Round = _debugRound + 100;
+                        break;
+                }
+            }
+            GameData.Difficulty = _debugDif;
+            GameData.GameMode = _debugGamemode;
+        }
+        if (GameData.Round > 30 && GameData.GameMode == 0) GameData.EX = 1;
+        else GameData.EX = 0;
+    }
 
     void Start()
     {
+        SetGameStage();
 
         //オーディオ系初期設定
         _audioGO = GameObject.Find("AudioManager").GetComponent<AudioSource>();
@@ -147,21 +170,15 @@ public class GameManagement : MonoBehaviour
         //画面サイズ設定
         Screen.SetResolution(GameData.FirstWidth, GameData.FirstWidth, true);
 
+        
+
         GameData.IsTimerMoving = true;
 
-        _nowRoundText.text = _roundLang[GameData.Language] + ": " + (GameData.Round - GameData.StartRound + 1).ToString();
+        _nowRoundText.text = (GameData.Round - GameData.StartRound + 1).ToString();
 
         GameData.PlayerMoveAble = 6;
         _scoreBarFill.GetComponent<Image>().color = Color.yellow;
 
-        _scoreBar = GameObject.Find("PointBar").GetComponent<Slider>();
-
-        
-
-        if (GameData.GameMode == 1)
-        {
-            GameData.Round = 101;
-        }
         GameData.RotationCamera = 0;
         GameData.WindSpeed = 0;
         GameData.IsInvincible = false;
@@ -170,51 +187,51 @@ public class GameManagement : MonoBehaviour
         //チュートリアル補正
         if (GameData.Round == 0) GameData.PlayerMoveAble = 0;
 
+        GameData.IsStageMovingAction = false;
 
-        //DEBUG
-        if (isDebug)
+        switch (GameData.GameMode)
         {
-            if (_debugRound >= 0)
-            {
-                if (GameData.GameMode == 0) GameData.Round = _debugRound;
-                else if (GameData.GameMode == 1) GameData.Round = _debugRound + 100;
-            }
-            GameData.Difficulty = _debugDif;
+            case MODE_GAMEMODE.Normal:
+                for (int i = 0; i < StageData.DataNormalStages.Length; i++)
+                {
+                    _stagesStages.Add(StageData.DataNormalStages[i]);
+                }
+                break;
+
+            case MODE_GAMEMODE.MultiTower:
+                for (int i = 0; i < StageData.DataMultiTowerStages.Length; i++)
+                {
+                    _stagesStages.Add(StageData.DataMultiTowerStages[i]);
+                }
+                break;
         }
 
-        if (GameData.Round > 30 && GameData.GameMode == 0) GameData.EX = 1;
-        else GameData.EX = 0;
+
+
+        BGMStart();
     }
 
     // Update is called once per frame
     void Update()
     {
+
         //ラウンド目標設定
-        _roundGoal = (1 + (int)GameData.Difficulty + GameData.Round);
-        if (GameData.Round % 5 == 0)
-        {
-            _roundGoal = 10000;
-            //チュートリアル補正
-            if (GameData.Round == 0) _scoreText.text = "Tutorial";
-        }
+        _roundGoal = _stagesStages[GameData.Round].score;
+        //マルチ補正
+        _roundGoal += (int)(_stagesStages[GameData.Round].score *0.7f * (GameData.MultiPlayerCount-1));
+
+        //チュートリアル補正
+        if (GameData.Round == 0) _scoreText.text = "Tutorial";
 
         //レベルアップ処理
         if (GameData.Point >= _roundGoal)
         {
-            LevelUp();
+            DoLevelUp();
         }
 
         //BossHP
         _scoreBar.value = GameData.Point / _roundGoal;
         _scoreIconSR.sprite = _scoreIconS;
-        if (GameData.IsBossFight)
-        {
-            //_bossHp.GetComponent<Image>().color = Color.blue+(Color.white/3);
-            //_scoreBar.value = _bossNowHp / _bossMaxHp;
-            //_bossHpText.text =/* "BOSS HP " + _bossName+" : " + */_bossNowHp.ToString() + " / " + _bossMaxHp.ToString();
-            //_scoreText.text =/* "BOSS HP " + _bossName+" : " + */_bossNowHp.ToString() + " / " + _bossMaxHp.ToString();
-            //_scoreIconSR.sprite = _bossIconS;
-        }
 
         //EX
         if (GameData.Round > 30 && GameData.GameMode == 0) GameData.EX = 1;
@@ -245,7 +262,6 @@ public class GameManagement : MonoBehaviour
         _windDustTimer += Time.deltaTime;
         if (GameData.WindSpeed != 0)
         {
-            _windSpeedText.text = "WindSpeed : " + GameData.WindSpeed.ToString();
             if (GameData.WindSpeed > 0)
             {
                 if (_windDustTimer >= 1 / GameData.WindSpeed)
@@ -269,11 +285,6 @@ public class GameManagement : MonoBehaviour
                 }
             }
         }
-        else _windSpeedText.text = " ";
-
-
-        //Death
-        if (_playerGO.GetComponent<PlayerC>().GetHP() <= 0) StartCoroutine(RigorMortis());
 
         //時間
         if (GameData.IsBossFight) GameData.IsTimerMoving = false;
@@ -284,38 +295,58 @@ public class GameManagement : MonoBehaviour
         //テキスト表示
         if (GameData.VirusBugEffectLevel ==EnumDic.Enemy.Virus.MODE_VIRUS.None)
         {
-            if (GameData.IsBossFight) _scoreText.text = _bossAttackLang[GameData.Language];
-            else _scoreText.text = _pointLang[GameData.Language] + " " + GameData.Point.ToString() + " / " + _roundGoal.ToString();
+            if (GameData.IsBossFight||_roundGoal==10000) _scoreText.text = _bossAttackLang[GameData.Language];
+            else _scoreText.text = GameData.Point.ToString() + " / " + _roundGoal.ToString();
 
             if (GameData.EX == 1) _nowRoundText.text = "Danger: " + (GameData.Round - 30).ToString() + " / 5";
-            else _nowRoundText.text = _roundLang[GameData.Language] + ": " + (GameData.Round - GameData.StartRound + 1) + " / " + (GameData.GoalRound - GameData.StartRound + 1).ToString();
+            else _nowRoundText.text = (GameData.Round - GameData.StartRound + 1).ToString() + " / " + (GameData.GoalRound - GameData.StartRound + 1).ToString();
 
             _timeText.text = GameData.ClearTime.ToString("N1");
         }
-
 
         //debug
         if (isDebug)
         {
             if (Input.GetKeyDown(KeyCode.K))
             {
-                GameData.TP += 1;
-                _playerGO.GetComponent<PlayerC>().SetHP(GameData.GetMaxHP());
+                foreach(GameObject player in _scPlsM.GetAlivePlayers())
+                {
+                    PlayerC playerC = player.GetComponent<PlayerC>();
+                    playerC.SetAddTPPlus1();
+                    playerC.SetHP(GameData.GetMaxHP());
+                }
             }
+
             if (Input.GetKeyDown(KeyCode.L))
             {
                 GameData.Point += 1000000000000;
-                _playerGO.GetComponent<PlayerC>().SetHP(GameData.GetMaxHP());
+                foreach (GameObject player in _scPlsM.GetAlivePlayers())
+                {
+                    player.GetComponent<PlayerC>().SetHP(GameData.GetMaxHP());
+                }
             }
-            _playerGO.gameObject.GetComponent<PlayerAttackC>().SetAllEnergyHeal();
+
+            if (_isInfinityEnergyDenug)
+            {
+                foreach (GameObject player in _scPlsM.GetAlivePlayers())
+                {
+                    player.gameObject.GetComponent<PlayerAttackC>().SetAllEnergyHeal();
+                }
+            }
         }
 
+    }
+
+    private void SetGameStage()
+    {
+        if (GameData.Round == 0) GameData.StageMode = KIND_STAGE.Tutorial;
+        else if (1 <= GameData.Round && GameData.Round <= 35) GameData.StageMode = (KIND_STAGE)((GameData.Round - 1) / 5);
     }
 
     /// <summary>
     /// レベルアップ
     /// </summary>
-    private void LevelUp()
+    private void DoLevelUp()
     {
         //最終クリアラウンド更新
         if (GameData.Round > GameData.LastCrearLound) GameData.LastCrearLound = GameData.Round;
@@ -326,6 +357,8 @@ public class GameManagement : MonoBehaviour
             SceneManager.LoadScene("Clear");
         }
         GameData.Round++;
+        SetGameStage();
+        _scRoundMeter.SetTileSpritesByRound();
 
         _audioGO.PlayOneShot(roundupS);
         GameData.RotationCamera = 0;
@@ -352,7 +385,7 @@ public class GameManagement : MonoBehaviour
     /// </summary>
     private void BGMStart()
     {
-        _bgmManager.ChangeAudio(GameData.GetRoundNumber(), false, 0.5f);
+        _bgmManager.ChangeAudio((int)GameData.StageMode, false, 0.5f);
     }
 
     /// <summary>
@@ -360,77 +393,49 @@ public class GameManagement : MonoBehaviour
     /// </summary>
     private void LevelUpEffects()
     {
-        Vector3 _posPlayer = _playerGO.transform.position;
-        Instantiate(_levUpArrowEf, _posPlayer + (transform.right * 200), transform.localRotation).EShot1(90, 5, 1.5f);
-        Instantiate(_levUpArrowEf, _posPlayer - (transform.right * 200), transform.localRotation).EShot1(90, 5, 1.5f);
-        Instantiate(_levUpArrowEf, new Vector3(_posPlayer.x, GameData.GetGroundPutY((int)(_posPlayer.y / 90) + 1, 48), 0), transform.localRotation).EShot1(90, 5, 1.5f);
-        Instantiate(_levUpArrowEf, new Vector3(_posPlayer.x, GameData.GetGroundPutY((int)(_posPlayer.y / 90) - 1, 48), 0), transform.localRotation).EShot1(90, 5, 1.5f);
+
+
+        Vector3 _posPlayer = _scPlsM.GetRandomAlivePlayer().transform.position;
+        Instantiate(_levUpArrowEf, _posPlayer + (transform.right * 200), transform.localRotation).ShotEXP(90, 5, 1.5f);
+        Instantiate(_levUpArrowEf, _posPlayer - (transform.right * 200), transform.localRotation).ShotEXP(90, 5, 1.5f);
+        Instantiate(_levUpArrowEf, new Vector3(_posPlayer.x, GameData.GetGroundPutY((int)(_posPlayer.y / 90) + 1, 48), 0), transform.localRotation).ShotEXP(90, 5, 1.5f);
+        Instantiate(_levUpArrowEf, new Vector3(_posPlayer.x, GameData.GetGroundPutY((int)(_posPlayer.y / 90) - 1, 48), 0), transform.localRotation).ShotEXP(90, 5, 1.5f);
+    }
+
+    public void SetDeadPlayer()
+    {
+        
+        StartCoroutine(DoRigorMortis(_scPlsM.GetAlivePlayersCount()<=0));
     }
 
     /// <summary>
     /// 死んだときの止まる演出
     /// </summary>
-    private IEnumerator RigorMortis()
+    private IEnumerator DoRigorMortis(bool isAllDead)
     {
-        TimeManager.ChangeTimeValue(0.2f);
-        GameData.PlayerMoveAble = 0;
+        if (isAllDead)
+        {
+            GameData.PlayerMoveAble = 0;
+        }
         _backGroundSR.sprite = _deadBackS;
+
+        TimeManager.ChangeTimeValue(0.2f);
         yield return new WaitForSeconds(0.2f);
         TimeManager.ChangeTimeValue(1.0f);
-        SceneManager.LoadScene("Dead");
 
-    }
-
-    /*
-    [UnityEditor.MenuItem("Edit/CaptureScreenshot")]
-    static void Capture()
-
-    {
-        ScreenCapture.CaptureScreenshot("screen" + ".png", 1);
-    }
-    */
-    /*
-    //Imput
-    public void OnPouse(InputAction.CallbackContext context)
-    {
-        //ポーズ処理
-        if (context.started)
+        if (isAllDead)
         {
-            GameData.Pouse = !GameData.Pouse;
-            _audioGO.PlayOneShot(pouseS);
-            if (GameData.Pouse)
+            _bgmManager.VolumefeedInOut(3f, 0f);
+
+            //敵キャラを帰らせる
+            foreach (GameObject enemy in GameObject.FindGameObjectsWithTag("Enemy"))
             {
-                _nowRoundText.text = _roundLang[GameData.Language]+": " + GameData.Round.ToString() + "\nPouse Mode";
-                GameData.PlayerMoveAble = 0;
-                _timeBeforePouse = Time.timeScale;
-                TimeManager.ChangeTimeValue(0.0f);
+                enemy.GetComponent<ECoreC>().SetLeave();
             }
-            else
-            {
-                _nowRoundText.text = _roundLang[GameData.Language] + ": " + GameData.Round.ToString();
-                GameData.PlayerMoveAble = 6;
-                TimeManager.ChangeTimeValue(_timeBeforePouse);
-            }
+
+            yield return new WaitForSeconds(3f);
+
+            SceneManager.LoadScene("Dead");
         }
     }
-    */
-    /*
-    public void OnEnd(InputAction.CallbackContext context)
-    {
-        if (context.performed)
-        {
-            Time.timeScale = 1.0f;
-            GameData.Round = 1;
-            GameData.HP = 20;
-            GameData.Boss = 0;
-            FloorManagerC.StageIce(100) = 0;
-            GameData.Star = false;
-            GameData.TP = 0;
-            GameData.Point = 0;
-            GameData.GameMode = 0;
-            GameData.ClearTime = 0;
-            SceneManager.LoadScene("Title");
-        }
-    }
-    */
 }

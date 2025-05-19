@@ -1,4 +1,5 @@
-﻿using EnumDic.System;
+﻿using EnumDic.Stage;
+using EnumDic.System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,7 @@ using UnityEngine;
 /// </summary>
 public class AudioControlC : MonoBehaviour
 {
+    [SerializeField]
     private AudioSource _asBGM;
 
     [SerializeField, Tooltip("つうじょうBGM")]
@@ -16,118 +18,126 @@ public class AudioControlC : MonoBehaviour
     [SerializeField, Tooltip("ボスBGM")]
     private AudioClip _bgmBossRazer, _bgmBossRuin, _bgmBossHurricane, _bgmBossSnow, _bgmBossVolcano, _bgmBossMetal;
 
+    [SerializeField, Header("マルチタワー")]
+    private AudioClip _multi, _multiBoss;
+
     [SerializeField, Header("特殊音楽")]
     private AudioClip V1, V2, V3, _tuto,_satsuriku,_satsurikuBoss;
 
     private bool _isStarted;
 
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        _asBGM = GetComponent<AudioSource>();
-    }
-
     // Update is called once per frame
     void Update()
     {
         _asBGM.pitch = Time.timeScale;
-        if (!_isStarted)
-        {
-            ChangeAudio(GameData.GetRoundNumber(), false, -1);
-            _isStarted = true;
-        }
     }
-    
+
 
     /// <summary>
     /// BGM管理
-    /// volume=ボリューム（-1で変更なし）
     /// </summary>
-    /// <param name="bgmValue"></param>
+    /// <param name="bgmValue">種類（-2で変更なし）</param>
+    /// <param name="isBoss"></param>
+    /// <param name="volume">ボリューム（-1で変更なし）</param>
     public void ChangeAudio(int bgmValue,bool isBoss,float volume)
     {
-        if (bgmValue != 0)
+        if (bgmValue != -2)
         {
-            if (GameData.Difficulty == MODE_DIFFICULTY.Berserker) bgmValue = 201;
-            if (isBoss) bgmValue += 10;
-
-            switch (bgmValue)
+            if (GameData.StageMode == KIND_STAGE.Tutorial)
             {
-                case -1:
-                    _asBGM.clip = _tuto;
-                    break;
-
-                case 1:
-                    _asBGM.clip = _bgmRazer;
-                    break;
-                case 2:
-                    _asBGM.clip = _bgmRuin;
-                    break;
-                case 3:
-                    _asBGM.clip = _bgmHurricane;
-                    break;
-                case 4:
-                    _asBGM.clip = _bgmSnow;
-                    break;
-                case 5:
-                    _asBGM.clip = _bgmVolcano;
-                    break;
-                case 6:
-                    _asBGM.clip = _bgmMetal;
-                    break;
-                case 7:
-                    _asBGM.clip = _bgmBug;
-                    break;
-
-                case 11:
-                    _asBGM.clip = _bgmBossRazer;
-                    break;
-                case 12:
-                    _asBGM.clip = _bgmBossRuin;
-                    break;
-                case 13:
-                    _asBGM.clip = _bgmBossHurricane;
-                    break;
-                case 14:
-                    _asBGM.clip = _bgmBossSnow;
-                    break;
-                case 15:
-                    _asBGM.clip = _bgmBossVolcano;
-                    break;
-                case 16:
-                    _asBGM.clip = _bgmBossMetal;
-                    break;
-
-                case 101:
-                    _asBGM.clip = V1;
-                    break;
-                case 102:
-                    _asBGM.clip = V2;
-                    break;
-                case 103:
-                    _asBGM.clip = V3;
-                    break;
-
-                case 200:
-                    _asBGM.clip = V1;
-                    break;
-                case 210:
-                    _asBGM.clip = V2;
-                    break;
-
-
-                case 201:
-                    _asBGM.clip = _satsuriku;
-                    break;
-                case 211:
-                    _asBGM.clip = _satsurikuBoss;
-                    break;
-
-                default:
-                    _asBGM.clip = null;
-                    break;
+                _asBGM.clip = _tuto;
             }
+            else
+            {
+                //さつりくモードであれば強制上書き
+                if (GameData.Difficulty == MODE_DIFFICULTY.Berserker)
+                {
+                    switch (bgmValue)
+                    {
+                        //ウィルスとチュートリアルは対象外
+                        case -1:
+                        case 101:
+                        case 102:
+                        case 103:
+                            break;
+
+                        default:
+                            bgmValue = 201;
+                            break;
+                    }
+                }
+
+                switch (bgmValue)
+                {
+                    case 101:
+                        _asBGM.clip = V1;
+                        break;
+                    case 102:
+                        _asBGM.clip = V2;
+                        break;
+                    case 103:
+                        _asBGM.clip = V3;
+                        break;
+
+                    case 201:
+                        _asBGM.clip = isBoss ? _satsurikuBoss : _satsuriku;
+                        break;
+
+                    default:
+                        switch (GameData.GameMode)
+                        {
+                            case MODE_GAMEMODE.Normal:
+                                switch (bgmValue)
+                                {
+                                    case 0:
+                                        _asBGM.clip = isBoss ? _bgmBossRazer : _bgmRazer;
+                                        break;
+                                    case 1:
+                                        _asBGM.clip = isBoss ? _bgmBossRuin : _bgmRuin;
+                                        break;
+                                    case 2:
+                                        _asBGM.clip = isBoss ? _bgmBossHurricane : _bgmHurricane;
+                                        break;
+                                    case 3:
+                                        _asBGM.clip = isBoss ? _bgmBossSnow : _bgmSnow;
+                                        break;
+                                    case 4:
+                                        _asBGM.clip = isBoss ? _bgmBossVolcano : _bgmVolcano;
+                                        break;
+                                    case 5:
+                                        _asBGM.clip = isBoss ? _bgmBossMetal : _bgmMetal;
+                                        break;
+                                    case 6:
+                                        _asBGM.clip = _bgmBug;
+                                        break;
+
+                                    default:
+                                        _asBGM.clip = null;
+                                        break;
+                                }
+                                break;
+
+                            case MODE_GAMEMODE.MultiTower:
+                                switch (bgmValue)
+                                {
+                                    case 5:
+                                        _asBGM.clip = isBoss ? _bgmBossMetal : _multi;
+                                        break;
+
+                                    case 6:
+                                        _asBGM.clip = _bgmBug;
+                                        break;
+
+                                    default:
+                                        _asBGM.clip = isBoss ? _multiBoss : _multi;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                }
+            }
+            
             _asBGM.Play();
         }
         if (volume >= 0)

@@ -54,13 +54,15 @@ public class DeadC : MenuSystemC
         LevelText.text = GameData.TextDifficulty[(int)GameData.Difficulty, GameData.Language];
 
         roundText2.text = "" + GameData.LastCrearLound.ToString();
-        if (GameData.GameMode == 1)
+
+        switch (GameData.GameMode)
         {
-            roundText2.text = "BOSS " + (GameData.LastCrearLound - 100).ToString();
-        }
-        else if (GameData.LastCrearLound >= 31)
-        {
-            roundText2.text = "D " + (GameData.LastCrearLound - 30).ToString();
+            case MODE_GAMEMODE.Normal:
+                if (GameData.LastCrearLound >= 31)
+                {
+                    roundText2.text = "D " + (GameData.LastCrearLound - 30).ToString();
+                }
+                break;
         }
 
         if (GameData.LastCrearLound <= 0)
@@ -70,17 +72,22 @@ public class DeadC : MenuSystemC
 
         if (!_isStart)
         {
-            if (GameData.GameMode == 1)
+            switch (GameData.GameMode)
             {
-                roundText.text = _textNowRound[GameData.Language] + ": BOSS" + (GameData.Round - 100).ToString();
-            }
-            else if (GameData.EX == 1)
-            {
-                roundText.text = _textNowRound[GameData.Language] + ": D " + (GameData.Round - 30).ToString();
-            }
-            else
-            {
-                roundText.text = _textNowRound[GameData.Language] + ": " + GameData.Round.ToString();
+                case MODE_GAMEMODE.Normal:
+                    if (GameData.EX == 1)
+                    {
+                        roundText.text = _textNowRound[GameData.Language] + ": D " + (GameData.Round - 30).ToString();
+                    }
+                    else
+                    {
+                        roundText.text = _textNowRound[GameData.Language] + ": " + (GameData.Round+1-GameData.StartRound).ToString();
+                    }
+                    break;
+
+                case MODE_GAMEMODE.MultiTower:
+                    roundText.text = _textNowRound[GameData.Language] + ": Floor " + GameData.Round.ToString();
+                    break;
             }
         }
     }
@@ -107,6 +114,8 @@ public class DeadC : MenuSystemC
 
     private IEnumerator DoOption()
     {
+        _audioSource.PlayOneShot(startS);
+
         if (_titleMode == 0)
         {
 
@@ -135,18 +144,20 @@ public class DeadC : MenuSystemC
 
             switch (GameData.GameMode)
             {
-                case 1:
-                    roundText.text = _textNewRound[GameData.Language] + ": BOSS " + (GameData.Round - 100).ToString();
+                case MODE_GAMEMODE.Normal:
+                    if (GameData.EX == 1)
+                    {
+                        roundText.text = _textNewRound[GameData.Language] + ": D " + (GameData.Round - 30).ToString();
+                    }
+                    else
+                    {
+                        roundText.text = _textNewRound[GameData.Language] + ": " + (GameData.Round+1 - GameData.StartRound).ToString();
+                    }
                     break;
-            }
 
-            if (GameData.EX == 1)
-            {
-                roundText.text = _textNewRound[GameData.Language] + ": D " + (GameData.Round - 30).ToString();
-            }
-            else
-            {
-                roundText.text = _textNewRound[GameData.Language] + ": " + GameData.Round.ToString();
+                case MODE_GAMEMODE.MultiTower:
+                    roundText.text = _textNewRound[GameData.Language] + ": Floor  " + GameData.Round.ToString();
+                    break;
             }
         }
 
@@ -181,7 +192,6 @@ public class DeadC : MenuSystemC
             GameData.IsBossFight = false;
             FloorManagerC.SetStageGimic(100, 0);
             GameData.IsInvincible = false;
-            GameData.TP = 0;
             GameData.Point = 0;
             GameData.WindSpeed = 0;
             GameData.VirusBugEffectLevel = 0;

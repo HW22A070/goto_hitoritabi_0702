@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4927264697378465536}
   - component: {fileID: 405116474066160691}
-  - component: {fileID: -5347161783125737763}
   - component: {fileID: 2646515708378483571}
   - component: {fileID: -832423734310013807}
   m_Layer: 8
@@ -74,7 +73,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1191421425
-  m_SortingLayer: 5
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 186d70864644bca4692f59164f69d85e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -87,26 +86,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &-5347161783125737763
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4969178731344290810}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 848c3c09004f3504fbc2d50d832f70ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _destroyToPM: 2
-  _right: 1
-  _left: 0
-  _up: 0
-  _down: 0
-  _palyerDelete: 0
-  _HitInvincible: 0.5
-  _attackPower: 3
 --- !u!114 &2646515708378483571
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -119,7 +98,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb37eea65e648e547ba4874a345cf879, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  geigeki: 0
+  _destroyToPM: 3
+  _right: 1
+  _left: 0
+  _up: 0
+  _down: 1
+  _palyerDelete: 0
+  _HitInvincible: 0.5
+  _attackPower: 3
+  geigeki: 1
   bombbarrier: 1
   bombsosai: 1
 --- !u!61 &-832423734310013807
@@ -165,5 +152,5 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 96, y: 96}
+  m_Size: {x: 64, y: 64}
   m_EdgeRadius: 0

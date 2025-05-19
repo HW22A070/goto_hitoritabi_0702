@@ -14,6 +14,12 @@ namespace EnumDic
             Assault,
             Berserker
         }
+
+        public enum MODE_GAMEMODE
+        {
+            Normal,
+            MultiTower
+        }
     }
 
     namespace Player
@@ -42,7 +48,7 @@ namespace EnumDic
         }
     }
 
-    namespace Floor
+    namespace Stage
     {
         /// <summary>
         /// 0=通常
@@ -61,6 +67,18 @@ namespace EnumDic
             PreNeedle,
             Needle
         }
+
+        public enum KIND_STAGE
+        {
+            Forest,
+            Ruins,
+            Mountain,
+            Flozen,
+            Volcano,
+            Factory,
+            Virus,
+            Tutorial
+        }
     }
 
     namespace Enemy
@@ -72,14 +90,16 @@ namespace EnumDic
         {
             ARMY,
             DRAWN,
+            LAMIA,
             TANK,
             FLYCANNON,
             TURRET,
             EEL,
-            LAMIA,
+            BEAMTURRET,
             FACE,
             SNOW,
             BEAST,
+            FIREBEAST,
             LAMPREY,
             FISH,
             CANNON,
@@ -87,8 +107,10 @@ namespace EnumDic
             CUBE,
 
             ARMY_EX,
-            Tank_Danger,
             LAMPREY_Mecha,
+            Tank_Danger,
+
+            ARMORFISH
 
         }
 
@@ -104,14 +126,16 @@ namespace EnumDic
             IceClione,
             Ifrit,
             MechaZombie,
-            MailVirus
+            MailVirus,
+            NeonDragon
         }
 
         public enum MODE_LIFE
         {
             Arrival,
             Fight,
-            Dead
+            Dead,
+            Leave
         }
 
         namespace Virus
@@ -151,6 +175,11 @@ public struct GunStates
     /// 短距離攻撃のクールタイム
     /// </summary>
     public float cooltimeDefault;
+
+    /// <summary>
+    /// 短距離攻撃SPのクールタイム
+    /// </summary>
+    public float cooltimeSPDefault;
 
     /// <summary>
     /// 現在のクールタイム
@@ -195,5 +224,10 @@ public struct StageStates
     /// クールタイム下限
     /// </summary>
     public float delayMax;
+
+    /// <summary>
+    /// 目標スコア
+    /// </summary>
+    public int score;
 
 }

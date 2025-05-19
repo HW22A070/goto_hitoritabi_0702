@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1434096323027230715}
   - component: {fileID: 4037767190051092624}
-  - component: {fileID: -4847342601752501617}
   - component: {fileID: -922636215049314943}
   - component: {fileID: -1554298636995628430}
   m_Layer: 8
@@ -87,26 +86,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &-4847342601752501617
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6413776155354993141}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 848c3c09004f3504fbc2d50d832f70ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _destroyToPM: 5
-  _right: 0
-  _left: 0
-  _up: 0
-  _down: 0
-  _palyerDelete: 0
-  _HitInvincible: 0.3
-  _attackPower: 1
 --- !u!114 &-922636215049314943
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -119,6 +98,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 439bc6cc88c2e73419f4d5a96d89bcbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _destroyToPM: 5
+  _right: 0
+  _left: 0
+  _up: 0
+  _down: 0
+  _palyerDelete: 0
+  _HitInvincible: 0.3
+  _attackPower: 1
 --- !u!61 &-1554298636995628430
 BoxCollider2D:
   m_ObjectHideFlags: 0

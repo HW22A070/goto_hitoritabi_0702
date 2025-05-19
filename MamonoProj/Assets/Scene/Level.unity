@@ -2202,6 +2202,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3905196262818877366, guid: f59ad719d37b04e4688e9bc35aee0824,
+        type: 3}
+      propertyPath: m_Text
+      value: "\u3051\u3063\u3066\u3044"
+      objectReference: {fileID: 0}
+    - target: {fileID: 5654399804500616241, guid: f59ad719d37b04e4688e9bc35aee0824,
+        type: 3}
+      propertyPath: _jp
+      value: "\u3051\u3063\u3066\u3044"
+      objectReference: {fileID: 0}
+    - target: {fileID: 5654399804500616241, guid: f59ad719d37b04e4688e9bc35aee0824,
+        type: 3}
+      propertyPath: _kids
+      value: "\u3051\u3063\u3066\u3044"
+      objectReference: {fileID: 0}
     - target: {fileID: 5960918325050713716, guid: f59ad719d37b04e4688e9bc35aee0824,
         type: 3}
       propertyPath: m_Name
